@@ -87,9 +87,8 @@ def ensure_production_accounts(db: Session):
             user.department = acc["department"]
             user.full_name = acc["full_name"]
             user.is_active = True
-            if email == "employee@smartfin.ai":
-                user.hashed_password = hash_password(DEFAULT_INITIAL_PASSWORD)
-                user.must_change_password = True
+            user.hashed_password = hash_password(DEFAULT_INITIAL_PASSWORD)
+            user.must_change_password = True
             db.flush()
 
         # Ensure matching employee profile
@@ -148,6 +147,8 @@ def purge_dummy_data(db: Session):
         if is_postgres:
             db.execute(text("""
                 TRUNCATE TABLE 
+                    reconciliation_results,
+                    reconciliation_jobs,
                     gst_records, 
                     tds_records, 
                     bank_transactions, 
@@ -159,10 +160,17 @@ def purge_dummy_data(db: Session):
                     attendances, 
                     tasks, 
                     documents, 
+                    mis_reports,
                     bank_accounts, 
                     vendors, 
                     customers 
                 CASCADE;
+            """))
+            db.execute(text("""
+                DELETE FROM audit_logs WHERE user_id NOT IN (SELECT id FROM users WHERE email IN ('pinal@smartfin.ai', 'nilesh@smartfin.ai', 'birju@smartfin.ai', 'employee@smartfin.ai'));
+            """))
+            db.execute(text("""
+                DELETE FROM notifications WHERE user_id NOT IN (SELECT id FROM users WHERE email IN ('pinal@smartfin.ai', 'nilesh@smartfin.ai', 'birju@smartfin.ai', 'employee@smartfin.ai'));
             """))
             db.execute(text("""
                 DELETE FROM employees WHERE email NOT IN ('pinal@smartfin.ai', 'nilesh@smartfin.ai', 'birju@smartfin.ai', 'employee@smartfin.ai');
@@ -202,11 +210,11 @@ def seed_database(db: Session = None):
         own_session = True
 
     try:
-        # First ensure all production accounts are provisioned
-        ensure_production_accounts(db)
-
         # Purge any dummy records so every operational value starts at 0
         purge_dummy_data(db)
+
+        # Ensure all 4 production accounts are provisioned
+        ensure_production_accounts(db)
 
     except Exception as e:
         db.rollback()
