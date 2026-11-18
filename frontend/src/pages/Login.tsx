@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Compass, ArrowRight, Lock, Mail, AlertCircle, CheckCircle2, ShieldCheck, KeyRound } from 'lucide-react';
+import { Compass, ArrowRight, Lock, Mail, AlertCircle, CheckCircle2, ShieldCheck, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const Login: React.FC = () => {
@@ -8,6 +8,8 @@ export const Login: React.FC = () => {
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   
   // Forgot / Reset states
   const [resetToken, setResetToken] = useState('');
@@ -24,7 +26,7 @@ export const Login: React.FC = () => {
     try {
       await login(email, password);
     } catch (err: any) {
-      setError(err.message || 'Authentication failed. Please verify credentials.');
+      setError(err.message || 'Invalid email or password.');
     }
   };
 
@@ -211,14 +213,33 @@ export const Login: React.FC = () => {
                 <div className="relative">
                   <Lock className="w-4 h-4 text-[#8B97A3] absolute left-3 top-3" />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-[3px] border border-[#C5CBD2] bg-white focus:outline-none focus:border-[#E65909] transition-colors"
+                    className="w-full pl-9 pr-10 py-2 text-xs rounded-[3px] border border-[#C5CBD2] bg-white focus:outline-none focus:border-[#E65909] transition-colors"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-2.5 text-[#8B97A3] hover:text-[#171E25]"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
+              </div>
+
+              <div className="flex items-center justify-between text-xs pt-1">
+                <label className="flex items-center space-x-2 cursor-pointer text-[#4A545D]">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="rounded-[2px] border-[#C5CBD2] text-[#E65909] focus:ring-[#E65909]"
+                  />
+                  <span className="font-mono text-[11px]">Remember this device</span>
+                </label>
               </div>
 
               <button

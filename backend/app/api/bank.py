@@ -5,7 +5,7 @@ from typing import List, Optional, Dict, Any
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_role, log_audit_event
 from app.models.all_models import BankAccount, BankTransaction, Payment, User
-from app.schemas.financial import BankAccountOut, BankTransactionOut
+from app.schemas.financial import BankAccountOut, BankAccountCreate, BankTransactionOut
 from app.services.reconciliation.bank_engine import BankReconciliationEngine
 from app.services.automation.excel_engine import ExcelAutomationEngine
 import pandas as pd
@@ -15,6 +15,25 @@ router = APIRouter(prefix="/bank", tags=["Bank Reconciliation"])
 @router.get("/accounts", response_model=List[BankAccountOut])
 def get_bank_accounts(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return db.query(BankAccount).all()
+
+@router.post("/accounts", response_model=BankAccountOut)
+def create_bank_account(
+    account_in: BankAccountCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin", "accountant"]))
+):
+    acc = BankAccount(**account_in.dict())
+    if not acc.current_balance:
+        acc.current_balance = acc.opening_balance
+    db.add(acc)
+    db.commit()
+    db.refresh(acc)
+    log_audit_event(db, current_user, "CREATE_BANK_ACCOUNT", "BankAccount", str(acc.id), {
+        "bank_name": acc.bank_name,
+        "account_number": acc.account_number,
+        "balance": acc.current_balance
+    })
+    return acc
 
 @router.get("/transactions", response_model=List[BankTransactionOut])
 def get_bank_transactions(

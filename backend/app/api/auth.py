@@ -22,7 +22,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
     if not user or not verify_password(request.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="Invalid email or password.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     if not user.is_active:
@@ -47,7 +47,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="Invalid email or password.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     user.last_login_at = datetime.utcnow()

@@ -107,12 +107,20 @@ export const api = {
 
   // Vendors & Customers
   getVendors: () => request<any[]>('/vendors/list'),
+  createVendor: (data: any) => request<any>('/vendors/create', { method: 'POST', body: JSON.stringify(data) }),
   reconcileVendor: (vendorId: number) => request<any>(`/vendors/${vendorId}/reconcile`),
   getVendorInvoices: (vendorId: number) => request<any[]>(`/vendors/${vendorId}/invoices`),
+  uploadVendorStatement: (vendorId: number, formData: FormData) =>
+    request<any>(`/vendors/${vendorId}/upload-statement`, { method: 'POST', body: formData }),
+  createVendorInvoice: (vendorId: number, data: any) =>
+    request<any>(`/vendors/${vendorId}/invoices`, { method: 'POST', body: JSON.stringify(data) }),
 
   getCustomers: () => request<any[]>('/customers/list'),
+  createCustomer: (data: any) => request<any>('/customers/create', { method: 'POST', body: JSON.stringify(data) }),
   reconcileCustomer: (customerId: number) => request<any>(`/customers/${customerId}/reconcile`),
   getCustomerInvoices: (customerId: number) => request<any[]>(`/customers/${customerId}/invoices`),
+  createCustomerInvoice: (customerId: number, data: any) =>
+    request<any>(`/customers/${customerId}/invoices`, { method: 'POST', body: JSON.stringify(data) }),
 
   // TDS / TCS
   getTDSRules: () => request<any>('/tds/rules'),
@@ -133,6 +141,8 @@ export const api = {
 
   // Bank Reconciliation
   getBankAccounts: () => request<any[]>('/bank/accounts'),
+  createBankAccount: (data: any) =>
+    request<any>('/bank/accounts', { method: 'POST', body: JSON.stringify(data) }),
   getBankTransactions: (accountId: number, status?: string) =>
     request<any[]>(`/bank/transactions?bank_account_id=${accountId}${status ? `&status=${status}` : ''}`),
   runBankReconciliation: (accountId: number, toleranceDays: number = 4) =>

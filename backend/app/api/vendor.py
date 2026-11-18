@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_role, log_audit_event
 from app.models.all_models import Vendor, Invoice, Payment, User
-from app.schemas.financial import VendorOut, VendorCreate, InvoiceOut
+from app.schemas.financial import VendorOut, VendorCreate, InvoiceOut, InvoiceCreate
 from app.services.reconciliation.vendor_engine import VendorReconciliationEngine
 from app.services.automation.excel_engine import ExcelAutomationEngine
 import pandas as pd
@@ -75,3 +75,50 @@ def get_vendor_invoices(
         Invoice.vendor_id == vendor_id,
         Invoice.invoice_type == "PURCHASE"
     ).order_by(Invoice.invoice_date.desc()).all()
+
+@router.post("/{vendor_id}/invoices", response_model=InvoiceOut)
+def create_vendor_invoice(
+    vendor_id: int,
+    invoice_in: InvoiceCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin", "accountant"]))
+):
+    vendor = db.query(Vendor).filter(Vendor.id == vendor_id).first()
+    if not vendor:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+
+    existing_inv = db.query(Invoice).filter(
+        Invoice.vendor_id == vendor_id,
+        Invoice.invoice_number == invoice_in.invoice_number
+    ).first()
+    if existing_inv:
+        raise HTTPException(status_code=400, detail="Invoice with this number already exists for this vendor")
+
+    inv = Invoice(
+        invoice_number=invoice_in.invoice_number,
+        invoice_type="PURCHASE",
+        vendor_id=vendor_id,
+        invoice_date=invoice_in.invoice_date,
+        due_date=invoice_in.due_date,
+        taxable_amount=invoice_in.taxable_amount,
+        cgst_amount=invoice_in.cgst_amount,
+        sgst_amount=invoice_in.sgst_amount,
+        igst_amount=invoice_in.igst_amount,
+        total_tax=invoice_in.total_tax,
+        total_amount=invoice_in.total_amount,
+        tds_deducted=invoice_in.tds_deducted,
+        paid_amount=invoice_in.paid_amount,
+        balance_due=invoice_in.balance_due or invoice_in.total_amount,
+        status=invoice_in.status or "UNPAID",
+        notes=invoice_in.notes
+    )
+    vendor.outstanding_balance += (inv.balance_due or inv.total_amount or 0.0)
+    db.add(inv)
+    db.commit()
+    db.refresh(inv)
+    log_audit_event(db, current_user, "CREATE_PURCHASE_INVOICE", "Invoice", str(inv.id), {
+        "vendor_id": vendor_id,
+        "invoice_number": inv.invoice_number,
+        "amount": inv.total_amount
+    })
+    return inv

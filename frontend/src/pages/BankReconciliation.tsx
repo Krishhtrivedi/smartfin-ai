@@ -9,7 +9,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Filter,
-  DollarSign
+  DollarSign,
+  Plus
 } from 'lucide-react';
 import { api } from '../services/api';
 import { BankAccount, BankTransaction } from '../types';
@@ -35,6 +36,16 @@ export const BankReconciliation: React.FC = () => {
   const [manualMatchModalOpen, setManualMatchModalOpen] = useState(false);
   const [targetTxn, setTargetTxn] = useState<BankTransaction | null>(null);
   const [paymentVoucherId, setPaymentVoucherId] = useState('');
+
+  // Add Account Modal
+  const [addAccountModalOpen, setAddAccountModalOpen] = useState(false);
+  const [bankName, setBankName] = useState('');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [accountType, setAccountType] = useState('CURRENT');
+  const [ifscCode, setIfscCode] = useState('');
+  const [branchName, setBranchName] = useState('');
+  const [openingBalance, setOpeningBalance] = useState('');
+  const [creatingAccount, setCreatingAccount] = useState(false);
 
   const fetchAccounts = async () => {
     setLoading(true);
@@ -125,6 +136,36 @@ export const BankReconciliation: React.FC = () => {
     }
   };
 
+  const handleCreateAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatingAccount(true);
+    try {
+      const bal = parseFloat(openingBalance) || 0.0;
+      const newAcc = await api.createBankAccount({
+        bank_name: bankName,
+        account_number: accountNumber,
+        account_type: accountType,
+        ifsc_code: ifscCode,
+        branch: branchName,
+        opening_balance: bal,
+        current_balance: bal,
+        currency: 'INR'
+      });
+      setAddAccountModalOpen(false);
+      setBankName('');
+      setAccountNumber('');
+      setIfscCode('');
+      setBranchName('');
+      setOpeningBalance('');
+      await fetchAccounts();
+      setSelectedAccountId(newAcc.id);
+    } catch (err: any) {
+      alert(`Error creating bank account: ${err.message}`);
+    } finally {
+      setCreatingAccount(false);
+    }
+  };
+
   const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
 
   return (
@@ -143,8 +184,17 @@ export const BankReconciliation: React.FC = () => {
 
         <div className="flex items-center space-x-2">
           <button
+            onClick={() => setAddAccountModalOpen(true)}
+            className="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-colors shadow-xs"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>+ Link Bank Account</span>
+          </button>
+
+          <button
             onClick={() => setUploadModalOpen(true)}
-            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-colors border border-slate-200"
+            disabled={!selectedAccountId}
+            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 disabled:opacity-50 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-colors border border-slate-200"
           >
             <Upload className="w-3.5 h-3.5" />
             <span>Import Statement</span>
@@ -169,8 +219,22 @@ export const BankReconciliation: React.FC = () => {
         </div>
       </div>
 
-      {/* Account Selector & Tolerance Control */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {accounts.length === 0 ? (
+        <div className="bg-white p-12 rounded-xl border border-slate-200 text-center font-mono text-xs">
+          <Landmark className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+          <p className="text-sm font-bold text-navy-950 font-display">No Bank Accounts Linked</p>
+          <p className="mt-1 text-slate-500">Liquid balance starts at ₹0. Link your corporate or current bank account to begin automated statement reconciliation.</p>
+          <button
+            onClick={() => setAddAccountModalOpen(true)}
+            className="mt-4 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-semibold inline-flex items-center text-xs"
+          >
+            <Plus className="w-3.5 h-3.5 mr-1.5" /> Link First Bank Account
+          </button>
+        </div>
+      ) : (
+        <>
+          {/* Account Selector & Tolerance Control */}
+          <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
           <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Select Bank Account:</span>
           <div className="flex items-center space-x-2">
@@ -334,6 +398,8 @@ export const BankReconciliation: React.FC = () => {
           </table>
         </div>
       </div>
+      </>
+      )}
 
       {/* Upload Statement Modal */}
       <Modal
@@ -411,6 +477,104 @@ export const BankReconciliation: React.FC = () => {
               className="px-4 py-2 bg-navy-900 hover:bg-navy-800 text-xs font-semibold text-white rounded-lg"
             >
               Confirm Match
+            </button>
+          </div>
+        </form>
+      </Modal>
+      {/* Add Bank Account Modal */}
+      <Modal
+        isOpen={addAccountModalOpen}
+        onClose={() => setAddAccountModalOpen(false)}
+        title="Link Bank Account"
+        subtitle="Configure a business bank account for feeds & BRS automation"
+      >
+        <form onSubmit={handleCreateAccount} className="space-y-3">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Bank Name *</label>
+            <input
+              type="text"
+              required
+              value={bankName}
+              onChange={(e) => setBankName(e.target.value)}
+              placeholder="e.g. HDFC Bank / ICICI Bank / SBI"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Account Number *</label>
+              <input
+                type="text"
+                required
+                value={accountNumber}
+                onChange={(e) => setAccountNumber(e.target.value)}
+                placeholder="50200012345678"
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">IFSC Code *</label>
+              <input
+                type="text"
+                required
+                value={ifscCode}
+                onChange={(e) => setIfscCode(e.target.value.toUpperCase())}
+                placeholder="HDFC0000060"
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Account Type</label>
+              <select
+                value={accountType}
+                onChange={(e) => setAccountType(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+              >
+                <option value="CURRENT">Current Account</option>
+                <option value="AUTO_SWEEP">Auto-Sweep Corporate</option>
+                <option value="SAVINGS">Savings Account</option>
+                <option value="OVERDRAFT">Overdraft / Cash Credit</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Branch</label>
+              <input
+                type="text"
+                value={branchName}
+                onChange={(e) => setBranchName(e.target.value)}
+                placeholder="e.g. Fort, Mumbai"
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Opening / Current Balance (₹)</label>
+            <input
+              type="number"
+              step="0.01"
+              value={openingBalance}
+              onChange={(e) => setOpeningBalance(e.target.value)}
+              placeholder="0.00"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+            />
+          </div>
+
+          <div className="flex justify-end space-x-2 pt-3 border-t">
+            <button
+              type="button"
+              onClick={() => setAddAccountModalOpen(false)}
+              className="px-4 py-2 border border-slate-200 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={creatingAccount}
+              className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-xs font-semibold text-white rounded-lg disabled:opacity-50"
+            >
+              {creatingAccount ? 'Linking...' : 'Link Bank Account'}
             </button>
           </div>
         </form>
