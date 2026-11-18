@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #F6F3EE;
+    color: #171E25;
+    font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Blueprint Grid Backgrounds matching Vichar Vimarsh styling */
+.blueprint-grid-navy {
+  background-color: #1A2F46;
+  background-image: 
+    linear-gradient(rgba(230, 236, 242, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(230, 236, 242, 0.035) 1px, transparent 1px);
+  background-size: 46px 46px;
+}
+
+.blueprint-grid-navy-deep {
+  background-color: #0D2035;
+  background-image: 
+    linear-gradient(rgba(230, 236, 242, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(230, 236, 242, 0.04) 1px, transparent 1px);
+  background-size: 46px 46px;
+}
+
+.blueprint-grid-paper {
+  background-color: #F6F3EE;
+  background-image: 
+    linear-gradient(rgba(26, 47, 70, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 47, 70, 0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Custom architectural button */
+.btn-signal {
+  background-color: #E65909;
+  color: #071727;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-weight: 600;
+  border-radius: 3px;
+  transition: all 0.16s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.btn-signal:hover {
+  background-color: #F96E31;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(230, 89, 9, 0.25);
+}
+
+/* Monospace technical eyebrow / spec tag */
+.spec-tag {
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #ECE9E3;
+}
+::-webkit-scrollbar-thumb {
+  background: #C5CBD2;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8B97A3;
+}
