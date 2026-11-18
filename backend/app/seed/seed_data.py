@@ -144,63 +144,67 @@ def purge_dummy_data(db: Session):
     if has_dummy:
         print("Purging dummy records to enforce 0 initial entries for live production...")
         is_postgres = not str(engine.url).startswith("sqlite")
-        if is_postgres:
-            db.execute(text("""
-                TRUNCATE TABLE 
-                    reconciliation_results,
-                    reconciliation_jobs,
-                    gst_records, 
-                    tds_records, 
-                    bank_transactions, 
-                    payments, 
-                    purchases, 
-                    sales, 
-                    invoices, 
-                    expenses, 
-                    attendances, 
-                    tasks, 
-                    documents, 
-                    mis_reports,
-                    bank_accounts, 
-                    vendors, 
-                    customers 
-                CASCADE;
-            """))
-            db.execute(text("""
-                DELETE FROM audit_logs WHERE user_id NOT IN (SELECT id FROM users WHERE email IN ('pinal@smartfin.ai', 'nilesh@smartfin.ai', 'birju@smartfin.ai', 'employee@smartfin.ai'));
-            """))
-            db.execute(text("""
-                DELETE FROM notifications WHERE user_id NOT IN (SELECT id FROM users WHERE email IN ('pinal@smartfin.ai', 'nilesh@smartfin.ai', 'birju@smartfin.ai', 'employee@smartfin.ai'));
-            """))
-            db.execute(text("""
-                DELETE FROM employees WHERE email NOT IN ('pinal@smartfin.ai', 'nilesh@smartfin.ai', 'birju@smartfin.ai', 'employee@smartfin.ai');
-            """))
-            db.execute(text("""
-                DELETE FROM users WHERE email NOT IN ('pinal@smartfin.ai', 'nilesh@smartfin.ai', 'birju@smartfin.ai', 'employee@smartfin.ai');
-            """))
-            db.commit()
-        else:
-            db.execute(text("PRAGMA foreign_keys = OFF;"))
-            db.query(GSTRecord).delete(synchronize_session=False)
-            db.query(TDSRecord).delete(synchronize_session=False)
-            db.query(BankTransaction).delete(synchronize_session=False)
-            db.query(Payment).delete(synchronize_session=False)
-            db.query(Purchase).delete(synchronize_session=False)
-            db.query(Sale).delete(synchronize_session=False)
-            db.query(Invoice).delete(synchronize_session=False)
-            db.query(Attendance).delete(synchronize_session=False)
-            db.query(Expense).delete(synchronize_session=False)
-            db.query(Task).delete(synchronize_session=False)
-            db.query(Document).delete(synchronize_session=False)
-            db.query(BankAccount).delete(synchronize_session=False)
-            db.query(Vendor).delete(synchronize_session=False)
-            db.query(Customer).delete(synchronize_session=False)
-            prod_emails = [a["email"] for a in PROD_ACCOUNTS]
-            db.query(Employee).filter(~Employee.email.in_(prod_emails)).delete(synchronize_session=False)
-            db.query(User).filter(~User.email.in_(prod_emails)).delete(synchronize_session=False)
-            db.execute(text("PRAGMA foreign_keys = ON;"))
-            db.commit()
-        print("Dummy records purged successfully. All starting financial values are 0.")
+        try:
+            if is_postgres:
+                db.execute(text("""
+                    TRUNCATE TABLE 
+                        audit_logs,
+                        notifications,
+                        excel_workflow_templates,
+                        reconciliation_results,
+                        reconciliation_jobs,
+                        gst_records, 
+                        tds_records, 
+                        bank_transactions, 
+                        payments, 
+                        purchases, 
+                        sales, 
+                        invoices, 
+                        expenses, 
+                        attendances, 
+                        tasks, 
+                        documents, 
+                        mis_reports,
+                        bank_accounts, 
+                        vendors, 
+                        customers 
+                    CASCADE;
+                """))
+                db.execute(text("""
+                    DELETE FROM employees WHERE email NOT IN ('pinal@smartfin.ai', 'nilesh@smartfin.ai', 'birju@smartfin.ai', 'employee@smartfin.ai');
+                """))
+                db.execute(text("""
+                    DELETE FROM users WHERE email NOT IN ('pinal@smartfin.ai', 'nilesh@smartfin.ai', 'birju@smartfin.ai', 'employee@smartfin.ai');
+                """))
+                db.commit()
+            else:
+                db.execute(text("PRAGMA foreign_keys = OFF;"))
+                db.query(AuditLog).delete(synchronize_session=False)
+                db.query(Notification).delete(synchronize_session=False)
+                db.query(ExcelWorkflowTemplate).delete(synchronize_session=False)
+                db.query(GSTRecord).delete(synchronize_session=False)
+                db.query(TDSRecord).delete(synchronize_session=False)
+                db.query(BankTransaction).delete(synchronize_session=False)
+                db.query(Payment).delete(synchronize_session=False)
+                db.query(Purchase).delete(synchronize_session=False)
+                db.query(Sale).delete(synchronize_session=False)
+                db.query(Invoice).delete(synchronize_session=False)
+                db.query(Attendance).delete(synchronize_session=False)
+                db.query(Expense).delete(synchronize_session=False)
+                db.query(Task).delete(synchronize_session=False)
+                db.query(Document).delete(synchronize_session=False)
+                db.query(BankAccount).delete(synchronize_session=False)
+                db.query(Vendor).delete(synchronize_session=False)
+                db.query(Customer).delete(synchronize_session=False)
+                prod_emails = [a["email"] for a in PROD_ACCOUNTS]
+                db.query(Employee).filter(~Employee.email.in_(prod_emails)).delete(synchronize_session=False)
+                db.query(User).filter(~User.email.in_(prod_emails)).delete(synchronize_session=False)
+                db.execute(text("PRAGMA foreign_keys = ON;"))
+                db.commit()
+            print("Dummy records purged successfully. All starting financial values are 0.")
+        except Exception as purge_err:
+            print(f"Purge error encountered: {purge_err}. Rolling back and continuing safely.")
+            db.rollback()
 
 def seed_database(db: Session = None):
     own_session = False
