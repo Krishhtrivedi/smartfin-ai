@@ -21,7 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenMobileMenu,
   onOpenAI,
 }) => {
-  const { user, quickLogin } = useAuth();
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -142,22 +142,12 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Right Action Icons & Profile */}
       <div className="flex items-center space-x-2 sm:space-x-3">
-        {/* Quick Role Switcher for seamless demo testing */}
-        <div className="hidden xl:flex items-center bg-[#ECE9E3] p-1 rounded-[3px] border border-[#C5CBD2]">
-          <span className="text-[10px] font-mono text-[#5D646C] uppercase px-1.5 font-semibold">Demo Role:</span>
-          {(['admin', 'accountant', 'manager', 'employee'] as const).map((r) => (
-            <button
-              key={r}
-              onClick={() => quickLogin(r)}
-              className={`text-xs font-sans px-2.5 py-1 rounded-[2px] font-medium capitalize transition-all ${
-                user?.role === r
-                  ? 'bg-[#1A2F46] text-white shadow-xs font-semibold'
-                  : 'text-[#4A545D] hover:text-[#171E25] hover:bg-white/80'
-              }`}
-            >
-              {r}
-            </button>
-          ))}
+        {/* Production System Org Badge */}
+        <div className="hidden xl:flex items-center bg-[#ECE9E3] px-2.5 py-1 rounded-[3px] border border-[#C5CBD2] space-x-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span className="text-[10px] font-mono text-[#1A2F46] font-bold uppercase tracking-wider">
+            SMARTFIN.AI // LIVE PRODUCTION
+          </span>
         </div>
 
         {/* Quick AI Assistant Trigger */}

@@ -164,3 +164,127 @@ def test_ai_finance_assistant():
         assert len(res_bank["sources"]) > 0
     finally:
         db.close()
+
+
+def test_production_admin_accounts():
+    for admin_email in ["pinal@smartfin.ai", "nilesh@smartfin.ai", "birju@smartfin.ai"]:
+        res = client.post("/api/v1/auth/login", json={
+            "email": admin_email,
+            "password": "SmartFin@2026!"
+        })
+        assert res.status_code == 200, f"Login failed for {admin_email}"
+        data = res.json()
+        assert "access_token" in data
+        assert data["user"]["role"] == "admin"
+        assert "must_change_password" in data["user"]
+
+def test_production_employee_account():
+    res = client.post("/api/v1/auth/login", json={
+        "email": "employee@smartfin.ai",
+        "password": "SmartFin@2026!"
+    })
+    assert res.status_code == 200
+    data = res.json()
+    assert "access_token" in data
+    assert data["user"]["role"] == "employee"
+
+def test_rbac_employee_forbidden_admin_routes():
+    # Login as employee
+    emp_login = client.post("/api/v1/auth/login", json={
+        "email": "employee@smartfin.ai",
+        "password": "SmartFin@2026!"
+    }).json()
+    emp_token = emp_login["access_token"]
+    headers = {"Authorization": f"Bearer {emp_token}"}
+
+    # Admin only route: GET /api/v1/auth/users
+    res_users = client.get("/api/v1/auth/users", headers=headers)
+    assert res_users.status_code == 403
+
+    # Admin only route: GET /api/v1/audit/logs
+    res_audit = client.get("/api/v1/audit/logs", headers=headers)
+    assert res_audit.status_code == 403
+
+def test_employee_personal_dashboard():
+    emp_login = client.post("/api/v1/auth/login", json={
+        "email": "employee@smartfin.ai",
+        "password": "SmartFin@2026!"
+    }).json()
+    headers = {"Authorization": f"Bearer {emp_login['access_token']}"}
+
+    res = client.get("/api/v1/dashboard/employee", headers=headers)
+    assert res.status_code == 200
+    data = res.json()
+    assert "profile" in data
+    assert data["profile"]["email"] == "employee@smartfin.ai"
+    assert "stats" in data
+    assert "tasks" in data
+    assert "expenses" in data
+    assert "attendance" in data
+
+def test_password_change_flow():
+    # Login as birju
+    login_res = client.post("/api/v1/auth/login", json={
+        "email": "birju@smartfin.ai",
+        "password": "SmartFin@2026!"
+    }).json()
+    headers = {"Authorization": f"Bearer {login_res['access_token']}"}
+
+    # Change password
+    change_res = client.post("/api/v1/auth/change-password", headers=headers, json={
+        "old_password": "SmartFin@2026!",
+        "new_password": "Birju@Secure2026#"
+    })
+    assert change_res.status_code == 200
+
+    # Old password should now fail
+    fail_res = client.post("/api/v1/auth/login", json={
+        "email": "birju@smartfin.ai",
+        "password": "SmartFin@2026!"
+    })
+    assert fail_res.status_code == 401
+
+    # New password should succeed
+    succ_res = client.post("/api/v1/auth/login", json={
+        "email": "birju@smartfin.ai",
+        "password": "Birju@Secure2026#"
+    })
+    assert succ_res.status_code == 200
+    assert succ_res.json()["user"]["must_change_password"] is False
+
+    # Reset back for clean testing state
+    client.post("/api/v1/auth/change-password", headers={"Authorization": f"Bearer {succ_res.json()['access_token']}"}, json={
+        "old_password": "Birju@Secure2026#",
+        "new_password": "SmartFin@2026!"
+    })
+
+def test_forgot_and_reset_password_flow():
+    # Request forgot password token
+    forgot_res = client.post("/api/v1/auth/forgot-password", json={
+        "email": "pinal@smartfin.ai"
+    })
+    assert forgot_res.status_code == 200
+    token = forgot_res.json()["reset_token"]
+    assert token is not None
+
+    # Reset password using token
+    reset_res = client.post("/api/v1/auth/reset-password", json={
+        "email": "pinal@smartfin.ai",
+        "token": token,
+        "new_password": "Pinal@NewSecret2026!"
+    })
+    assert reset_res.status_code == 200
+
+    # Verify login with new password
+    succ_res = client.post("/api/v1/auth/login", json={
+        "email": "pinal@smartfin.ai",
+        "password": "Pinal@NewSecret2026!"
+    })
+    assert succ_res.status_code == 200
+
+    # Reset back for consistency
+    headers = {"Authorization": f"Bearer {succ_res.json()['access_token']}"}
+    client.post("/api/v1/auth/change-password", headers=headers, json={
+        "old_password": "Pinal@NewSecret2026!",
+        "new_password": "SmartFin@2026!"
+    })

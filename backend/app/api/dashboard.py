@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, date, timedelta
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_role
 from app.models.all_models import (
-    User, Invoice, Payment, BankAccount, BankTransaction,
-    GSTRecord, TDSRecord, Vendor, Customer, Expense, AuditLog
+    User, Employee, Invoice, Payment, BankAccount, BankTransaction,
+    GSTRecord, TDSRecord, Vendor, Customer, Expense, Task, Attendance,
+    AuditLog, Notification
 )
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
@@ -18,23 +19,23 @@ def get_dashboard_summary(
     current_user: User = Depends(get_current_user)
 ) -> Dict[str, Any]:
     """
-    Computes all Financial KPIs and dashboard widgets strictly from active database records.
+    Computes all Financial & Operational KPIs strictly from actual database records.
     """
     # 1. Sales & Purchases
     sales_invoices = db.query(Invoice).filter(Invoice.invoice_type == "SALES").all()
     purchase_invoices = db.query(Invoice).filter(Invoice.invoice_type == "PURCHASE").all()
 
-    total_sales_taxable = sum(i.taxable_amount for i in sales_invoices)
-    total_sales_gross = sum(i.total_amount for i in sales_invoices)
-    total_output_gst = sum(i.total_tax for i in sales_invoices)
+    total_sales_taxable = sum(i.taxable_amount or 0.0 for i in sales_invoices)
+    total_sales_gross = sum(i.total_amount or 0.0 for i in sales_invoices)
+    total_output_gst = sum(i.total_tax or 0.0 for i in sales_invoices)
 
-    total_purchases_taxable = sum(i.taxable_amount for i in purchase_invoices)
-    total_purchases_gross = sum(i.total_amount for i in purchase_invoices)
-    total_input_gst = sum(i.total_tax for i in purchase_invoices)
+    total_purchases_taxable = sum(i.taxable_amount or 0.0 for i in purchase_invoices)
+    total_purchases_gross = sum(i.total_amount or 0.0 for i in purchase_invoices)
+    total_input_gst = sum(i.total_tax or 0.0 for i in purchase_invoices)
 
     # 2. Expenses
     expenses = db.query(Expense).all()
-    total_expenses = sum(e.amount for e in expenses)
+    total_expenses = sum(e.amount or 0.0 for e in expenses)
 
     # 3. Profit & Loss
     gross_profit = total_sales_taxable - total_purchases_taxable
@@ -42,34 +43,58 @@ def get_dashboard_summary(
 
     # 4. Bank Balances
     bank_accounts = db.query(BankAccount).all()
-    total_bank_balance = sum(b.current_balance for b in bank_accounts)
+    total_bank_balance = sum(b.current_balance or 0.0 for b in bank_accounts)
 
     # 5. Vendor & Customer Outstanding
     vendors = db.query(Vendor).all()
     customers = db.query(Customer).all()
-    total_vendor_outstanding = sum(v.outstanding_balance for v in vendors)
-    total_customer_outstanding = sum(c.outstanding_balance for c in customers)
+    total_vendor_outstanding = sum(v.outstanding_balance or 0.0 for v in vendors)
+    total_customer_outstanding = sum(c.outstanding_balance or 0.0 for c in customers)
 
     # 6. TDS Summary
     tds_records = db.query(TDSRecord).all()
-    tds_expected = sum(t.expected_tds for t in tds_records)
-    tds_actual = sum(t.actual_deducted for t in tds_records)
+    tds_expected = sum(t.expected_tds or 0.0 for t in tds_records)
+    tds_actual = sum(t.actual_deducted or 0.0 for t in tds_records)
     tds_shortfall = max(0.0, tds_expected - tds_actual)
-    tds_deposited = sum(t.actual_deducted for t in tds_records if t.status in ["DEPOSITED", "FILING_READY"])
+    tds_deposited = sum(t.actual_deducted or 0.0 for t in tds_records if t.status in ["DEPOSITED", "FILING_READY"])
 
-    # 7. Monthly Trends (Dynamic monthly grouping from actual invoices and expenses)
-    # Group by month string (e.g. "Sep 2026", "Oct 2026", "Nov 2026")
-    monthly_data = {
-        "Sep 2026": {"month": "Sep 2026", "sales": 850000.0, "purchases": 510000.0, "expenses": 72000.0, "profit": 268000.0},
-        "Oct 2026": {"month": "Oct 2026", "sales": 1120000.0, "purchases": 680000.0, "expenses": 89000.0, "profit": 351000.0},
-        "Nov 2026": {"month": "Nov 2026", "sales": round(total_sales_taxable, 2), "purchases": round(total_purchases_taxable, 2), "expenses": round(total_expenses, 2), "profit": round(net_profit, 2)}
-    }
+    # 7. Actual Monthly Trends from Database Records (No hardcoded months)
+    monthly_data: Dict[str, Dict[str, Any]] = {}
+    
+    for inv in sales_invoices:
+        if inv.invoice_date:
+            m_key = inv.invoice_date.strftime("%b %Y")
+            if m_key not in monthly_data:
+                monthly_data[m_key] = {"month": m_key, "sales": 0.0, "purchases": 0.0, "expenses": 0.0, "profit": 0.0}
+            monthly_data[m_key]["sales"] += (inv.taxable_amount or 0.0)
+
+    for inv in purchase_invoices:
+        if inv.invoice_date:
+            m_key = inv.invoice_date.strftime("%b %Y")
+            if m_key not in monthly_data:
+                monthly_data[m_key] = {"month": m_key, "sales": 0.0, "purchases": 0.0, "expenses": 0.0, "profit": 0.0}
+            monthly_data[m_key]["purchases"] += (inv.taxable_amount or 0.0)
+
+    for exp in expenses:
+        if exp.expense_date:
+            m_key = exp.expense_date.strftime("%b %Y")
+            if m_key not in monthly_data:
+                monthly_data[m_key] = {"month": m_key, "sales": 0.0, "purchases": 0.0, "expenses": 0.0, "profit": 0.0}
+            monthly_data[m_key]["expenses"] += (exp.amount or 0.0)
+
+    for m_key, item in monthly_data.items():
+        item["sales"] = round(item["sales"], 2)
+        item["purchases"] = round(item["purchases"], 2)
+        item["expenses"] = round(item["expenses"], 2)
+        item["profit"] = round(item["sales"] - item["purchases"] - item["expenses"], 2)
+
     monthly_trends = list(monthly_data.values())
 
-    # 8. Expense Breakdown by Category
-    cat_totals = {}
+    # 8. Expense Breakdown by Category strictly from actual database records
+    cat_totals: Dict[str, float] = {}
     for e in expenses:
-        cat_totals[e.category] = cat_totals.get(e.category, 0.0) + e.amount
+        cat = e.category or "General"
+        cat_totals[cat] = cat_totals.get(cat, 0.0) + (e.amount or 0.0)
 
     expense_breakdown = [
         {
@@ -112,9 +137,8 @@ def get_dashboard_summary(
         "partial": sum(1 for i in sales_invoices if i.status == "PARTIAL")
     }
 
-    # 12. Pending Approvals
+    # 12. Actual Pending Approvals
     pending_approvals = []
-    # Pending Expenses
     pending_expenses = db.query(Expense).filter(Expense.status == "PENDING").all()
     for pe in pending_expenses:
         emp_name = f"{pe.employee.first_name} {pe.employee.last_name}" if pe.employee else "Employee"
@@ -127,11 +151,10 @@ def get_dashboard_summary(
             "date": str(pe.expense_date)
         })
 
-    # Pending GST Discrepancies
     unverified_gst = db.query(GSTRecord).filter(
         GSTRecord.match_status.in_(["MISSING_IN_GSTR2B", "TAX_MISMATCH"]),
         GSTRecord.verified_at == None
-    ).limit(3).all()
+    ).limit(5).all()
     for g in unverified_gst:
         pending_approvals.append({
             "id": g.id,
@@ -142,7 +165,7 @@ def get_dashboard_summary(
             "date": str(g.invoice_date)
         })
 
-    # 13. Recent Activities
+    # 13. Recent Activities from AuditLog
     recent_logs = db.query(AuditLog).order_by(AuditLog.created_at.desc()).limit(8).all()
     recent_activities = [
         {
@@ -154,6 +177,17 @@ def get_dashboard_summary(
         }
         for log in recent_logs
     ]
+
+    # 14. Organisational Totals
+    employee_count = db.query(Employee).filter(Employee.is_active == True).count()
+    active_users_count = db.query(User).filter(User.is_active == True).count()
+    total_organisational_records = (
+        db.query(Invoice).count() +
+        db.query(Payment).count() +
+        db.query(BankTransaction).count() +
+        db.query(GSTRecord).count() +
+        db.query(TDSRecord).count()
+    )
 
     return {
         "kpis": {
@@ -173,7 +207,11 @@ def get_dashboard_summary(
             "customer_outstanding": round(total_customer_outstanding, 2),
             "monthly_expenses": round(total_expenses, 2),
             "net_profit": round(net_profit, 2),
-            "invoices_pending_count": sum(1 for i in purchase_invoices if i.status == "UNPAID")
+            "invoices_pending_count": sum(1 for i in purchase_invoices if i.status == "UNPAID"),
+            "employee_count": employee_count,
+            "active_users_count": active_users_count,
+            "total_organisational_records": total_organisational_records,
+            "completed_activities_count": db.query(AuditLog).count()
         },
         "monthly_trends": monthly_trends,
         "expense_breakdown": expense_breakdown,
@@ -183,4 +221,109 @@ def get_dashboard_summary(
         "customer_collection_status": customer_collection_status,
         "pending_approvals": pending_approvals,
         "recent_activities": recent_activities
+    }
+
+@router.get("/employee")
+def get_employee_dashboard(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+) -> Dict[str, Any]:
+    """
+    Returns actual personal employee dashboard: personal tasks, personal attendance,
+    submitted expenses, and assigned resources.
+    """
+    employee = db.query(Employee).filter(Employee.user_id == current_user.id).first()
+    if not employee:
+        # Fallback by email
+        employee = db.query(Employee).filter(Employee.email == current_user.email).first()
+
+    emp_id = employee.id if employee else None
+
+    # 1. Personal Tasks
+    tasks = db.query(Task).filter(Task.assigned_to_employee_id == emp_id).order_by(Task.due_date.asc()).all() if emp_id else []
+    
+    # 2. Personal Expenses
+    expenses = db.query(Expense).filter(Expense.employee_id == emp_id).order_by(Expense.expense_date.desc()).limit(10).all() if emp_id else []
+
+    # 3. Personal Attendance (current month)
+    attendances = db.query(Attendance).filter(Attendance.employee_id == emp_id).order_by(Attendance.date.desc()).limit(15).all() if emp_id else []
+
+    # 4. Personal Notifications
+    notifications = db.query(Notification).filter(Notification.user_id == current_user.id).order_by(Notification.created_at.desc()).limit(10).all()
+
+    # 5. Personal Statistics
+    total_tasks = len(tasks)
+    pending_tasks = sum(1 for t in tasks if t.status in ["PENDING", "IN_PROGRESS"])
+    completed_tasks = sum(1 for t in tasks if t.status == "COMPLETED")
+    
+    total_expenses_claimed = sum(e.amount or 0.0 for e in expenses)
+    total_expenses_approved = sum(e.amount or 0.0 for e in expenses if e.status == "APPROVED")
+    pending_expenses_count = sum(1 for e in expenses if e.status == "PENDING")
+
+    days_present = sum(1 for a in attendances if a.status == "PRESENT")
+
+    return {
+        "profile": {
+            "name": current_user.full_name,
+            "email": current_user.email,
+            "role": current_user.role,
+            "department": current_user.department,
+            "employee_code": employee.employee_code if employee else "N/A",
+            "designation": employee.designation if employee else "Staff Member",
+            "phone": employee.phone if employee else "N/A",
+            "joining_date": str(employee.joining_date) if employee and employee.joining_date else "N/A"
+        },
+        "stats": {
+            "total_tasks": total_tasks,
+            "pending_tasks": pending_tasks,
+            "completed_tasks": completed_tasks,
+            "total_expenses_claimed": round(total_expenses_claimed, 2),
+            "total_expenses_approved": round(total_expenses_approved, 2),
+            "pending_expenses_count": pending_expenses_count,
+            "days_present_recent": days_present
+        },
+        "tasks": [
+            {
+                "id": t.id,
+                "title": t.title,
+                "description": t.description,
+                "priority": t.priority,
+                "status": t.status,
+                "due_date": str(t.due_date) if t.due_date else None
+            }
+            for t in tasks
+        ],
+        "expenses": [
+            {
+                "id": e.id,
+                "title": e.title,
+                "category": e.category,
+                "amount": e.amount,
+                "date": str(e.expense_date),
+                "status": e.status
+            }
+            for e in expenses
+        ],
+        "attendance": [
+            {
+                "id": a.id,
+                "date": str(a.date),
+                "status": a.status,
+                "check_in": a.check_in,
+                "check_out": a.check_out,
+                "work_hours": a.total_hours
+            }
+            for a in attendances
+        ],
+        "notifications": [
+            {
+                "id": n.id,
+                "title": n.title,
+                "message": n.message,
+                "type": n.notification_type,
+                "is_read": n.is_read,
+                "date": n.created_at.strftime("%d %b %Y, %I:%M %p")
+            }
+            for n in notifications
+        ]
     }

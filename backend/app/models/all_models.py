@@ -10,9 +10,13 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
     full_name = Column(String(255), nullable=False)
-    role = Column(String(50), default="accountant", nullable=False) # admin, accountant, manager, employee
-    department = Column(String(100), default="Finance")
+    role = Column(String(50), default="employee", nullable=False) # admin, employee, manager, accountant
+    department = Column(String(100), default="Operations")
     is_active = Column(Boolean, default=True)
+    must_change_password = Column(Boolean, default=False)
+    reset_token = Column(String(255), nullable=True)
+    reset_token_expires_at = Column(DateTime, nullable=True)
+    last_login_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

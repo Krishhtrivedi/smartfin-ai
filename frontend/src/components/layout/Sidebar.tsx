@@ -44,6 +44,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onClose,
 }) => {
   const { user, logout } = useAuth();
+  const isAdmin = user?.role === 'admin';
 
   const navItems: Array<{
     id: NavigationTab;
@@ -53,21 +54,88 @@ export const Sidebar: React.FC<SidebarProps> = ({
     roles?: string[];
     badge?: string;
   }> = [
-    { id: 'dashboard', label: 'Executive Dashboard', code: '00', icon: LayoutDashboard },
-    { id: 'gst', label: 'GST 2B Reconciliation', code: '01', icon: Receipt, badge: 'Auto-Match' },
-    { id: 'vendor', label: 'Vendor Ledgers & Aging', code: '02', icon: Building2 },
-    { id: 'customer', label: 'Customer Receivables', code: '03', icon: Users2 },
-    { id: 'tds', label: 'TDS/TCS 26Q Compliance', code: '04', icon: FileSpreadsheet },
-    { id: 'bank', label: 'Bank BRS Statement', code: '05', icon: Landmark, badge: 'BRS' },
-    { id: 'office', label: 'Office & HR Operations', code: '06', icon: Briefcase },
-    { id: 'excel', label: 'Excel Workflow Engine', code: '07', icon: FileCode2, badge: 'Engine' },
-    { id: 'mis', label: 'MIS Management Reports', code: '08', icon: BarChart3 },
-    { id: 'ai', label: 'AI Finance Assistant', code: '09', icon: Bot, badge: 'AI' },
-    { id: 'audit', label: 'Audit Trail & RBAC', code: '10', icon: ShieldCheck, roles: ['admin', 'manager'] },
+    { 
+      id: 'dashboard', 
+      label: isAdmin ? 'Executive Dashboard' : 'My Workplace Dashboard', 
+      code: '00', 
+      icon: LayoutDashboard 
+    },
+    { 
+      id: 'gst', 
+      label: 'GST 2B Reconciliation', 
+      code: '01', 
+      icon: Receipt, 
+      badge: 'Admin',
+      roles: ['admin'] 
+    },
+    { 
+      id: 'vendor', 
+      label: 'Vendor Ledgers & Aging', 
+      code: '02', 
+      icon: Building2 
+    },
+    { 
+      id: 'customer', 
+      label: 'Customer Receivables', 
+      code: '03', 
+      icon: Users2 
+    },
+    { 
+      id: 'tds', 
+      label: 'TDS/TCS 26Q Compliance', 
+      code: '04', 
+      icon: FileSpreadsheet,
+      badge: 'Admin',
+      roles: ['admin'] 
+    },
+    { 
+      id: 'bank', 
+      label: 'Bank BRS Statement', 
+      code: '05', 
+      icon: Landmark, 
+      badge: 'Admin',
+      roles: ['admin'] 
+    },
+    { 
+      id: 'office', 
+      label: 'Office & HR Operations', 
+      code: '06', 
+      icon: Briefcase 
+    },
+    { 
+      id: 'excel', 
+      label: 'Excel Workflow Engine', 
+      code: '07', 
+      icon: FileCode2, 
+      badge: 'Admin',
+      roles: ['admin'] 
+    },
+    { 
+      id: 'mis', 
+      label: 'MIS Management Reports', 
+      code: '08', 
+      icon: BarChart3,
+      badge: 'Admin',
+      roles: ['admin'] 
+    },
+    { 
+      id: 'ai', 
+      label: 'AI Finance Assistant', 
+      code: '09', 
+      icon: Bot, 
+      badge: 'AI' 
+    },
+    { 
+      id: 'audit', 
+      label: 'Audit Trail & RBAC', 
+      code: '10', 
+      icon: ShieldCheck, 
+      roles: ['admin'] 
+    },
   ];
 
   const allowedItems = navItems.filter(
-    (item) => !item.roles || (user && item.roles.includes(user.role))
+    (item) => !item.roles || isAdmin || (user && item.roles.includes(user.role))
   );
 
   return (
@@ -88,7 +156,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Brand Header */}
         <div className="h-20 flex flex-col justify-center px-5 border-b border-[#364452] bg-[#1A2F46]/85 backdrop-blur-md">
           <div className="flex items-center space-x-3">
-            {/* Vichar Vimarsh Emblem */}
             <div className="w-10 h-10 rounded-[4px] bg-[#0D2035] border border-[#E65909]/60 flex items-center justify-center flex-shrink-0 shadow-md relative overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-br from-[#E65909]/20 to-transparent"></div>
               <Compass className="w-5 h-5 text-[#E65909] transform transition-transform group-hover:rotate-45" />
@@ -97,14 +164,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="overflow-hidden">
               <div className="flex items-center space-x-1.5">
                 <span className="font-display font-extrabold text-white text-base tracking-tight uppercase">
-                  Vichar Vimarsh
+                  SMARTFIN.AI
                 </span>
                 <span className="text-[9px] font-mono font-semibold bg-[#E65909] text-white px-1.5 py-0.2 rounded-sm uppercase tracking-wider">
-                  AI
+                  ERP
                 </span>
               </div>
               <p className="text-[11px] font-mono text-[#8B97A3] tracking-wider uppercase truncate">
-                SmartFin · Automation
+                Finance & Office Automation
               </p>
             </div>
           </div>
@@ -113,10 +180,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Eyebrow System Label */}
         <div className="px-5 pt-3 pb-1.5 flex items-center justify-between border-b border-[#364452]/40 bg-[#0D2035]/60">
           <span className="text-[10px] font-mono text-[#8B97A3] tracking-widest uppercase">
-            V—V / SYSTEMS BY DESIGN
+            ORGANISATIONAL SYSTEM
           </span>
-          <span className="text-[9px] font-mono text-[#F86927] font-semibold">
-            EST. 2026
+          <span className="text-[9px] font-mono text-[#F86927] font-semibold uppercase">
+            {user?.role || 'SECURE'}
           </span>
         </div>
 
@@ -169,18 +236,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           })}
         </nav>
 
-        {/* Credo & Organization Footer */}
+        {/* User Card & Logout */}
         <div className="p-3 border-t border-[#364452] bg-[#091522]/90 space-y-2.5">
-          <div className="px-2 py-1.5 rounded-[3px] bg-[#1A2F46]/60 border border-[#364452]">
-            <p className="text-[10px] font-mono text-[#F86927] uppercase tracking-wider font-semibold">
-              Think. Act. Achieve.
-            </p>
-            <p className="text-[10px] text-[#8B97A3] leading-snug mt-0.5">
-              Ahmedabad · Powered by Quick HR Solution
-            </p>
-          </div>
-
-          {/* User Card & Logout */}
           <div className="flex items-center justify-between px-2 pt-1">
             <div className="flex items-center space-x-2.5 overflow-hidden">
               <div className="w-7 h-7 rounded-[3px] bg-[#E65909]/20 text-[#F86927] border border-[#E65909]/40 flex items-center justify-center font-bold text-xs flex-shrink-0">
@@ -188,10 +245,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               <div className="overflow-hidden">
                 <p className="text-xs font-semibold text-white truncate">
-                  {user?.full_name || 'Accounts User'}
+                  {user?.full_name || 'Staff User'}
                 </p>
                 <p className="text-[10px] font-mono text-[#8B97A3] truncate capitalize">
-                  {user?.role} • {user?.department || 'Finance'}
+                  {user?.role} • {user?.department || 'Operations'}
                 </p>
               </div>
             </div>

@@ -61,9 +61,25 @@ export const api = {
       body: JSON.stringify({ email, password }),
     }),
   getMe: () => request<any>('/auth/me'),
+  changePassword: (old_password: string, new_password: string) =>
+    request<{ message: string }>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ old_password, new_password }),
+    }),
+  forgotPassword: (email: string) =>
+    request<{ message: string; reset_token?: string }>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+  resetPassword: (email: string, token: string, new_password: string) =>
+    request<{ message: string }>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ email, token, new_password }),
+    }),
 
   // Dashboard
   getDashboardSummary: () => request<any>('/dashboard/summary'),
+  getEmployeeDashboard: () => request<any>('/dashboard/employee'),
 
   // GST
   getGSTRecords: (params?: { record_type?: string; match_status?: string; return_period?: string; search?: string }) => {

@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'accountant' | 'manager' | 'employee';
+export type UserRole = 'admin' | 'employee' | 'accountant' | 'manager';
 
 export interface User {
   id: number;
@@ -7,6 +7,8 @@ export interface User {
   role: UserRole;
   department?: string;
   is_active: boolean;
+  must_change_password?: boolean;
+  last_login_at?: string;
   created_at: string;
 }
 
@@ -34,6 +36,10 @@ export interface FinancialKPIs {
   monthly_expenses: number;
   net_profit: number;
   invoices_pending_count: number;
+  employee_count?: number;
+  active_users_count?: number;
+  total_organisational_records?: number;
+  completed_activities_count?: number;
 }
 
 export interface MonthlyTrend {

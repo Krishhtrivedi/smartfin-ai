@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from sqlalchemy import text
 
 from app.core.config import settings
 from app.core.database import Base, engine, SessionLocal
@@ -26,9 +27,9 @@ from app.api.audit import router as audit_router
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="SmartFin AI – Vichar Vimarsh",
+    title="SMARTFIN.AI",
     version=settings.VERSION,
-    description="Enterprise AI-Powered Finance & Office Management Automation Platform by Vichar Vimarsh"
+    description="Enterprise Finance & Office Management Automation Platform for SMARTFIN.AI"
 )
 
 # CORS Middleware
@@ -56,6 +57,20 @@ app.include_router(audit_router, prefix=settings.API_V1_STR)
 
 @app.on_event("startup")
 def on_startup():
+    # 1. Run migrations for new columns if needed (PostgreSQL / SQLite safe)
+    try:
+        with engine.connect() as conn:
+            is_postgres = not str(engine.url).startswith("sqlite")
+            if is_postgres:
+                conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS must_change_password BOOLEAN DEFAULT FALSE;"))
+                conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255);"))
+                conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires_at TIMESTAMP;"))
+                conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMP;"))
+                conn.commit()
+    except Exception as e:
+        print(f"Startup migration notice: {e}")
+
+    # 2. Seed / Ensure production accounts exist
     db = SessionLocal()
     try:
         seed_database(db)
@@ -66,9 +81,8 @@ def on_startup():
 def health_check():
     return {
         "status": "healthy",
-        "system": "SmartFin AI – Vichar Vimarsh",
-        "organization": "Vichar Vimarsh (Powered by Quick HR Solution)",
-        "website": "https://vicharvimarsh.com/",
+        "system": "SMARTFIN.AI",
+        "organization": "SMARTFIN.AI",
         "version": settings.VERSION
     }
 
@@ -98,7 +112,7 @@ else:
     @app.get("/")
     def root():
         return {
-            "system": "SmartFin AI – Vichar Vimarsh",
+            "system": "SMARTFIN.AI",
             "message": "Enterprise Finance & Office Automation System",
             "docs_url": "/docs",
             "api_v1": settings.API_V1_STR

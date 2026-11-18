@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, UserRole } from '../types';
+import { User } from '../types';
 import { api } from '../services/api';
 
 interface AuthContextType {
@@ -8,7 +8,10 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  quickLogin: (role: UserRole) => Promise<void>;
+  changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
+  forgotPassword: (email: string) => Promise<{ message: string; reset_token?: string }>;
+  resetPassword: (email: string, token: string, newPassword: string) => Promise<void>;
+  refreshUser: () => Promise<void>;
   logout: () => void;
 }
 
@@ -24,16 +27,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  const refreshUser = async () => {
+    if (!token) return;
+    try {
+      const userData = await api.getMe();
+      setUser(userData);
+      localStorage.setItem('smartfin_user', JSON.stringify(userData));
+    } catch {
+      logout();
+    }
+  };
+
   useEffect(() => {
     async function verifyUser() {
       if (token) {
-        try {
-          const userData = await api.getMe();
-          setUser(userData);
-          localStorage.setItem('smartfin_user', JSON.stringify(userData));
-        } catch {
-          logout();
-        }
+        await refreshUser();
       }
       setIsLoading(false);
     }
@@ -43,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const res = await api.login(email, password);
+      const res = await api.login(email.trim().toLowerCase(), password);
       setToken(res.access_token);
       setUser(res.user);
       localStorage.setItem('smartfin_token', res.access_token);
@@ -53,15 +61,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const quickLogin = async (role: UserRole) => {
-    const creds: Record<UserRole, { email: string; pass: string }> = {
-      admin: { email: 'admin@smartfin.ai', pass: 'admin123' },
-      accountant: { email: 'accountant@smartfin.ai', pass: 'account123' },
-      manager: { email: 'manager@smartfin.ai', pass: 'manager123' },
-      employee: { email: 'employee@smartfin.ai', pass: 'employee123' },
-    };
-    const target = creds[role] || creds.admin;
-    await login(target.email, target.pass);
+  const changePassword = async (oldPassword: string, newPassword: string) => {
+    await api.changePassword(oldPassword, newPassword);
+    if (user) {
+      const updatedUser: User = { ...user, must_change_password: false };
+      setUser(updatedUser);
+      localStorage.setItem('smartfin_user', JSON.stringify(updatedUser));
+    }
+  };
+
+  const forgotPassword = async (email: string) => {
+    return await api.forgotPassword(email.trim().toLowerCase());
+  };
+
+  const resetPassword = async (email: string, token: string, newPassword: string) => {
+    await api.resetPassword(email.trim().toLowerCase(), token, newPassword);
   };
 
   const logout = () => {
@@ -79,7 +93,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!token && !!user,
         isLoading,
         login,
-        quickLogin,
+        changePassword,
+        forgotPassword,
+        resetPassword,
+        refreshUser,
         logout,
       }}
     >
