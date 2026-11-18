@@ -1,6 +1,7 @@
 import json
 from datetime import date, datetime, timedelta
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from app.core.database import SessionLocal, engine, Base
 from app.core.security import hash_password
 from app.models.all_models import (
@@ -135,29 +136,62 @@ def purge_dummy_data(db: Session):
         "Tata Telecommunications Ltd",
         "KPMG Consulting India LLP"
     ]
-    # Check if any dummy vendor or customer exists
-    has_dummy = db.query(Vendor).filter(Vendor.name.in_(dummy_vendor_names)).first() is not None
+    # Check if any dummy vendor or legacy sample account exists
+    has_dummy = (
+        db.query(Vendor).filter(Vendor.name.in_(dummy_vendor_names)).first() is not None
+        or db.query(User).filter(User.email.in_(["admin@smartfin.ai", "priya@smartfin.ai", "vikram@smartfin.ai"])).first() is not None
+    )
     
     if has_dummy:
         print("Purging dummy records to enforce 0 initial entries for live production...")
-        db.query(GSTRecord).delete()
-        db.query(TDSRecord).delete()
-        db.query(BankTransaction).delete()
-        db.query(Payment).delete()
-        db.query(Invoice).delete()
-        db.query(Purchase).delete()
-        db.query(Sale).delete()
-        db.query(Attendance).delete()
-        db.query(Expense).delete()
-        db.query(Task).delete()
-        db.query(Document).delete()
-        db.query(BankAccount).delete()
-        db.query(Vendor).delete()
-        db.query(Customer).delete()
-        prod_emails = [a["email"] for a in PROD_ACCOUNTS]
-        db.query(Employee).filter(~Employee.email.in_(prod_emails)).delete(synchronize_session=False)
-        db.query(User).filter(~User.email.in_(prod_emails)).delete(synchronize_session=False)
-        db.commit()
+        is_postgres = not str(engine.url).startswith("sqlite")
+        if is_postgres:
+            db.execute(text("""
+                TRUNCATE TABLE 
+                    gst_records, 
+                    tds_records, 
+                    bank_transactions, 
+                    payments, 
+                    purchases, 
+                    sales, 
+                    invoices, 
+                    expenses, 
+                    attendances, 
+                    tasks, 
+                    documents, 
+                    bank_accounts, 
+                    vendors, 
+                    customers 
+                CASCADE;
+            """))
+            db.execute(text("""
+                DELETE FROM employees WHERE email NOT IN ('pinal@smartfin.ai', 'nilesh@smartfin.ai', 'birju@smartfin.ai', 'employee@smartfin.ai');
+            """))
+            db.execute(text("""
+                DELETE FROM users WHERE email NOT IN ('pinal@smartfin.ai', 'nilesh@smartfin.ai', 'birju@smartfin.ai', 'employee@smartfin.ai');
+            """))
+            db.commit()
+        else:
+            db.execute(text("PRAGMA foreign_keys = OFF;"))
+            db.query(GSTRecord).delete(synchronize_session=False)
+            db.query(TDSRecord).delete(synchronize_session=False)
+            db.query(BankTransaction).delete(synchronize_session=False)
+            db.query(Payment).delete(synchronize_session=False)
+            db.query(Purchase).delete(synchronize_session=False)
+            db.query(Sale).delete(synchronize_session=False)
+            db.query(Invoice).delete(synchronize_session=False)
+            db.query(Attendance).delete(synchronize_session=False)
+            db.query(Expense).delete(synchronize_session=False)
+            db.query(Task).delete(synchronize_session=False)
+            db.query(Document).delete(synchronize_session=False)
+            db.query(BankAccount).delete(synchronize_session=False)
+            db.query(Vendor).delete(synchronize_session=False)
+            db.query(Customer).delete(synchronize_session=False)
+            prod_emails = [a["email"] for a in PROD_ACCOUNTS]
+            db.query(Employee).filter(~Employee.email.in_(prod_emails)).delete(synchronize_session=False)
+            db.query(User).filter(~User.email.in_(prod_emails)).delete(synchronize_session=False)
+            db.execute(text("PRAGMA foreign_keys = ON;"))
+            db.commit()
         print("Dummy records purged successfully. All starting financial values are 0.")
 
 def seed_database(db: Session = None):
