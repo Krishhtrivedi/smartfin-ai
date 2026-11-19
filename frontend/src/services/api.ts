@@ -25,11 +25,16 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   });
 
   if (response.status === 401) {
+    if (endpoint.includes('/auth/login')) {
+      let errorDetail = 'Invalid email or password.';
+      try {
+        const errJson = await response.json();
+        errorDetail = errJson.detail || errorDetail;
+      } catch {}
+      throw new Error(errorDetail);
+    }
     localStorage.removeItem('smartfin_token');
     localStorage.removeItem('smartfin_user');
-    if (!window.location.pathname.includes('/login')) {
-      window.location.href = '/login';
-    }
     throw new Error('Session expired or unauthorized');
   }
 

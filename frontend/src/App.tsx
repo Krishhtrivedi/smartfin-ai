@@ -14,7 +14,7 @@ import { ExcelAutomation } from './pages/ExcelAutomation';
 import { MISReports } from './pages/MISReports';
 import { AIAssistantPage } from './pages/AIAssistantPage';
 import { AuditLogs } from './pages/AuditLogs';
-import { ShieldAlert, KeyRound, AlertCircle, CheckCircle2, Lock } from 'lucide-react';
+import { ShieldAlert, KeyRound, AlertCircle, CheckCircle2, Lock, X } from 'lucide-react';
 
 const ADMIN_ONLY_TABS: NavigationTab[] = ['gst', 'tds', 'bank', 'excel', 'mis', 'audit'];
 
@@ -23,6 +23,7 @@ const AppContent: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<NavigationTab>('dashboard');
 
   // Mandatory Password Change Modal state
+  const [dismissedPwdModal, setDismissedPwdModal] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -133,16 +134,25 @@ const AppContent: React.FC = () => {
 
   return (
     <>
-      {/* Mandatory Password Change Overlay Modal */}
-      {user?.must_change_password && (
+      {/* Optional / First-Time Password Change Overlay Modal */}
+      {user?.must_change_password && !dismissedPwdModal && (
         <div className="fixed inset-0 z-50 bg-[#0D2035]/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#F6F3EE] max-w-md w-full p-6 sm:p-8 rounded-[3px] border border-[#C5CBD2] shadow-2xl text-[#171E25]">
+          <div className="bg-[#F6F3EE] max-w-md w-full p-6 sm:p-8 rounded-[3px] border border-[#C5CBD2] shadow-2xl text-[#171E25] relative">
+            <button
+              type="button"
+              onClick={() => setDismissedPwdModal(true)}
+              className="absolute top-4 right-4 text-[#8B97A3] hover:text-[#171E25]"
+              title="Close and continue to dashboard"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-10 h-10 rounded-[3px] bg-[#1A2F46] text-[#E65909] flex items-center justify-center flex-shrink-0">
                 <KeyRound className="w-5 h-5" />
               </div>
               <div>
-                <span className="spec-tag text-[#E65909] font-bold">SECURITY REQUIREMENT</span>
+                <span className="spec-tag text-[#E65909] font-bold">SECURITY RECOMMENDATION</span>
                 <h3 className="font-display font-bold text-lg text-[#1A2F46]">
                   Change Temporary Password
                 </h3>
@@ -150,7 +160,7 @@ const AppContent: React.FC = () => {
             </div>
 
             <p className="text-xs text-[#5D646C] leading-relaxed mb-4">
-              This account was provisioned with an initial temporary password. In compliance with SMARTFIN.AI cybersecurity policy, you must set a private password before accessing the system.
+              This account was provisioned with an initial temporary password. You can choose a new password now or proceed directly to your workplace dashboard.
             </p>
 
             {pwdError && (
@@ -170,7 +180,7 @@ const AppContent: React.FC = () => {
                   required
                   value={oldPassword}
                   onChange={(e) => setOldPassword(e.target.value)}
-                  placeholder="Enter current password"
+                  placeholder="Enter current password (SmartFin@2026!)"
                   className="w-full px-3 py-2 text-xs rounded-[3px] border border-[#C5CBD2] bg-white focus:outline-none focus:border-[#E65909]"
                 />
               </div>
@@ -209,17 +219,24 @@ const AppContent: React.FC = () => {
                   disabled={isUpdatingPwd}
                   className="btn-signal w-full py-2.5 px-4 text-xs font-semibold"
                 >
-                  {isUpdatingPwd ? 'Saving New Password...' : 'Save Password & Enter Workplace'}
+                  {isUpdatingPwd ? 'Saving New Password...' : 'Save Password & Continue'}
                 </button>
               </div>
             </form>
 
-            <div className="mt-4 pt-3 border-t border-[#C5CBD2] text-center">
+            <div className="mt-4 pt-3 border-t border-[#C5CBD2] flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setDismissedPwdModal(true)}
+                className="text-xs font-mono text-[#E65909] hover:underline font-semibold"
+              >
+                Skip for Now & Access Dashboard →
+              </button>
               <button
                 onClick={logout}
                 className="text-xs font-mono text-[#5D646C] hover:text-rose-600"
               >
-                Sign Out Instead
+                Sign Out
               </button>
             </div>
           </div>

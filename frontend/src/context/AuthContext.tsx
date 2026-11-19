@@ -39,23 +39,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    async function verifyUser() {
-      if (token) {
-        await refreshUser();
+    async function initAuth() {
+      const savedToken = localStorage.getItem('smartfin_token');
+      if (savedToken) {
+        try {
+          const userData = await api.getMe();
+          setUser(userData);
+          localStorage.setItem('smartfin_user', JSON.stringify(userData));
+        } catch {
+          logout();
+        }
       }
       setIsLoading(false);
     }
-    verifyUser();
-  }, [token]);
+    initAuth();
+  }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
       const res = await api.login(email.trim().toLowerCase(), password);
-      setToken(res.access_token);
-      setUser(res.user);
       localStorage.setItem('smartfin_token', res.access_token);
       localStorage.setItem('smartfin_user', JSON.stringify(res.user));
+      setToken(res.access_token);
+      setUser(res.user);
+      if (window.location.pathname.includes('/login')) {
+        window.history.pushState(null, '', '/');
+      }
     } finally {
       setIsLoading(false);
     }

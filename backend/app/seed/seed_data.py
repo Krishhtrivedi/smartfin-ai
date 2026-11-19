@@ -75,7 +75,7 @@ def ensure_production_accounts(db: Session):
                 role=acc["role"],
                 department=acc["department"],
                 hashed_password=hash_password(DEFAULT_INITIAL_PASSWORD),
-                must_change_password=True,
+                must_change_password=False,
                 is_active=True
             )
             db.add(user)
@@ -88,7 +88,7 @@ def ensure_production_accounts(db: Session):
             user.full_name = acc["full_name"]
             user.is_active = True
             user.hashed_password = hash_password(DEFAULT_INITIAL_PASSWORD)
-            user.must_change_password = True
+            user.must_change_password = False
             db.flush()
 
         # Ensure matching employee profile
