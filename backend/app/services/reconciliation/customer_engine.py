@@ -1,8 +1,28 @@
 from datetime import datetime, date
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from app.models.all_models import Customer, Invoice, Payment
 import json
+
+def safe_parse_date(d: Any) -> date:
+    if isinstance(d, datetime):
+        return d.date()
+    if isinstance(d, date):
+        return d
+    if isinstance(d, str):
+        try:
+            return datetime.strptime(d[:10], "%Y-%m-%d").date()
+        except Exception:
+            return date.today()
+    return date.today()
+
+def safe_float(v: Any) -> float:
+    if v is None:
+        return 0.0
+    try:
+        return float(v)
+    except (ValueError, TypeError):
+        return 0.0
 
 class CustomerReconciliationEngine:
     def __init__(self, db: Session):
@@ -26,8 +46,8 @@ class CustomerReconciliationEngine:
             Payment.entity_id == customer_id
         ).order_by(Payment.payment_date.asc()).all()
 
-        total_sales = sum(inv.total_amount for inv in invoices)
-        total_received = sum(r.amount for r in receipts)
+        total_sales = sum(safe_float(inv.total_amount) for inv in invoices)
+        total_received = sum(safe_float(r.amount) for r in receipts)
         calculated_outstanding = total_sales - total_received
 
         customer.outstanding_balance = round(calculated_outstanding, 2)
@@ -43,8 +63,9 @@ class CustomerReconciliationEngine:
 
         uncollected_invoices = [inv for inv in invoices if inv.status != "PAID"]
         for inv in uncollected_invoices:
-            due_amount = inv.balance_due if inv.balance_due > 0 else inv.total_amount
-            days_old = (today - inv.invoice_date).days
+            due_amount = safe_float(inv.balance_due) if safe_float(inv.balance_due) > 0 else safe_float(inv.total_amount)
+            inv_date = safe_parse_date(inv.invoice_date)
+            days_old = max(0, (today - inv_date).days)
             if days_old <= 30:
                 aging["current_0_30"] += due_amount
             elif days_old <= 60:
@@ -54,9 +75,10 @@ class CustomerReconciliationEngine:
             else:
                 aging["over_90"] += due_amount
 
+        credit_limit = safe_float(customer.credit_limit)
         credit_utilization_pct = 0.0
-        if customer.credit_limit and customer.credit_limit > 0:
-            credit_utilization_pct = round((calculated_outstanding / customer.credit_limit) * 100, 1)
+        if credit_limit > 0:
+            credit_utilization_pct = round((calculated_outstanding / credit_limit) * 100, 1)
 
         self.db.commit()
 
@@ -64,7 +86,7 @@ class CustomerReconciliationEngine:
             "customer_id": customer.id,
             "customer_name": customer.name,
             "gstin": customer.gstin,
-            "credit_limit": customer.credit_limit or 0.0,
+            "credit_limit": credit_limit,
             "credit_utilization_pct": credit_utilization_pct,
             "total_sales": round(total_sales, 2),
             "total_received": round(total_received, 2),
@@ -83,13 +105,13 @@ class CustomerReconciliationEngine:
         for c in customers:
             invoices = self.db.query(Invoice).filter(Invoice.customer_id == c.id, Invoice.invoice_type == "SALES").all()
             receipts = self.db.query(Payment).filter(Payment.entity_type == "CUSTOMER", Payment.entity_id == c.id).all()
-            total_sales = sum(i.total_amount for i in invoices)
-            total_rcvd = sum(r.amount for r in receipts)
+            total_sales = sum(safe_float(i.total_amount) for i in invoices)
+            total_rcvd = sum(safe_float(r.amount) for r in receipts)
             summaries.append({
                 "id": c.id,
                 "name": c.name,
                 "gstin": c.gstin,
-                "credit_limit": c.credit_limit,
+                "credit_limit": safe_float(c.credit_limit),
                 "total_sales": round(total_sales, 2),
                 "total_received": round(total_rcvd, 2),
                 "outstanding_balance": round(total_sales - total_rcvd, 2),

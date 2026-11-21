@@ -1,8 +1,28 @@
 from datetime import datetime, date
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from app.models.all_models import Vendor, Invoice, Payment, ReconciliationJob, ReconciliationResult
 import json
+
+def safe_parse_date(d: Any) -> date:
+    if isinstance(d, datetime):
+        return d.date()
+    if isinstance(d, date):
+        return d
+    if isinstance(d, str):
+        try:
+            return datetime.strptime(d[:10], "%Y-%m-%d").date()
+        except Exception:
+            return date.today()
+    return date.today()
+
+def safe_float(v: Any) -> float:
+    if v is None:
+        return 0.0
+    try:
+        return float(v)
+    except (ValueError, TypeError):
+        return 0.0
 
 class VendorReconciliationEngine:
     def __init__(self, db: Session):
@@ -26,8 +46,8 @@ class VendorReconciliationEngine:
             Payment.entity_id == vendor_id
         ).order_by(Payment.payment_date.asc()).all()
 
-        total_invoiced = sum(inv.total_amount for inv in invoices)
-        total_paid = sum(p.amount for p in payments)
+        total_invoiced = sum(safe_float(inv.total_amount) for inv in invoices)
+        total_paid = sum(safe_float(p.amount) for p in payments)
         calculated_outstanding = total_invoiced - total_paid
 
         # Update vendor balance
@@ -44,8 +64,9 @@ class VendorReconciliationEngine:
 
         unpaid_invoices = [inv for inv in invoices if inv.status != "PAID"]
         for inv in unpaid_invoices:
-            due_amount = inv.balance_due if inv.balance_due > 0 else inv.total_amount
-            days_old = (today - inv.invoice_date).days
+            due_amount = safe_float(inv.balance_due) if safe_float(inv.balance_due) > 0 else safe_float(inv.total_amount)
+            inv_date = safe_parse_date(inv.invoice_date)
+            days_old = max(0, (today - inv_date).days)
             if days_old <= 30:
                 aging["current_0_30"] += due_amount
             elif days_old <= 60:
@@ -62,14 +83,16 @@ class VendorReconciliationEngine:
             statement_inv_nos = {str(item.get("invoice_number", "")).strip().upper(): item for item in statement_records}
             for inv in invoices:
                 clean_no = inv.invoice_number.strip().upper()
+                inv_total = safe_float(inv.total_amount)
                 if clean_no in statement_inv_nos:
                     stmt_item = statement_inv_nos[clean_no]
-                    diff = abs(inv.total_amount - float(stmt_item.get("amount", 0.0)))
+                    stmt_amt = safe_float(stmt_item.get("amount", 0.0))
+                    diff = abs(inv_total - stmt_amt)
                     matched_txns.append({
                         "invoice_number": inv.invoice_number,
                         "date": str(inv.invoice_date),
-                        "books_amount": inv.total_amount,
-                        "statement_amount": float(stmt_item.get("amount", 0.0)),
+                        "books_amount": inv_total,
+                        "statement_amount": stmt_amt,
                         "difference": round(diff, 2),
                         "status": "MATCHED" if diff < 1.0 else "DISCREPANCY"
                     })
@@ -77,9 +100,9 @@ class VendorReconciliationEngine:
                     matched_txns.append({
                         "invoice_number": inv.invoice_number,
                         "date": str(inv.invoice_date),
-                        "books_amount": inv.total_amount,
+                        "books_amount": inv_total,
                         "statement_amount": 0.0,
-                        "difference": inv.total_amount,
+                        "difference": inv_total,
                         "status": "MISSING_IN_STATEMENT"
                     })
 
@@ -105,8 +128,8 @@ class VendorReconciliationEngine:
         for v in vendors:
             invoices = self.db.query(Invoice).filter(Invoice.vendor_id == v.id, Invoice.invoice_type == "PURCHASE").all()
             payments = self.db.query(Payment).filter(Payment.entity_type == "VENDOR", Payment.entity_id == v.id).all()
-            total_inv = sum(i.total_amount for i in invoices)
-            total_pd = sum(p.amount for p in payments)
+            total_inv = sum(safe_float(i.total_amount) for i in invoices)
+            total_pd = sum(safe_float(p.amount) for p in payments)
             summaries.append({
                 "id": v.id,
                 "name": v.name,
