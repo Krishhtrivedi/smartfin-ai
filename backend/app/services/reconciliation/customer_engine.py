@@ -260,15 +260,30 @@ class CustomerReconciliationEngine:
             summaries.append({
                 "id": c.id,
                 "name": c.name,
+                "trade_name": c.trade_name,
                 "gstin": c.gstin,
                 "pan": c.pan,
+                "tan": c.tan,
                 "email": c.email,
                 "phone": c.phone,
+                "address": c.address,
+                "state": c.state,
+                "state_code": c.state_code,
+                "folder_name": c.folder_name,
+                "compliance_status": c.compliance_status or "ACTIVE",
+                "gst_username": c.gst_username,
+                "it_username": c.it_username,
+                "tds_username": c.tds_username,
+                "has_gst_password": bool(c.gst_password_enc),
+                "has_it_password": bool(c.it_password_enc),
+                "has_tds_password": bool(c.tds_password_enc),
                 "credit_limit": safe_float(c.credit_limit),
                 "total_sales": round(total_sales, 2),
                 "total_received": round(total_rcvd, 2),
                 "outstanding_balance": round(max(0.0, total_sales - total_rcvd), 2),
                 "invoice_count": len(invoices),
-                "receipt_count": len(receipts)
+                "receipt_count": len(receipts),
+                "created_at": c.created_at.isoformat() if c.created_at else None,
+                "updated_at": c.updated_at.isoformat() if hasattr(c, 'updated_at') and c.updated_at else None
             })
         return summaries

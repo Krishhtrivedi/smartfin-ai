@@ -120,8 +120,19 @@ export const api = {
   createVendorInvoice: (vendorId: number, data: any) =>
     request<any>(`/vendors/${vendorId}/invoices`, { method: 'POST', body: JSON.stringify(data) }),
 
-  getCustomers: () => request<any[]>('/customers/list'),
+  getCustomers: (params?: { q?: string; limit?: number; offset?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.q) query.append('q', params.q);
+    if (params?.limit) query.append('limit', params.limit.toString());
+    if (params?.offset) query.append('offset', params.offset.toString());
+    const qStr = query.toString();
+    return request<any[]>(`/customers/list${qStr ? `?${qStr}` : ''}`);
+  },
+  getCustomer: (customerId: number) => request<any>(`/customers/${customerId}`),
   createCustomer: (data: any) => request<any>('/customers/create', { method: 'POST', body: JSON.stringify(data) }),
+  updateCustomer: (customerId: number, data: any) => request<any>(`/customers/${customerId}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteCustomer: (customerId: number) => request<any>(`/customers/${customerId}`, { method: 'DELETE' }),
+  importClientMasters: (formData?: FormData) => request<any>('/customers/import-masters', { method: 'POST', body: formData }),
   reconcileCustomer: (customerId: number) => request<any>(`/customers/${customerId}/reconcile`),
   getCustomerInvoices: (customerId: number) => request<any[]>(`/customers/${customerId}/invoices`),
   createCustomerInvoice: (customerId: number, data: any) =>

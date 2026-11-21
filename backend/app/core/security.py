@@ -34,3 +34,37 @@ def decode_access_token(token: str) -> Optional[str]:
         return payload.get("sub")
     except JWTError:
         return None
+
+def get_fernet():
+    import base64
+    import hashlib
+    from cryptography.fernet import Fernet
+    key_bytes = hashlib.sha256(settings.SECRET_KEY.encode('utf-8')).digest()
+    urlsafe_key = base64.urlsafe_b64encode(key_bytes)
+    return Fernet(urlsafe_key)
+
+def encrypt_credential(plain_text: Optional[str]) -> Optional[str]:
+    if not plain_text or not str(plain_text).strip():
+        return None
+    try:
+        f = get_fernet()
+        return f.encrypt(str(plain_text).strip().encode('utf-8')).decode('utf-8')
+    except Exception:
+        return None
+
+def decrypt_credential(cipher_text: Optional[str]) -> Optional[str]:
+    if not cipher_text or not str(cipher_text).strip():
+        return None
+    try:
+        f = get_fernet()
+        return f.decrypt(str(cipher_text).strip().encode('utf-8')).decode('utf-8')
+    except Exception:
+        return None
+
+def mask_credential(val: Optional[str]) -> Optional[str]:
+    if not val or not str(val).strip():
+        return None
+    s = str(val).strip()
+    if len(s) <= 4:
+        return "••••"
+    return s[:2] + "••••" + s[-2:]

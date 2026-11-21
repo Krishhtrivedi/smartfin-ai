@@ -28,8 +28,10 @@ class VendorOut(VendorBase):
 
 class CustomerBase(BaseModel):
     name: str
+    trade_name: Optional[str] = None
     gstin: Optional[str] = None
     pan: Optional[str] = None
+    tan: Optional[str] = None
     email: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
@@ -37,13 +39,46 @@ class CustomerBase(BaseModel):
     state_code: Optional[str] = None
     credit_limit: float = 100000.0
     outstanding_balance: float = 0.0
+    folder_name: Optional[str] = None
+    gst_username: Optional[str] = None
+    it_username: Optional[str] = None
+    tds_username: Optional[str] = None
+    compliance_status: str = "ACTIVE"
 
 class CustomerCreate(CustomerBase):
-    pass
+    gst_password: Optional[str] = None
+    it_password: Optional[str] = None
+    tds_password: Optional[str] = None
+
+class CustomerUpdate(BaseModel):
+    name: Optional[str] = None
+    trade_name: Optional[str] = None
+    gstin: Optional[str] = None
+    pan: Optional[str] = None
+    tan: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    state: Optional[str] = None
+    state_code: Optional[str] = None
+    credit_limit: Optional[float] = None
+    outstanding_balance: Optional[float] = None
+    folder_name: Optional[str] = None
+    gst_username: Optional[str] = None
+    gst_password: Optional[str] = None
+    it_username: Optional[str] = None
+    it_password: Optional[str] = None
+    tds_username: Optional[str] = None
+    tds_password: Optional[str] = None
+    compliance_status: Optional[str] = None
 
 class CustomerOut(CustomerBase):
     id: int
-    created_at: datetime
+    has_gst_password: bool = False
+    has_it_password: bool = False
+    has_tds_password: bool = False
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     class Config:
         from_attributes = True
 

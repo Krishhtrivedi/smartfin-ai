@@ -1,14 +1,19 @@
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Response
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Response, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any
-from datetime import date
+from datetime import date, datetime
+import re
+import os
+import shutil
 from pydantic import BaseModel
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_role, log_audit_event
+from app.core.security import encrypt_credential
 from app.models.all_models import Customer, Invoice, Payment, User
-from app.schemas.financial import CustomerOut, CustomerCreate, InvoiceOut, InvoiceCreate
+from app.schemas.financial import CustomerOut, CustomerCreate, CustomerUpdate, InvoiceOut, InvoiceCreate
 from app.services.reconciliation.customer_engine import CustomerReconciliationEngine
 from app.services.automation.excel_engine import ExcelAutomationEngine
+from app.services.automation.master_importer import ClientMasterImporter, sanitize_folder_name
 import pandas as pd
 
 router = APIRouter(prefix="/customers", tags=["Customer Reconciliation"])
@@ -24,22 +29,323 @@ class CustomerReceiptIn(BaseModel):
     notes: Optional[str] = None
 
 @router.get("/list")
-def list_customers(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def list_customers(
+    q: Optional[str] = Query(None, description="Search query for name, GSTIN, PAN, TAN, or phone"),
+    limit: Optional[int] = Query(None, description="Limit results"),
+    offset: int = Query(0, description="Offset results"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     engine = CustomerReconciliationEngine(db=db)
-    return engine.get_all_customer_summaries()
+    all_summaries = engine.get_all_customer_summaries()
+    
+    if q and q.strip():
+        query = q.strip().upper()
+        all_summaries = [
+            c for c in all_summaries
+            if (c.get("name") and query in c["name"].upper())
+            or (c.get("gstin") and query in c["gstin"].upper())
+            or (c.get("pan") and query in c["pan"].upper())
+            or (c.get("tan") and query in c["tan"].upper())
+            or (c.get("phone") and query in c["phone"])
+            or (c.get("email") and query in c["email"].upper())
+        ]
+        
+    if limit is not None and limit > 0:
+        return all_summaries[offset:offset + limit]
+        
+    return all_summaries
 
-@router.post("/create", response_model=CustomerOut)
+@router.get("/{customer_id}")
+def get_customer(
+    customer_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    customer = db.query(Customer).filter(Customer.id == customer_id).first()
+    if not customer:
+        raise HTTPException(status_code=404, detail="Client not found")
+        
+    return {
+        "id": customer.id,
+        "name": customer.name,
+        "trade_name": customer.trade_name,
+        "gstin": customer.gstin,
+        "pan": customer.pan,
+        "tan": customer.tan,
+        "email": customer.email,
+        "phone": customer.phone,
+        "address": customer.address,
+        "state": customer.state,
+        "state_code": customer.state_code,
+        "folder_name": customer.folder_name,
+        "compliance_status": customer.compliance_status or "ACTIVE",
+        "gst_username": customer.gst_username,
+        "it_username": customer.it_username,
+        "tds_username": customer.tds_username,
+        "has_gst_password": bool(customer.gst_password_enc),
+        "has_it_password": bool(customer.it_password_enc),
+        "has_tds_password": bool(customer.tds_password_enc),
+        "credit_limit": customer.credit_limit,
+        "outstanding_balance": customer.outstanding_balance,
+        "created_at": customer.created_at.isoformat() if customer.created_at else None,
+        "updated_at": customer.updated_at.isoformat() if customer.updated_at else None
+    }
+
+@router.post("/create")
 def create_customer(
     customer_in: CustomerCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role(["admin", "accountant"]))
 ):
-    customer = Customer(**customer_in.dict())
+    name = (customer_in.name or "").strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Client name is required")
+    
+    gstin = customer_in.gstin.strip().upper() if customer_in.gstin and customer_in.gstin.strip() else None
+    if gstin:
+        if len(gstin) != 15:
+            raise HTTPException(status_code=400, detail="GSTIN must be exactly 15 characters")
+        existing = db.query(Customer).filter(Customer.gstin == gstin).first()
+        if existing:
+            raise HTTPException(status_code=400, detail=f"A client with GSTIN {gstin} already exists ({existing.name})")
+
+    pan = customer_in.pan.strip().upper() if customer_in.pan and customer_in.pan.strip() else None
+    if not pan and gstin and len(gstin) >= 12:
+        pan = gstin[2:12]
+
+    folder_name = customer_in.folder_name.strip() if customer_in.folder_name and customer_in.folder_name.strip() else None
+    if not folder_name:
+        folder_name = sanitize_folder_name(name)
+
+    customer = Customer(
+        name=name,
+        trade_name=customer_in.trade_name.strip() if customer_in.trade_name else None,
+        gstin=gstin,
+        pan=pan,
+        tan=customer_in.tan.strip().upper() if customer_in.tan and customer_in.tan.strip() else None,
+        email=customer_in.email.strip().lower() if customer_in.email and customer_in.email.strip() else None,
+        phone=customer_in.phone.strip() if customer_in.phone and customer_in.phone.strip() else None,
+        address=customer_in.address.strip() if customer_in.address else None,
+        state=customer_in.state.strip() if customer_in.state else None,
+        state_code=customer_in.state_code.strip() if customer_in.state_code else (gstin[:2] if gstin else None),
+        folder_name=folder_name,
+        gst_username=customer_in.gst_username.strip() if customer_in.gst_username else None,
+        gst_password_enc=encrypt_credential(customer_in.gst_password) if customer_in.gst_password else None,
+        it_username=customer_in.it_username.strip() if customer_in.it_username else (pan or None),
+        it_password_enc=encrypt_credential(customer_in.it_password) if customer_in.it_password else None,
+        tds_username=customer_in.tds_username.strip() if customer_in.tds_username else None,
+        tds_password_enc=encrypt_credential(customer_in.tds_password) if customer_in.tds_password else None,
+        compliance_status=customer_in.compliance_status or "ACTIVE",
+        credit_limit=customer_in.credit_limit,
+        outstanding_balance=customer_in.outstanding_balance
+    )
     db.add(customer)
     db.commit()
     db.refresh(customer)
-    log_audit_event(db, current_user, "CREATE_CUSTOMER", "Customer", str(customer.id), {"name": customer.name, "gstin": customer.gstin})
-    return customer
+    log_audit_event(db, current_user, "CREATE_CLIENT", "Customer", str(customer.id), {
+        "name": customer.name,
+        "gstin": customer.gstin,
+        "pan": customer.pan,
+        "email": customer.email,
+        "phone": customer.phone
+    })
+    return {
+        "id": customer.id,
+        "name": customer.name,
+        "trade_name": customer.trade_name,
+        "gstin": customer.gstin,
+        "pan": customer.pan,
+        "tan": customer.tan,
+        "email": customer.email,
+        "phone": customer.phone,
+        "folder_name": customer.folder_name,
+        "compliance_status": customer.compliance_status,
+        "gst_username": customer.gst_username,
+        "it_username": customer.it_username,
+        "tds_username": customer.tds_username,
+        "has_gst_password": bool(customer.gst_password_enc),
+        "has_it_password": bool(customer.it_password_enc),
+        "has_tds_password": bool(customer.tds_password_enc),
+        "credit_limit": customer.credit_limit,
+        "outstanding_balance": customer.outstanding_balance
+    }
+
+@router.put("/{customer_id}")
+def update_customer(
+    customer_id: int,
+    customer_in: CustomerUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin", "accountant"]))
+):
+    customer = db.query(Customer).filter(Customer.id == customer_id).first()
+    if not customer:
+        raise HTTPException(status_code=404, detail="Client not found")
+
+    updated_fields = []
+    if customer_in.name is not None and customer_in.name.strip():
+        customer.name = customer_in.name.strip()
+        updated_fields.append("name")
+
+    if customer_in.trade_name is not None:
+        customer.trade_name = customer_in.trade_name.strip() if customer_in.trade_name else None
+        updated_fields.append("trade_name")
+
+    if customer_in.gstin is not None:
+        new_gstin = customer_in.gstin.strip().upper() if customer_in.gstin and customer_in.gstin.strip() else None
+        if new_gstin and len(new_gstin) != 15:
+            raise HTTPException(status_code=400, detail="GSTIN must be exactly 15 characters")
+        if new_gstin and new_gstin != customer.gstin:
+            existing = db.query(Customer).filter(Customer.gstin == new_gstin, Customer.id != customer_id).first()
+            if existing:
+                raise HTTPException(status_code=400, detail=f"GSTIN {new_gstin} is already assigned to {existing.name}")
+        customer.gstin = new_gstin
+        if new_gstin and len(new_gstin) >= 12 and not customer.pan:
+            customer.pan = new_gstin[2:12]
+        updated_fields.append("gstin")
+
+    if customer_in.pan is not None:
+        customer.pan = customer_in.pan.strip().upper() if customer_in.pan and customer_in.pan.strip() else None
+        updated_fields.append("pan")
+
+    if customer_in.tan is not None:
+        customer.tan = customer_in.tan.strip().upper() if customer_in.tan and customer_in.tan.strip() else None
+        updated_fields.append("tan")
+
+    if customer_in.email is not None:
+        customer.email = customer_in.email.strip().lower() if customer_in.email and customer_in.email.strip() else None
+        updated_fields.append("email")
+
+    if customer_in.phone is not None:
+        customer.phone = customer_in.phone.strip() if customer_in.phone and customer_in.phone.strip() else None
+        updated_fields.append("phone")
+
+    if customer_in.folder_name is not None:
+        customer.folder_name = customer_in.folder_name.strip() if customer_in.folder_name and customer_in.folder_name.strip() else None
+        updated_fields.append("folder_name")
+
+    if customer_in.compliance_status is not None:
+        customer.compliance_status = customer_in.compliance_status
+        updated_fields.append("compliance_status")
+
+    if customer_in.gst_username is not None:
+        customer.gst_username = customer_in.gst_username.strip() if customer_in.gst_username else None
+        updated_fields.append("gst_username")
+
+    if customer_in.gst_password is not None and customer_in.gst_password.strip():
+        customer.gst_password_enc = encrypt_credential(customer_in.gst_password)
+        updated_fields.append("gst_password")
+
+    if customer_in.it_username is not None:
+        customer.it_username = customer_in.it_username.strip() if customer_in.it_username else None
+        updated_fields.append("it_username")
+
+    if customer_in.it_password is not None and customer_in.it_password.strip():
+        customer.it_password_enc = encrypt_credential(customer_in.it_password)
+        updated_fields.append("it_password")
+
+    if customer_in.tds_username is not None:
+        customer.tds_username = customer_in.tds_username.strip() if customer_in.tds_username else None
+        updated_fields.append("tds_username")
+
+    if customer_in.tds_password is not None and customer_in.tds_password.strip():
+        customer.tds_password_enc = encrypt_credential(customer_in.tds_password)
+        updated_fields.append("tds_password")
+
+    if customer_in.credit_limit is not None:
+        customer.credit_limit = customer_in.credit_limit
+
+    if customer_in.outstanding_balance is not None:
+        customer.outstanding_balance = customer_in.outstanding_balance
+
+    customer.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(customer)
+
+    log_audit_event(db, current_user, "UPDATE_CLIENT", "Customer", str(customer.id), {
+        "client_name": customer.name,
+        "updated_fields": updated_fields
+    })
+
+    return {
+        "id": customer.id,
+        "name": customer.name,
+        "trade_name": customer.trade_name,
+        "gstin": customer.gstin,
+        "pan": customer.pan,
+        "tan": customer.tan,
+        "email": customer.email,
+        "phone": customer.phone,
+        "folder_name": customer.folder_name,
+        "compliance_status": customer.compliance_status,
+        "gst_username": customer.gst_username,
+        "it_username": customer.it_username,
+        "tds_username": customer.tds_username,
+        "has_gst_password": bool(customer.gst_password_enc),
+        "has_it_password": bool(customer.it_password_enc),
+        "has_tds_password": bool(customer.tds_password_enc),
+        "credit_limit": customer.credit_limit,
+        "outstanding_balance": customer.outstanding_balance
+    }
+
+@router.delete("/{customer_id}")
+def delete_customer(
+    customer_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"]))
+):
+    customer = db.query(Customer).filter(Customer.id == customer_id).first()
+    if not customer:
+        raise HTTPException(status_code=404, detail="Client not found")
+
+    # Check invoices
+    inv_count = db.query(Invoice).filter(Invoice.customer_id == customer_id).count()
+    if inv_count > 0:
+        raise HTTPException(status_code=400, detail=f"Cannot delete client with {inv_count} existing invoices. Set status to INACTIVE instead.")
+
+    name = customer.name
+    db.delete(customer)
+    db.commit()
+    log_audit_event(db, current_user, "DELETE_CLIENT", "Customer", str(customer_id), {"name": name})
+    return {"status": "SUCCESS", "message": f"Client '{name}' successfully removed."}
+
+@router.post("/import-masters")
+async def import_client_masters(
+    gst_file: Optional[UploadFile] = File(None),
+    it_file: Optional[UploadFile] = File(None),
+    tds_file: Optional[UploadFile] = File(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"]))
+):
+    upload_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), "uploads", "client_masters")
+    os.makedirs(upload_dir, exist_ok=True)
+    
+    gst_path = None
+    if gst_file and gst_file.filename:
+        gst_path = os.path.join(upload_dir, f"uploaded_{gst_file.filename}")
+        with open(gst_path, "wb") as f:
+            shutil.copyfileobj(gst_file.file, f)
+            
+    it_path = None
+    if it_file and it_file.filename:
+        it_path = os.path.join(upload_dir, f"uploaded_{it_file.filename}")
+        with open(it_path, "wb") as f:
+            shutil.copyfileobj(it_file.file, f)
+            
+    tds_path = None
+    if tds_file and tds_file.filename:
+        tds_path = os.path.join(upload_dir, f"uploaded_{tds_file.filename}")
+        with open(tds_path, "wb") as f:
+            shutil.copyfileobj(tds_file.file, f)
+            
+    importer = ClientMasterImporter(db=db)
+    result = importer.import_all_masters(
+        gst_path=gst_path,
+        it_path=it_path,
+        tds_path=tds_path,
+        current_user=current_user
+    )
+    return result
 
 @router.get("/{customer_id}/reconcile")
 def reconcile_customer(

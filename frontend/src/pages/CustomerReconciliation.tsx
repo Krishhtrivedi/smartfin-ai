@@ -20,7 +20,22 @@ import {
   ExternalLink,
   ChevronRight,
   ShieldCheck,
-  Check
+  Check,
+  Edit3,
+  Trash2,
+  Folder,
+  Key,
+  Phone,
+  Mail,
+  FileSpreadsheet,
+  Layers,
+  Lock,
+  Unlock,
+  Globe,
+  ChevronLeft,
+  Save,
+  Database,
+  Smartphone
 } from 'lucide-react';
 import { api } from '../services/api';
 import { CustomerSummary, Invoice } from '../types';
@@ -56,6 +71,45 @@ export const CustomerReconciliation: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'DUE' | 'PAID'>('ALL');
   const [activeTab, setActiveTab] = useState<'INVOICES' | 'RECEIPTS' | 'AGING' | 'STATEMENT'>('INVOICES');
 
+  // Primary Module Mode: 'DIRECTORY' | 'RECEIVABLES'
+  const [activeModuleMode, setActiveModuleMode] = useState<'DIRECTORY' | 'RECEIVABLES'>('DIRECTORY');
+
+  // Master Directory Filters & Pagination
+  const [directorySearch, setDirectorySearch] = useState('');
+  const [directoryFilter, setDirectoryFilter] = useState<'ALL' | 'GST' | 'IT' | 'TDS' | 'PHONE' | 'EMAIL'>('ALL');
+  const [dirPage, setDirPage] = useState(1);
+  const [dirPageSize, setDirPageSize] = useState(25);
+
+  // Edit Customer Modal State
+  const [editCustomerModalOpen, setEditCustomerModalOpen] = useState(false);
+  const [editingCustomerId, setEditingCustomerId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    trade_name: '',
+    gstin: '',
+    pan: '',
+    tan: '',
+    email: '',
+    phone: '',
+    folder_name: '',
+    compliance_status: 'ACTIVE',
+    credit_limit: 100000,
+    gst_username: '',
+    gst_password: '',
+    it_username: '',
+    it_password: '',
+    tds_username: '',
+    tds_password: ''
+  });
+
+  // Master Import State
+  const [masterImportModalOpen, setMasterImportModalOpen] = useState(false);
+  const [importingMasters, setImportingMasters] = useState(false);
+  const [importStats, setImportStats] = useState<any | null>(null);
+  const [uploadGstFile, setUploadGstFile] = useState<File | null>(null);
+  const [uploadItFile, setUploadItFile] = useState<File | null>(null);
+  const [uploadTdsFile, setUploadTdsFile] = useState<File | null>(null);
+
   // Modals
   const [addCustomerModalOpen, setAddCustomerModalOpen] = useState(false);
   const [addInvoiceModalOpen, setAddInvoiceModalOpen] = useState(false);
@@ -65,13 +119,23 @@ export const CustomerReconciliation: React.FC = () => {
 
   // Customer Form
   const [customerName, setCustomerName] = useState('');
+  const [customerTradeName, setCustomerTradeName] = useState('');
   const [customerGstin, setCustomerGstin] = useState('');
   const [customerPan, setCustomerPan] = useState('');
+  const [customerTan, setCustomerTan] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerState, setCustomerState] = useState('Gujarat');
+  const [customerFolderName, setCustomerFolderName] = useState('');
+  const [customerComplianceStatus, setCustomerComplianceStatus] = useState('ACTIVE');
   const [customerLimit, setCustomerLimit] = useState(1000000);
   const [customerTerms, setCustomerTerms] = useState(30);
+  const [customerGstUser, setCustomerGstUser] = useState('');
+  const [customerGstPwd, setCustomerGstPwd] = useState('');
+  const [customerItUser, setCustomerItUser] = useState('');
+  const [customerItPwd, setCustomerItPwd] = useState('');
+  const [customerTdsUser, setCustomerTdsUser] = useState('');
+  const [customerTdsPwd, setCustomerTdsPwd] = useState('');
 
   // Invoice Form
   const [invNumber, setInvNumber] = useState('');
@@ -146,30 +210,144 @@ export const CustomerReconciliation: React.FC = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
+      const cleanGstin = customerGstin.trim().toUpperCase();
+      const cleanPan = customerPan.trim().toUpperCase() || (cleanGstin.length >= 12 ? cleanGstin.slice(2, 12) : '');
       const newC = await api.createCustomer({
-        name: customerName,
-        gstin: customerGstin.trim(),
-        pan: customerPan || (customerGstin.length >= 12 ? customerGstin.slice(2, 12) : ''),
-        email: customerEmail.trim(),
-        phone: customerPhone.trim(),
+        name: customerName.trim(),
+        trade_name: customerTradeName.trim() || undefined,
+        gstin: cleanGstin || undefined,
+        pan: cleanPan || undefined,
+        tan: customerTan.trim().toUpperCase() || undefined,
+        email: customerEmail.trim() || undefined,
+        phone: customerPhone.trim() || undefined,
         state: customerState,
-        state_code: customerGstin.slice(0, 2) || '24',
+        state_code: cleanGstin.slice(0, 2) || '24',
+        folder_name: customerFolderName.trim() || customerName.trim(),
+        compliance_status: customerComplianceStatus,
         credit_limit: parseFloat(String(customerLimit)) || 1000000.0,
-        payment_terms_days: Number(customerTerms) || 30,
-        outstanding_balance: 0.0
+        outstanding_balance: 0.0,
+        gst_username: customerGstUser.trim() || undefined,
+        gst_password: customerGstPwd.trim() || undefined,
+        it_username: customerItUser.trim() || (cleanPan || undefined),
+        it_password: customerItPwd.trim() || undefined,
+        tds_username: customerTdsUser.trim() || undefined,
+        tds_password: customerTdsPwd.trim() || undefined
       });
       setAddCustomerModalOpen(false);
       setCustomerName('');
+      setCustomerTradeName('');
       setCustomerGstin('');
       setCustomerPan('');
+      setCustomerTan('');
       setCustomerEmail('');
       setCustomerPhone('');
+      setCustomerFolderName('');
+      setCustomerGstUser('');
+      setCustomerGstPwd('');
+      setCustomerItUser('');
+      setCustomerItPwd('');
+      setCustomerTdsUser('');
+      setCustomerTdsPwd('');
       await fetchCustomers();
       setSelectedCustomerId(newC.id);
+      alert(`Client '${newC.name}' successfully added to Master Directory.`);
     } catch (err: any) {
-      alert(`Error registering customer: ${err.message}`);
+      alert(`Error registering client: ${err.message}`);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleOpenEditCustomer = (c: CustomerSummary) => {
+    setEditingCustomerId(c.id);
+    setEditForm({
+      name: c.name || '',
+      trade_name: c.trade_name || '',
+      gstin: c.gstin || '',
+      pan: c.pan || '',
+      tan: c.tan || '',
+      email: c.email || '',
+      phone: c.phone || '',
+      folder_name: c.folder_name || c.name || '',
+      compliance_status: c.compliance_status || 'ACTIVE',
+      credit_limit: c.credit_limit || 100000,
+      gst_username: c.gst_username || '',
+      gst_password: '',
+      it_username: c.it_username || '',
+      it_password: '',
+      tds_username: c.tds_username || '',
+      tds_password: ''
+    });
+    setEditCustomerModalOpen(true);
+  };
+
+  const handleUpdateCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCustomerId) return;
+    setSubmitting(true);
+    try {
+      const payload: any = {
+        name: editForm.name.trim(),
+        trade_name: editForm.trade_name.trim() || null,
+        gstin: editForm.gstin.trim() ? editForm.gstin.trim().toUpperCase() : null,
+        pan: editForm.pan.trim() ? editForm.pan.trim().toUpperCase() : null,
+        tan: editForm.tan.trim() ? editForm.tan.trim().toUpperCase() : null,
+        email: editForm.email.trim() || null,
+        phone: editForm.phone.trim() || null,
+        folder_name: editForm.folder_name.trim() || editForm.name.trim(),
+        compliance_status: editForm.compliance_status,
+        credit_limit: parseFloat(String(editForm.credit_limit)) || 100000,
+        gst_username: editForm.gst_username.trim() || null,
+        it_username: editForm.it_username.trim() || null,
+        tds_username: editForm.tds_username.trim() || null
+      };
+      if (editForm.gst_password.trim()) payload.gst_password = editForm.gst_password.trim();
+      if (editForm.it_password.trim()) payload.it_password = editForm.it_password.trim();
+      if (editForm.tds_password.trim()) payload.tds_password = editForm.tds_password.trim();
+
+      const updated = await api.updateCustomer(editingCustomerId, payload);
+      setCustomers(prev => prev.map(c => c.id === editingCustomerId ? { ...c, ...updated } : c));
+      setEditCustomerModalOpen(false);
+      alert(`Client '${updated.name}' updated successfully.`);
+    } catch (err: any) {
+      alert(`Update failed: ${err.message}`);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteCustomer = async (id: number, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete client '${name}'?`)) return;
+    try {
+      await api.deleteCustomer(id);
+      setCustomers(prev => prev.filter(c => c.id !== id));
+      if (selectedCustomerId === id) {
+        setSelectedCustomerId(null);
+      }
+      alert(`Client '${name}' deleted successfully.`);
+    } catch (err: any) {
+      alert(`Delete failed: ${err.message}`);
+    }
+  };
+
+  const handleTriggerMasterImport = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setImportingMasters(true);
+    try {
+      const formData = new FormData();
+      if (uploadGstFile) formData.append('gst_file', uploadGstFile);
+      if (uploadItFile) formData.append('it_file', uploadItFile);
+      if (uploadTdsFile) formData.append('tds_file', uploadTdsFile);
+
+      const res = await api.importClientMasters(formData);
+      setImportStats(res);
+      await fetchCustomers();
+      setMasterImportModalOpen(false);
+      alert(`Master Import completed successfully!\n• Clients Created: ${res.clients_created}\n• Clients Updated: ${res.clients_updated}\n• Total in Database: ${res.total_clients_in_db}`);
+    } catch (err: any) {
+      alert(`Master import failed: ${err.message}`);
+    } finally {
+      setImportingMasters(false);
     }
   };
 
@@ -294,6 +472,44 @@ export const CustomerReconciliation: React.FC = () => {
     });
   }, [customers, searchQuery, statusFilter]);
 
+  // Master Directory filtered and paginated list
+  const directoryFilteredClients = useMemo(() => {
+    return customers.filter(c => {
+      if (directoryFilter === 'GST' && !c.gstin) return false;
+      if (directoryFilter === 'IT' && !c.pan && !c.it_username) return false;
+      if (directoryFilter === 'TDS' && !c.tan && !c.tds_username) return false;
+      if (directoryFilter === 'PHONE' && !c.phone) return false;
+      if (directoryFilter === 'EMAIL' && !c.email) return false;
+
+      if (!directorySearch.trim()) return true;
+      const q = directorySearch.toLowerCase().trim();
+      return (
+        (c.name && c.name.toLowerCase().includes(q)) ||
+        (c.trade_name && c.trade_name.toLowerCase().includes(q)) ||
+        (c.gstin && c.gstin.toLowerCase().includes(q)) ||
+        (c.pan && c.pan.toLowerCase().includes(q)) ||
+        (c.tan && c.tan.toLowerCase().includes(q)) ||
+        (c.phone && c.phone.toLowerCase().includes(q)) ||
+        (c.email && c.email.toLowerCase().includes(q)) ||
+        (c.folder_name && c.folder_name.toLowerCase().includes(q))
+      );
+    });
+  }, [customers, directorySearch, directoryFilter]);
+
+  const totalDirPages = Math.ceil(directoryFilteredClients.length / dirPageSize) || 1;
+  const paginatedClients = useMemo(() => {
+    const start = (dirPage - 1) * dirPageSize;
+    return directoryFilteredClients.slice(start, start + dirPageSize);
+  }, [directoryFilteredClients, dirPage, dirPageSize]);
+
+  // Total stat counts across all clients
+  const totalMasterCount = customers.length;
+  const gstRegisteredCount = customers.filter(c => c.gstin).length;
+  const itAssesseesCount = customers.filter(c => c.pan || c.it_username).length;
+  const tdsDeductorsCount = customers.filter(c => c.tan || c.tds_username).length;
+  const withPhoneCount = customers.filter(c => c.phone).length;
+  const withEmailCount = customers.filter(c => c.email).length;
+
   const totalReceivables = customers.reduce((sum, c) => sum + (c.outstanding_balance || 0), 0);
   const totalInvoicedAll = customers.reduce((sum, c) => sum + (c.total_sales || 0), 0);
   const totalCollectedAll = customers.reduce((sum, c) => sum + (c.total_received || 0), 0);
@@ -307,17 +523,17 @@ export const CustomerReconciliation: React.FC = () => {
         <div>
           <div className="flex items-center space-x-2">
             <span className="spec-tag text-[#E65909] font-bold bg-[#E65909]/10 px-2 py-0.5 rounded-[2px] border border-[#E65909]/30 text-[10px] font-mono tracking-wider">
-              03 / TRADE RECEIVABLES
+              03 / CLIENT MASTER & TRADE RECEIVABLES
             </span>
             <span className="text-[10px] font-mono text-[#8B97A3] uppercase tracking-wider">
-              Sales Ledger & DSO Recovery Subsystem
+              Unified Client Directory & Statutory Hub
             </span>
           </div>
           <h2 className="text-base font-display font-bold text-white mt-1">
-            Customer Trade Receivables & Collection Ledger
+            Client Master & Trade Receivables Hub
           </h2>
           <p className="text-xs text-[#8B97A3] mt-0.5">
-            Real-time sales invoices, payment receipt vouchers, credit limit monitoring, and automated debtor aging.
+            Admin CRUD management, Excel Master mapping (GST, TDS, IT Genius), WhatsApp & Email registry, and Sales ledger.
           </p>
         </div>
 
@@ -327,39 +543,352 @@ export const CustomerReconciliation: React.FC = () => {
             className="btn-signal flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-[3px]"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>+ Add Customer</span>
+            <span>+ Add New Client</span>
           </button>
 
-          {selectedCustomerId && (
-            <>
-              <button
-                onClick={() => setAddInvoiceModalOpen(true)}
-                className="bg-[#1A2F46] hover:bg-[#23374d] text-white border border-[#364452] px-3 py-1.5 text-xs font-semibold rounded-[3px] flex items-center space-x-1.5 transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5 text-[#E65909]" />
-                <span>+ Record Sales Invoice</span>
-              </button>
-
-              <button
-                onClick={() => setAddReceiptModalOpen(true)}
-                className="bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 text-xs font-semibold rounded-[3px] flex items-center space-x-1.5 transition-colors shadow-xs"
-              >
-                <Receipt className="w-3.5 h-3.5" />
-                <span>+ Record Payment Receipt</span>
-              </button>
-
-              <button
-                onClick={() => setUploadModalOpen(true)}
-                className="bg-[#0D2035] hover:bg-[#1A2F46] text-[#E6ECF2] border border-[#364452] px-3 py-1.5 text-xs font-semibold rounded-[3px] flex items-center space-x-1.5 transition-colors"
-                title="Upload Customer Ledger Statement (Excel/CSV)"
-              >
-                <Upload className="w-3.5 h-3.5 text-[#8B97A3]" />
-                <span>Upload Statement</span>
-              </button>
-            </>
-          )}
+          <button
+            onClick={() => setMasterImportModalOpen(true)}
+            className="bg-[#1A2F46] hover:bg-[#23374d] text-white border border-[#364452] px-3 py-1.5 text-xs font-semibold rounded-[3px] flex items-center space-x-1.5 transition-colors shadow-xs"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Sync Excel Masters</span>
+          </button>
         </div>
       </div>
+
+      {/* Primary Sub-Tab Switcher: 1. Client Master Directory vs 2. Trade Receivables */}
+      <div className="flex items-center space-x-2 border-b border-[#C5CBD2] pb-1">
+        <button
+          onClick={() => setActiveModuleMode('DIRECTORY')}
+          className={`px-4 py-2 text-xs font-semibold rounded-[3px] flex items-center space-x-2 transition-all ${
+            activeModuleMode === 'DIRECTORY'
+              ? 'bg-[#1A2F46] text-white shadow-xs font-bold'
+              : 'text-[#5D646C] hover:text-[#1A2F46] hover:bg-[#ECE9E3]'
+          }`}
+        >
+          <Users2 className="w-4 h-4 text-[#E65909]" />
+          <span>1. Client Master Directory ({totalMasterCount.toLocaleString()})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveModuleMode('RECEIVABLES')}
+          className={`px-4 py-2 text-xs font-semibold rounded-[3px] flex items-center space-x-2 transition-all ${
+            activeModuleMode === 'RECEIVABLES'
+              ? 'bg-[#1A2F46] text-white shadow-xs font-bold'
+              : 'text-[#5D646C] hover:text-[#1A2F46] hover:bg-[#ECE9E3]'
+          }`}
+        >
+          <Receipt className="w-4 h-4 text-emerald-600" />
+          <span>2. Trade Receivables & Subledger</span>
+        </button>
+      </div>
+
+      {/* VIEW 1: CLIENT MASTER DIRECTORY */}
+      {activeModuleMode === 'DIRECTORY' && (
+        <div className="space-y-4">
+          {/* Master Stats Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+            <div className="bg-white p-3 rounded-[3px] border border-[#C5CBD2] shadow-xs">
+              <span className="text-[10px] font-mono text-[#5D646C] uppercase tracking-wider block">Total Clients</span>
+              <p className="text-lg font-display font-bold text-[#1A2F46] mt-0.5 font-mono">{totalMasterCount.toLocaleString()}</p>
+              <span className="text-[9px] text-[#8B97A3]">Master Database</span>
+            </div>
+
+            <div className="bg-white p-3 rounded-[3px] border border-[#C5CBD2] shadow-xs">
+              <span className="text-[10px] font-mono text-[#1A2F46] uppercase tracking-wider block">GST Registered</span>
+              <p className="text-lg font-display font-bold text-[#1A2F46] mt-0.5 font-mono">{gstRegisteredCount}</p>
+              <span className="text-[9px] text-[#8B97A3]">GSTIN Mapped</span>
+            </div>
+
+            <div className="bg-white p-3 rounded-[3px] border border-[#C5CBD2] shadow-xs">
+              <span className="text-[10px] font-mono text-[#1A2F46] uppercase tracking-wider block">Income Tax</span>
+              <p className="text-lg font-display font-bold text-[#1A2F46] mt-0.5 font-mono">{itAssesseesCount.toLocaleString()}</p>
+              <span className="text-[9px] text-[#8B97A3]">PAN & Genius IT</span>
+            </div>
+
+            <div className="bg-white p-3 rounded-[3px] border border-[#C5CBD2] shadow-xs">
+              <span className="text-[10px] font-mono text-[#1A2F46] uppercase tracking-wider block">TDS Deductors</span>
+              <p className="text-lg font-display font-bold text-[#1A2F46] mt-0.5 font-mono">{tdsDeductorsCount}</p>
+              <span className="text-[9px] text-[#8B97A3]">TAN Accounts</span>
+            </div>
+
+            <div className="bg-white p-3 rounded-[3px] border border-[#C5CBD2] shadow-xs">
+              <span className="text-[10px] font-mono text-emerald-700 uppercase tracking-wider block">WhatsApp Phone</span>
+              <p className="text-lg font-display font-bold text-emerald-700 mt-0.5 font-mono">{withPhoneCount}</p>
+              <span className="text-[9px] text-[#8B97A3]">Direct Reminder</span>
+            </div>
+
+            <div className="bg-white p-3 rounded-[3px] border border-[#C5CBD2] shadow-xs">
+              <span className="text-[10px] font-mono text-blue-700 uppercase tracking-wider block">Email Linked</span>
+              <p className="text-lg font-display font-bold text-blue-700 mt-0.5 font-mono">{withEmailCount}</p>
+              <span className="text-[9px] text-[#8B97A3]">GSTR PDF Dispatch</span>
+            </div>
+          </div>
+
+          {/* Directory Control Strip */}
+          <div className="bg-white p-3 rounded-[3px] border border-[#C5CBD2] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+            {/* Search Input */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="w-3.5 h-3.5 text-[#8B97A3] absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search by client name, trade name, GSTIN, PAN, TAN, phone, or folder..."
+                value={directorySearch}
+                onChange={(e) => { setDirectorySearch(e.target.value); setDirPage(1); }}
+                className="w-full pl-9 pr-8 py-2 text-xs bg-white border border-[#C5CBD2] rounded-[2px] font-sans focus:outline-none focus:border-[#E65909]"
+              />
+              {directorySearch && (
+                <button
+                  onClick={() => { setDirectorySearch(''); setDirPage(1); }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#8B97A3] hover:text-[#1A2F46]"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+
+            {/* Filter Chips */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              {[
+                { id: 'ALL', label: `All (${totalMasterCount})` },
+                { id: 'GST', label: `GST (${gstRegisteredCount})` },
+                { id: 'IT', label: `Income Tax (${itAssesseesCount})` },
+                { id: 'TDS', label: `TDS (${tdsDeductorsCount})` },
+                { id: 'PHONE', label: `With Phone (${withPhoneCount})` },
+                { id: 'EMAIL', label: `With Email (${withEmailCount})` }
+              ].map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => { setDirectoryFilter(f.id as any); setDirPage(1); }}
+                  className={`px-2.5 py-1 text-[11px] font-mono uppercase tracking-wider rounded-[2px] font-semibold transition-colors ${
+                    directoryFilter === f.id
+                      ? 'bg-[#1A2F46] text-white shadow-xs'
+                      : 'bg-[#F6F3EE] text-[#5D646C] hover:bg-[#ECE9E3]'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Master Clients Table */}
+          <div className="bg-white rounded-[3px] border border-[#C5CBD2] shadow-xs overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-[#1A2F46] text-white text-[11px] font-mono uppercase tracking-wider border-b border-[#364452]">
+                    <th className="py-2.5 px-3 font-semibold">Client / Trade Entity</th>
+                    <th className="py-2.5 px-3 font-semibold">Identifiers (GSTIN / PAN / TAN)</th>
+                    <th className="py-2.5 px-3 font-semibold">Contact (WhatsApp / Email)</th>
+                    <th className="py-2.5 px-3 font-semibold">Desktop Folder</th>
+                    <th className="py-2.5 px-3 font-semibold text-center">Portals Linked</th>
+                    <th className="py-2.5 px-3 font-semibold text-center">Status</th>
+                    <th className="py-2.5 px-3 font-semibold text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#ECE9E3] font-sans">
+                  {paginatedClients.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="text-center py-12 text-[#8B97A3]">
+                        <Users2 className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                        <p className="text-xs font-semibold">No clients match the current search or filter criteria.</p>
+                        <p className="text-[10px] mt-0.5">Try clearing the search query or import records from Excel Masters.</p>
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedClients.map(c => (
+                      <tr key={c.id} className="hover:bg-[#F6F3EE]/80 transition-colors">
+                        <td className="py-2.5 px-3">
+                          <div className="font-semibold text-[#1A2F46] font-display text-xs">
+                            {c.name}
+                          </div>
+                          {c.trade_name && c.trade_name !== c.name && (
+                            <div className="text-[10px] font-mono text-[#5D646C] mt-0.5">
+                              Trade: {c.trade_name}
+                            </div>
+                          )}
+                        </td>
+
+                        <td className="py-2.5 px-3">
+                          <div className="space-y-0.5 font-mono text-[11px]">
+                            {c.gstin ? (
+                              <div className="flex items-center space-x-1.5">
+                                <span className="bg-brand-50 text-brand-700 px-1.5 py-0.2 rounded text-[10px] font-bold">GST</span>
+                                <span className="text-[#1A2F46] font-semibold">{c.gstin}</span>
+                              </div>
+                            ) : null}
+                            {c.pan ? (
+                              <div className="flex items-center space-x-1.5">
+                                <span className="bg-blue-50 text-blue-700 px-1.5 py-0.2 rounded text-[10px] font-bold">PAN</span>
+                                <span className="text-[#5D646C]">{c.pan}</span>
+                              </div>
+                            ) : null}
+                            {c.tan ? (
+                              <div className="flex items-center space-x-1.5">
+                                <span className="bg-amber-50 text-amber-800 px-1.5 py-0.2 rounded text-[10px] font-bold">TAN</span>
+                                <span className="text-[#5D646C]">{c.tan}</span>
+                              </div>
+                            ) : null}
+                            {!c.gstin && !c.pan && !c.tan && (
+                              <span className="text-[#8B97A3] text-[10px]">None specified</span>
+                            )}
+                          </div>
+                        </td>
+
+                        <td className="py-2.5 px-3">
+                          <div className="space-y-0.5 text-xs">
+                            {c.phone ? (
+                              <div className="flex items-center space-x-1 text-emerald-700 font-mono text-[11px]">
+                                <Phone className="w-3 h-3 flex-shrink-0" />
+                                <span>{c.phone}</span>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => handleOpenEditCustomer(c)}
+                                className="text-[10px] font-mono text-[#8B97A3] hover:text-[#E65909] underline"
+                              >
+                                + Add Phone
+                              </button>
+                            )}
+                            {c.email ? (
+                              <div className="flex items-center space-x-1 text-blue-700 font-mono text-[11px] truncate max-w-[180px]">
+                                <Mail className="w-3 h-3 flex-shrink-0" />
+                                <span className="truncate">{c.email}</span>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => handleOpenEditCustomer(c)}
+                                className="text-[10px] font-mono text-[#8B97A3] hover:text-[#E65909] underline block"
+                              >
+                                + Add Email
+                              </button>
+                            )}
+                          </div>
+                        </td>
+
+                        <td className="py-2.5 px-3 font-mono text-[11px] text-[#5D646C]">
+                          <div className="flex items-center space-x-1">
+                            <Folder className="w-3 h-3 text-amber-600 flex-shrink-0" />
+                            <span className="truncate max-w-[140px]" title={c.folder_name || c.name}>
+                              {c.folder_name || c.name}
+                            </span>
+                          </div>
+                        </td>
+
+                        <td className="py-2.5 px-3 text-center">
+                          <div className="inline-flex items-center space-x-1 font-mono text-[10px]">
+                            <span className={`px-1.5 py-0.5 rounded ${c.has_gst_password ? 'bg-emerald-100 text-emerald-800 font-bold' : 'bg-slate-100 text-slate-400'}`} title={c.has_gst_password ? 'GST Password configured (Encrypted)' : 'No GST credentials'}>
+                              GST
+                            </span>
+                            <span className={`px-1.5 py-0.5 rounded ${c.has_it_password ? 'bg-emerald-100 text-emerald-800 font-bold' : 'bg-slate-100 text-slate-400'}`} title={c.has_it_password ? 'Income Tax Password configured (Encrypted)' : 'No IT credentials'}>
+                              IT
+                            </span>
+                            <span className={`px-1.5 py-0.5 rounded ${c.has_tds_password ? 'bg-emerald-100 text-emerald-800 font-bold' : 'bg-slate-100 text-slate-400'}`} title={c.has_tds_password ? 'TDS Password configured (Encrypted)' : 'No TDS credentials'}>
+                              TDS
+                            </span>
+                          </div>
+                        </td>
+
+                        <td className="py-2.5 px-3 text-center">
+                          <span className={`inline-block px-2 py-0.5 text-[10px] font-mono font-bold rounded ${
+                            c.compliance_status === 'ACTIVE'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          }`}>
+                            {c.compliance_status || 'ACTIVE'}
+                          </span>
+                        </td>
+
+                        <td className="py-2.5 px-3 text-right">
+                          <div className="flex items-center justify-end space-x-1.5">
+                            <button
+                              onClick={() => handleOpenEditCustomer(c)}
+                              className="px-2 py-1 bg-slate-100 hover:bg-[#1A2F46] hover:text-white text-[#1A2F46] rounded text-[11px] font-semibold flex items-center space-x-1 transition-colors"
+                              title="Edit Client Information"
+                            >
+                              <Edit3 className="w-3 h-3" />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedCustomerId(c.id);
+                                setActiveModuleMode('RECEIVABLES');
+                              }}
+                              className="px-2 py-1 bg-[#F6F3EE] hover:bg-[#ECE9E3] text-[#5D646C] hover:text-[#1A2F46] rounded text-[11px] font-mono flex items-center space-x-1 transition-colors"
+                              title="View Trade Receivables Ledger"
+                            >
+                              <Receipt className="w-3 h-3 text-emerald-600" />
+                              <span>Ledger</span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="p-3 bg-[#F6F3EE] border-t border-[#C5CBD2] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono text-[#5D646C]">
+              <div className="flex items-center space-x-2">
+                <span>Show</span>
+                <select
+                  value={dirPageSize}
+                  onChange={(e) => { setDirPageSize(Number(e.target.value)); setDirPage(1); }}
+                  className="px-2 py-1 bg-white border border-[#C5CBD2] rounded text-xs focus:outline-none"
+                >
+                  <option value={25}>25 per page</option>
+                  <option value={50}>50 per page</option>
+                  <option value={100}>100 per page</option>
+                </select>
+                <span>
+                  Showing {directoryFilteredClients.length === 0 ? 0 : (dirPage - 1) * dirPageSize + 1} to {Math.min(dirPage * dirPageSize, directoryFilteredClients.length)} of {directoryFilteredClients.length} clients
+                </span>
+              </div>
+
+              <div className="flex items-center space-x-1">
+                <button
+                  onClick={() => setDirPage(1)}
+                  disabled={dirPage === 1}
+                  className="px-2.5 py-1 bg-white border border-[#C5CBD2] rounded text-xs disabled:opacity-40 hover:bg-[#ECE9E3]"
+                >
+                  « First
+                </button>
+                <button
+                  onClick={() => setDirPage(p => Math.max(1, p - 1))}
+                  disabled={dirPage === 1}
+                  className="px-2.5 py-1 bg-white border border-[#C5CBD2] rounded text-xs disabled:opacity-40 hover:bg-[#ECE9E3]"
+                >
+                  ‹ Prev
+                </button>
+                <span className="px-3 py-1 font-bold text-[#1A2F46]">
+                  Page {dirPage} of {totalDirPages}
+                </span>
+                <button
+                  onClick={() => setDirPage(p => Math.min(totalDirPages, p + 1))}
+                  disabled={dirPage === totalDirPages || totalDirPages === 0}
+                  className="px-2.5 py-1 bg-white border border-[#C5CBD2] rounded text-xs disabled:opacity-40 hover:bg-[#ECE9E3]"
+                >
+                  Next ›
+                </button>
+                <button
+                  onClick={() => setDirPage(totalDirPages)}
+                  disabled={dirPage === totalDirPages || totalDirPages === 0}
+                  className="px-2.5 py-1 bg-white border border-[#C5CBD2] rounded text-xs disabled:opacity-40 hover:bg-[#ECE9E3]"
+                >
+                  Last »
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW 2: TRADE RECEIVABLES & AGING WORKSPACE */}
+      {activeModuleMode === 'RECEIVABLES' && (
+        <>
 
       {/* Aggregate Overview Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -924,104 +1453,219 @@ export const CustomerReconciliation: React.FC = () => {
           )}
         </div>
       </div>
+      </>
+      )}
 
-      {/* Add Customer Modal */}
+      {/* Add Client / Customer Modal */}
       <Modal
         isOpen={addCustomerModalOpen}
         onClose={() => setAddCustomerModalOpen(false)}
-        title="Register Customer / Client Account"
-        subtitle="Create a new trade debtor in your accounts receivable subledger"
+        title="Add New Client to Master Directory"
+        subtitle="Provision a verified assessee with GST, IT, TDS identifiers and automated desktop filing folder"
       >
-        <form onSubmit={handleCreateCustomer} className="space-y-3 font-sans">
-          <div>
-            <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
-              Customer / Client Legal Entity Name *
-            </label>
-            <input
-              type="text"
-              required
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="e.g. Reliance Retail Logistics Ltd"
-              className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
-            />
+        <form onSubmit={handleCreateCustomer} className="space-y-3 font-sans max-h-[75vh] overflow-y-auto pr-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+                Client / Company Legal Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder="e.g. HIREN PATEL ARCHITECT"
+                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+                Trade Name (Optional)
+              </label>
+              <input
+                type="text"
+                value={customerTradeName}
+                onChange={(e) => setCustomerTradeName(e.target.value)}
+                placeholder="e.g. HPA Studio"
+                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">GSTIN (15 Digits)</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">GSTIN (15 Chars)</label>
               <input
                 type="text"
                 value={customerGstin}
-                onChange={(e) => setCustomerGstin(e.target.value.toUpperCase())}
-                placeholder="24AABCR1234D1Z5"
+                onChange={(e) => {
+                  const val = e.target.value.toUpperCase();
+                  setCustomerGstin(val);
+                  if (val.length >= 12 && !customerPan) {
+                    setCustomerPan(val.slice(2, 12));
+                  }
+                }}
+                placeholder="24AAMPP2463N2Z7"
                 maxLength={15}
                 className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
+
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">PAN</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Income Tax PAN</label>
               <input
                 type="text"
                 value={customerPan}
                 onChange={(e) => setCustomerPan(e.target.value.toUpperCase())}
-                placeholder="AABCR1234D"
+                placeholder="AAMPP2463N"
+                maxLength={10}
+                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">TDS TAN (10 Chars)</label>
+              <input
+                type="text"
+                value={customerTan}
+                onChange={(e) => setCustomerTan(e.target.value.toUpperCase())}
+                placeholder="AHMH01522D"
                 maxLength={10}
                 className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Accounts Email</label>
-              <input
-                type="email"
-                value={customerEmail}
-                onChange={(e) => setCustomerEmail(e.target.value)}
-                placeholder="billing@customer.com"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
-              />
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+                WhatsApp Phone Number
+              </label>
+              <div className="relative">
+                <Smartphone className="w-3.5 h-3.5 text-emerald-600 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  placeholder="+91 98765 43210"
+                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                />
+              </div>
+              <span className="text-[10px] text-[#8B97A3]">Used for Daily TDS/GST Reminders & Delivery</span>
             </div>
+
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Accounts Phone</label>
-              <input
-                type="text"
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                placeholder="+91 98765 43210"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
-              />
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+                Official Accounts Email
+              </label>
+              <div className="relative">
+                <Mail className="w-3.5 h-3.5 text-blue-600 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="email"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  placeholder="accounts@clientcompany.com"
+                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                />
+              </div>
+              <span className="text-[10px] text-[#8B97A3]">Used for GSTR-1, 2B, 3B Auto-Email Dispatch</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">State</label>
-              <input
-                type="text"
-                value={customerState}
-                onChange={(e) => setCustomerState(e.target.value)}
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+                Local Desktop Folder Name
+              </label>
+              <div className="relative">
+                <Folder className="w-3.5 h-3.5 text-amber-600 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={customerFolderName}
+                  onChange={(e) => setCustomerFolderName(e.target.value)}
+                  placeholder="Defaults to Client Name"
+                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                />
+              </div>
+              <span className="text-[10px] text-[#8B97A3]">Directory on Mac: ~/Desktop/&lt;Folder&gt;</span>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Compliance Status</label>
+              <select
+                value={customerComplianceStatus}
+                onChange={(e) => setCustomerComplianceStatus(e.target.value)}
                 className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
-              />
+              >
+                <option value="ACTIVE">ACTIVE (Receives Reminders & Dispatches)</option>
+                <option value="PENDING_ONBOARDING">PENDING ONBOARDING</option>
+                <option value="INACTIVE">INACTIVE</option>
+              </select>
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Credit Limit (₹)</label>
-              <input
-                type="number"
-                value={customerLimit}
-                onChange={(e) => setCustomerLimit(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Terms (Days)</label>
-              <input
-                type="number"
-                value={customerTerms}
-                onChange={(e) => setCustomerTerms(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
-              />
+          </div>
+
+          {/* Optional Portal Credentials (Encrypted at Rest) */}
+          <div className="p-3 bg-[#F6F3EE] rounded-[3px] border border-[#C5CBD2] space-y-2 mt-2">
+            <span className="text-[11px] font-mono font-bold text-[#1A2F46] flex items-center gap-1.5 uppercase tracking-wider">
+              <Lock className="w-3.5 h-3.5 text-emerald-700" />
+              <span>Statutory Portal Credentials (Zero Plaintext — AES Encrypted)</span>
+            </span>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div>
+                <label className="block text-[10px] font-mono text-[#5D646C]">GST Portal User</label>
+                <input
+                  type="text"
+                  value={customerGstUser}
+                  onChange={(e) => setCustomerGstUser(e.target.value)}
+                  placeholder="GST Username"
+                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono"
+                />
+                <input
+                  type="password"
+                  value={customerGstPwd}
+                  onChange={(e) => setCustomerGstPwd(e.target.value)}
+                  placeholder="GST Password"
+                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono mt-1"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-mono text-[#5D646C]">IT e-Filing User</label>
+                <input
+                  type="text"
+                  value={customerItUser}
+                  onChange={(e) => setCustomerItUser(e.target.value)}
+                  placeholder="PAN / IT User"
+                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono"
+                />
+                <input
+                  type="password"
+                  value={customerItPwd}
+                  onChange={(e) => setCustomerItPwd(e.target.value)}
+                  placeholder="IT Password"
+                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono mt-1"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-mono text-[#5D646C]">TDS Traces User</label>
+                <input
+                  type="text"
+                  value={customerTdsUser}
+                  onChange={(e) => setCustomerTdsUser(e.target.value)}
+                  placeholder="TDS User ID"
+                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono"
+                />
+                <input
+                  type="password"
+                  value={customerTdsPwd}
+                  onChange={(e) => setCustomerTdsPwd(e.target.value)}
+                  placeholder="TDS Password"
+                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono mt-1"
+                />
+              </div>
             </div>
           </div>
 
@@ -1038,10 +1682,330 @@ export const CustomerReconciliation: React.FC = () => {
               disabled={submitting}
               className="btn-signal px-4 py-2 text-xs font-semibold rounded-[2px] text-white disabled:opacity-50"
             >
-              {submitting ? 'Registering...' : 'Register Customer'}
+              {submitting ? 'Registering...' : 'Save Client to Master'}
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Edit Client / Customer Modal */}
+      <Modal
+        isOpen={editCustomerModalOpen}
+        onClose={() => setEditCustomerModalOpen(false)}
+        title="Edit Client Master Record"
+        subtitle={`Update official identifiers, contacts, and folder for ${editForm.name}`}
+      >
+        <form onSubmit={handleUpdateCustomer} className="space-y-3 font-sans max-h-[75vh] overflow-y-auto pr-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+                Client / Company Legal Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editForm.name}
+                onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+                Trade Name
+              </label>
+              <input
+                type="text"
+                value={editForm.trade_name}
+                onChange={(e) => setEditForm(prev => ({ ...prev, trade_name: e.target.value }))}
+                placeholder="Optional trade / brand name"
+                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">GSTIN (15 Chars)</label>
+              <input
+                type="text"
+                value={editForm.gstin}
+                onChange={(e) => setEditForm(prev => ({ ...prev, gstin: e.target.value.toUpperCase() }))}
+                placeholder="24AAMPP2463N2Z7"
+                maxLength={15}
+                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Income Tax PAN</label>
+              <input
+                type="text"
+                value={editForm.pan}
+                onChange={(e) => setEditForm(prev => ({ ...prev, pan: e.target.value.toUpperCase() }))}
+                placeholder="AAMPP2463N"
+                maxLength={10}
+                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">TDS TAN</label>
+              <input
+                type="text"
+                value={editForm.tan}
+                onChange={(e) => setEditForm(prev => ({ ...prev, tan: e.target.value.toUpperCase() }))}
+                placeholder="AHMH01522D"
+                maxLength={10}
+                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+                WhatsApp Phone Number
+              </label>
+              <div className="relative">
+                <Smartphone className="w-3.5 h-3.5 text-emerald-600 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="+91 98765 43210"
+                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                />
+              </div>
+              <span className="text-[10px] text-[#8B97A3]">Used for Daily WhatsApp TDS/GST Reminders</span>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+                Official Accounts Email
+              </label>
+              <div className="relative">
+                <Mail className="w-3.5 h-3.5 text-blue-600 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="accounts@clientcompany.com"
+                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                />
+              </div>
+              <span className="text-[10px] text-[#8B97A3]">Used for GSTR PDF Auto-Email & Compliance Letters</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+                Local Desktop Folder Name
+              </label>
+              <div className="relative">
+                <Folder className="w-3.5 h-3.5 text-amber-600 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={editForm.folder_name}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, folder_name: e.target.value }))}
+                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                />
+              </div>
+              <span className="text-[10px] text-[#8B97A3]">Sync directory on Mac: ~/Desktop/&lt;Folder&gt;</span>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Compliance Status</label>
+              <select
+                value={editForm.compliance_status}
+                onChange={(e) => setEditForm(prev => ({ ...prev, compliance_status: e.target.value }))}
+                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              >
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="PENDING_ONBOARDING">PENDING ONBOARDING</option>
+                <option value="INACTIVE">INACTIVE</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Optional Portal Credentials Update */}
+          <div className="p-3 bg-[#F6F3EE] rounded-[3px] border border-[#C5CBD2] space-y-2 mt-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-mono font-bold text-[#1A2F46] flex items-center gap-1.5 uppercase tracking-wider">
+                <Lock className="w-3.5 h-3.5 text-emerald-700" />
+                <span>Statutory Portal Credentials (AES Encrypted at Rest)</span>
+              </span>
+              <span className="text-[10px] text-[#8B97A3]">Leave password blank to preserve existing</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div>
+                <label className="block text-[10px] font-mono text-[#5D646C]">GST Portal</label>
+                <input
+                  type="text"
+                  value={editForm.gst_username}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, gst_username: e.target.value }))}
+                  placeholder="GST Username"
+                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono"
+                />
+                <input
+                  type="password"
+                  value={editForm.gst_password}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, gst_password: e.target.value }))}
+                  placeholder="New password (optional)"
+                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono mt-1"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-mono text-[#5D646C]">Income Tax e-Filing</label>
+                <input
+                  type="text"
+                  value={editForm.it_username}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, it_username: e.target.value }))}
+                  placeholder="PAN / IT User"
+                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono"
+                />
+                <input
+                  type="password"
+                  value={editForm.it_password}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, it_password: e.target.value }))}
+                  placeholder="New password (optional)"
+                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono mt-1"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-mono text-[#5D646C]">TDS Traces</label>
+                <input
+                  type="text"
+                  value={editForm.tds_username}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, tds_username: e.target.value }))}
+                  placeholder="TDS User ID"
+                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono"
+                />
+                <input
+                  type="password"
+                  value={editForm.tds_password}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, tds_password: e.target.value }))}
+                  placeholder="New password (optional)"
+                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono mt-1"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center pt-3 border-t border-[#ECE9E3]">
+            {editingCustomerId && (
+              <button
+                type="button"
+                onClick={() => handleDeleteCustomer(editingCustomerId, editForm.name)}
+                className="px-3 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded border border-rose-200 font-semibold flex items-center space-x-1"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete</span>
+              </button>
+            )}
+
+            <div className="flex space-x-2 ml-auto">
+              <button
+                type="button"
+                onClick={() => setEditCustomerModalOpen(false)}
+                className="px-4 py-2 border border-[#C5CBD2] text-xs font-semibold rounded-[2px] text-[#5D646C] hover:bg-[#F6F3EE]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="btn-signal px-4 py-2 text-xs font-semibold rounded-[2px] text-white disabled:opacity-50"
+              >
+                {submitting ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Master Excel Import & Sync Modal */}
+      <Modal
+        isOpen={masterImportModalOpen}
+        onClose={() => setMasterImportModalOpen(false)}
+        title="Import & Sync Excel Masters"
+        subtitle="Process GST_Company Master.xlsx, TDS Master.xlsx, and IT Genius credentials"
+      >
+        <div className="space-y-4 font-sans">
+          <div className="p-3 bg-[#F6F3EE] rounded-[3px] border border-[#C5CBD2] text-xs text-[#1A2F46] space-y-1.5">
+            <p className="font-bold">Automated Master Mapping Pipeline:</p>
+            <p className="text-[11px] text-[#5D646C]">
+              Reads from <code>data/client_masters/</code> or uploaded files, maps GSTIN, PAN, and TAN across records, and securely encrypts all credentials with zero plaintext exposure.
+            </p>
+            <div className="grid grid-cols-3 gap-2 pt-1 font-mono text-[10px]">
+              <div className="bg-white p-2 rounded border border-[#C5CBD2]">
+                <span className="font-bold text-[#1A2F46]">GST Master:</span> 33 Companies
+              </div>
+              <div className="bg-white p-2 rounded border border-[#C5CBD2]">
+                <span className="font-bold text-[#1A2F46]">IT Genius:</span> 2,193 Assessees
+              </div>
+              <div className="bg-white p-2 rounded border border-[#C5CBD2]">
+                <span className="font-bold text-[#1A2F46]">TDS Master:</span> 22 Accounts
+              </div>
+            </div>
+          </div>
+
+          <div className="border border-[#C5CBD2] rounded-[3px] p-3 space-y-3">
+            <span className="text-xs font-bold text-[#1A2F46] block">Optional: Upload Replacement Excel Files</span>
+            <div className="space-y-2 text-xs">
+              <div>
+                <label className="block text-[10px] font-mono text-[#5D646C]">GST_Company Master.xlsx</label>
+                <input
+                  type="file"
+                  accept=".xlsx"
+                  onChange={(e) => setUploadGstFile(e.target.files?.[0] || null)}
+                  className="text-xs text-[#5D646C]"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-mono text-[#5D646C]">IT User id password from Genius.xlsx</label>
+                <input
+                  type="file"
+                  accept=".xlsx"
+                  onChange={(e) => setUploadItFile(e.target.files?.[0] || null)}
+                  className="text-xs text-[#5D646C]"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-mono text-[#5D646C]">TDS Master.xlsx</label>
+                <input
+                  type="file"
+                  accept=".xlsx"
+                  onChange={(e) => setUploadTdsFile(e.target.files?.[0] || null)}
+                  className="text-xs text-[#5D646C]"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-2 pt-2 border-t border-[#ECE9E3]">
+            <button
+              type="button"
+              onClick={() => setMasterImportModalOpen(false)}
+              className="px-4 py-2 border border-[#C5CBD2] text-xs font-semibold rounded-[2px] text-[#5D646C] hover:bg-[#F6F3EE]"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={importingMasters}
+              onClick={handleTriggerMasterImport}
+              className="btn-signal px-4 py-2 text-xs font-semibold rounded-[2px] text-white disabled:opacity-50 flex items-center space-x-1.5"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${importingMasters ? 'animate-spin' : ''}`} />
+              <span>{importingMasters ? 'Processing Masters...' : 'Run Master Import & Sync'}</span>
+            </button>
+          </div>
+        </div>
       </Modal>
 
       {/* Record Sales Invoice Modal */}

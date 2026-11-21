@@ -164,17 +164,31 @@ export interface Invoice {
 export interface CustomerSummary {
   id: number;
   name: string;
+  trade_name?: string;
   gstin?: string;
   pan?: string;
+  tan?: string;
   email?: string;
   phone?: string;
+  address?: string;
   state?: string;
+  state_code?: string;
+  folder_name?: string;
+  compliance_status?: string;
+  gst_username?: string;
+  it_username?: string;
+  tds_username?: string;
+  has_gst_password?: boolean;
+  has_it_password?: boolean;
+  has_tds_password?: boolean;
   credit_limit: number;
   total_sales: number;
   total_received: number;
   outstanding_balance: number;
   invoice_count: number;
   receipt_count?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface TDSRecord {

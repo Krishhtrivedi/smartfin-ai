@@ -90,7 +90,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     { 
       id: 'customer', 
-      label: 'Customer Receivables', 
+      label: 'Client Master & Receivables', 
       code: '03', 
       icon: Users2 
     },
