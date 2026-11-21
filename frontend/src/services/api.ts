@@ -241,6 +241,47 @@ export const api = {
   getAuditLogs: (limit: number = 50) => request<any[]>(`/audit/logs?limit=${limit}`),
   getNotifications: () => request<any[]>('/audit/notifications'),
   markNotificationRead: (id: number) => request<any>(`/audit/notifications/${id}/read`, { method: 'POST' }),
+
+  // 1. Statutory Notice Management (Birju Sir)
+  getNotices: () => request<any[]>('/compliance/notices'),
+  createNotice: (data: any) => request<any>('/compliance/notices', { method: 'POST', body: JSON.stringify(data) }),
+  updateNoticeStatus: (id: number, data: any) => request<any>(`/compliance/notices/${id}/status`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  // 2. Auto-Send GSTR Return PDFs
+  dispatchGstrPdfs: (files: string[]) => request<any>('/compliance/gstr-dispatch/scan-and-send', { method: 'POST', body: JSON.stringify({ files }) }),
+  getGstrDispatchLogs: () => request<any[]>('/compliance/gstr-dispatch/logs'),
+
+  // 3. GSTR-1 & 3B Auto-Filing AI Agent
+  prepareGstAgentFiling: (data: any) => request<any>('/compliance/gst-agent/prepare', { method: 'POST', body: JSON.stringify(data) }),
+  approveGstAgentFiling: (reviewId: number, action: string = 'APPROVE') =>
+    request<any>(`/compliance/gst-agent/approve-and-file/${reviewId}`, { method: 'POST', body: JSON.stringify({ action }) }),
+
+  // 4. Income Tax Document Collection Bot
+  getItrBotCases: () => request<any[]>('/compliance/itr-bot/cases'),
+  createItrBotCase: (data: any) => request<any>('/compliance/itr-bot/create-case', { method: 'POST', body: JSON.stringify(data) }),
+  updateItrBotItem: (caseId: number, itemId: number, status: string, fileName?: string) =>
+    request<any>(`/compliance/itr-bot/${caseId}/update-item`, { method: 'POST', body: JSON.stringify({ item_id: itemId, status, file_name: fileName }) }),
+  sendItrBotReminder: (caseId: number) => request<any>(`/compliance/itr-bot/${caseId}/send-reminder`, { method: 'POST' }),
+
+  // 5. Last 3 Years ITR Archive & Auto-Sender
+  organizeAndSendItrArchive: (data: any) => request<any>('/compliance/itr-archive/organize-and-send', { method: 'POST', body: JSON.stringify(data) }),
+  getItrArchivePackages: () => request<any[]>('/compliance/itr-archive/packages'),
+
+  // 6. Capital Gains & Tax Payable
+  calculateCapitalGains: (data: any) => request<any>('/compliance/capital-gains/calculate', { method: 'POST', body: JSON.stringify(data) }),
+  saveCapitalGains: (data: any) => request<any>('/compliance/capital-gains/save', { method: 'POST', body: JSON.stringify(data) }),
+  getCapitalGains: () => request<any[]>('/compliance/capital-gains/records'),
+
+  // 7. Daily Office WhatsApp Summary (Team PMSC)
+  generateOfficeSummary: (data?: any) => request<any>('/compliance/office-summary/generate', { method: 'POST', body: JSON.stringify(data || {}) }),
+  postOfficeSummaryToPmsc: (summaryId: number) => request<any>(`/compliance/office-summary/${summaryId}/post-to-pmsc`, { method: 'POST' }),
+
+  // 8. AI Usage Study & Optimisation Analytics
+  getAiUsageAnalytics: () => request<any>('/compliance/ai-usage/analytics'),
+
+  // 9. Skill-Set Tools: Consulting Report & Salary Calculation
+  generateConsultingReport: (data: any) => request<any>('/compliance/tools/generate-consulting-report', { method: 'POST', body: JSON.stringify(data) }),
+  calculateSalary: (data: any) => request<any>('/compliance/tools/calculate-salary', { method: 'POST', body: JSON.stringify(data) }),
 };
 
 function downloadBlob(blob: Blob, filename: string) {

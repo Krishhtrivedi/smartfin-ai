@@ -13,7 +13,10 @@ import {
   ShieldCheck,
   ChevronRight,
   LogOut,
-  Compass
+  Compass,
+  Scale,
+  FileCheck2,
+  Cpu
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -28,7 +31,10 @@ export type NavigationTab =
   | 'excel'
   | 'mis'
   | 'ai'
-  | 'audit';
+  | 'audit'
+  | 'notices'
+  | 'compliance_hub'
+  | 'ai_analytics';
 
 interface SidebarProps {
   currentTab: NavigationTab;
@@ -130,6 +136,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Audit Trail & RBAC', 
       code: '10', 
       icon: ShieldCheck, 
+      roles: ['admin'] 
+    },
+    { 
+      id: 'notices', 
+      label: 'Statutory Notices (Birju Sir)', 
+      code: '11', 
+      icon: Scale, 
+      badge: 'Desk' 
+    },
+    { 
+      id: 'compliance_hub', 
+      label: 'Compliance Automation Hub', 
+      code: '12', 
+      icon: FileCheck2, 
+      badge: 'Hub' 
+    },
+    { 
+      id: 'ai_analytics', 
+      label: 'AI Usage & ROI Study', 
+      code: '13', 
+      icon: Cpu, 
+      badge: 'Telemetry',
       roles: ['admin'] 
     },
   ];

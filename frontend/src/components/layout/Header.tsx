@@ -82,6 +82,21 @@ export const Header: React.FC<HeaderProps> = ({
       title: 'Audit Trails, Security & Role Management', 
       subtitle: 'Immutable system audit logs, tamper-proof tracking & role-based access control' 
     },
+    notices: { 
+      spec: '11 / BIRJU SIR DESK', 
+      title: 'Statutory Notice Management & Legal Response Desk', 
+      subtitle: 'Income Tax & GST notices, limitation countdowns, risk assessments, draft replies & tracking' 
+    },
+    compliance_hub: { 
+      spec: '12 / AUTOMATION HUB', 
+      title: 'Compliance, Tax Engine & Office Automation Hub', 
+      subtitle: 'Auto-Send GSTR PDFs, GSTR AI Filing Agent, ITR Intake Bot, 3-Yr Dossier, Capital Gains & Salary Tools' 
+    },
+    ai_analytics: { 
+      spec: '13 / TELEMETRY', 
+      title: 'AI Usage Study & Optimization Analytics', 
+      subtitle: 'Telemetry on prompt volume, token economics, man-hours saved, ROI & prompt optimization metrics' 
+    },
   };
 
   useEffect(() => {

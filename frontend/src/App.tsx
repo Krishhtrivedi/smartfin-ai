@@ -14,9 +14,12 @@ import { ExcelAutomation } from './pages/ExcelAutomation';
 import { MISReports } from './pages/MISReports';
 import { AIAssistantPage } from './pages/AIAssistantPage';
 import { AuditLogs } from './pages/AuditLogs';
+import { StatutoryNotices } from './pages/StatutoryNotices';
+import { ComplianceHub } from './pages/ComplianceHub';
+import { AIAnalytics } from './pages/AIAnalytics';
 import { ShieldAlert, KeyRound, AlertCircle, CheckCircle2, Lock, X } from 'lucide-react';
 
-const ADMIN_ONLY_TABS: NavigationTab[] = ['gst', 'tds', 'bank', 'excel', 'mis', 'audit'];
+const ADMIN_ONLY_TABS: NavigationTab[] = ['gst', 'tds', 'bank', 'excel', 'mis', 'audit', 'ai_analytics'];
 
 const AppContent: React.FC = () => {
   const { user, isAuthenticated, isLoading, changePassword, logout } = useAuth();
@@ -127,6 +130,12 @@ const AppContent: React.FC = () => {
         return <AIAssistantPage onNavigateTab={(tab) => setCurrentTab(tab)} />;
       case 'audit':
         return <AuditLogs />;
+      case 'notices':
+        return <StatutoryNotices />;
+      case 'compliance_hub':
+        return <ComplianceHub />;
+      case 'ai_analytics':
+        return <AIAnalytics />;
       default:
         return <Dashboard onNavigateTab={(tab) => setCurrentTab(tab)} />;
     }

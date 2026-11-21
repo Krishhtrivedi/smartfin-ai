@@ -423,3 +423,153 @@ class Notification(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="notifications")
+
+class StatutoryNotice(Base):
+    __tablename__ = "statutory_notices"
+
+    id = Column(Integer, primary_key=True, index=True)
+    notice_number = Column(String(100), unique=True, index=True, nullable=False)
+    notice_type = Column(String(50), nullable=False) # INCOME_TAX, GST, ROC, PF_ESIC, OTHER
+    section = Column(String(100), nullable=False) # e.g., 143(1), 148, 142(1), DRC-01, ASMT-10, GSTR-3A
+    client_name = Column(String(255), nullable=False)
+    client_pan_gstin = Column(String(50), nullable=False)
+    assessment_year = Column(String(20), default="2026-27")
+    financial_year = Column(String(20), default="2025-26")
+    issue_date = Column(Date, nullable=False)
+    due_date = Column(Date, nullable=False)
+    risk_level = Column(String(20), default="MEDIUM") # LOW, MEDIUM, HIGH, CRITICAL
+    assigned_owner = Column(String(100), default="Birju Trivedi (Birju Sir)") # e.g. Birju sir
+    status = Column(String(50), default="RECEIVED") # RECEIVED, UNDER_REVIEW, DRAFTING_REPLY, FILED, CLOSED
+    demand_amount = Column(Float, default=0.0)
+    penalty_amount = Column(Float, default=0.0)
+    description = Column(Text, nullable=True)
+    response_notes = Column(Text, nullable=True)
+    checklist_json = Column(Text, nullable=True) # JSON checklist items
+    attachments_json = Column(Text, nullable=True) # list of doc names/urls
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class GSTRDispatchLog(Base):
+    __tablename__ = "gstr_dispatch_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    client_name = Column(String(255), nullable=False)
+    gstin = Column(String(15), index=True, nullable=False)
+    return_type = Column(String(20), nullable=False) # GSTR1, GSTR2B, GSTR3B
+    tax_period = Column(String(20), nullable=False) # e.g. 102026, Q3-2026
+    file_name = Column(String(255), nullable=False)
+    recipient_email = Column(String(255), nullable=False)
+    status = Column(String(30), default="SENT") # SENT, FAILED, MISSING_EMAIL
+    error_message = Column(Text, nullable=True)
+    sent_at = Column(DateTime, default=datetime.utcnow)
+    dispatched_by_user_email = Column(String(255), default="system@smartfin.ai")
+
+class GSTFilingReview(Base):
+    __tablename__ = "gst_filing_reviews"
+
+    id = Column(Integer, primary_key=True, index=True)
+    client_name = Column(String(255), nullable=False)
+    gstin = Column(String(15), index=True, nullable=False)
+    return_type = Column(String(20), nullable=False) # GSTR1, GSTR3B
+    tax_period = Column(String(20), nullable=False)
+    total_taxable_value = Column(Float, default=0.0)
+    total_tax = Column(Float, default=0.0)
+    checks_summary_json = Column(Text, nullable=False)
+    discrepancies_count = Column(Integer, default=0)
+    status = Column(String(50), default="PENDING_APPROVAL") # PENDING_APPROVAL, APPROVED_FILED, REJECTED
+    approved_by_user_email = Column(String(255), nullable=True)
+    approved_at = Column(DateTime, nullable=True)
+    filing_ack_ref = Column(String(100), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class ITRCollectionCase(Base):
+    __tablename__ = "itr_collection_cases"
+
+    id = Column(Integer, primary_key=True, index=True)
+    client_name = Column(String(255), nullable=False)
+    pan = Column(String(10), index=True, nullable=False)
+    email = Column(String(255), nullable=True)
+    phone = Column(String(20), nullable=True)
+    assessment_year = Column(String(20), default="2026-27")
+    income_profile = Column(String(50), default="SALARIED") # SALARIED, BUSINESS_PROFESSION, CAPITAL_GAINS_INVESTOR, NRI_FOREIGN, COMPREHENSIVE
+    checklist_items_json = Column(Text, nullable=False)
+    completion_percentage = Column(Float, default=0.0)
+    status = Column(String(50), default="INTAKE_OPEN") # INTAKE_OPEN, DOCUMENTS_PARTIAL, READY_FOR_PREPARATION, FILED, CLOSED
+    last_reminder_sent_at = Column(DateTime, nullable=True)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class ITRArchivePackage(Base):
+    __tablename__ = "itr_archive_packages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    client_name = Column(String(255), nullable=False)
+    pan = Column(String(10), index=True, nullable=False)
+    client_email = Column(String(255), nullable=True)
+    client_phone = Column(String(20), nullable=True)
+    covered_years_json = Column(Text, nullable=False) # e.g. ["AY 2024-25", "AY 2025-26", "AY 2026-27"]
+    missing_years_json = Column(Text, nullable=True)
+    folder_path = Column(String(255), nullable=True)
+    delivery_channel = Column(String(30), default="BOTH") # EMAIL, WHATSAPP, BOTH
+    delivery_status = Column(String(30), default="ORGANIZED") # ORGANIZED, DISPATCHED, FAILED
+    dispatched_at = Column(DateTime, nullable=True)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class CapitalGainRecord(Base):
+    __tablename__ = "capital_gain_records"
+
+    id = Column(Integer, primary_key=True, index=True)
+    client_name = Column(String(255), nullable=False)
+    pan = Column(String(10), index=True, nullable=False)
+    assessment_year = Column(String(20), default="2026-27")
+    asset_type = Column(String(50), nullable=False) # EQUITY_LISTED, EQUITY_MUTUAL_FUNDS, DEBT_MUTUAL_FUNDS, IMMOVABLE_PROPERTY, UNLISTED_SHARES, GOLD_OTHER
+    asset_description = Column(String(255), nullable=False)
+    purchase_date = Column(Date, nullable=False)
+    sale_date = Column(Date, nullable=False)
+    holding_period_months = Column(Float, default=0.0)
+    gain_type = Column(String(10), default="LTCG") # STCG, LTCG
+    sale_consideration = Column(Float, default=0.0)
+    cost_of_acquisition = Column(Float, default=0.0)
+    indexed_cost_of_acquisition = Column(Float, default=0.0)
+    transfer_expenses = Column(Float, default=0.0)
+    exemption_section = Column(String(50), default="NONE") # SEC_54, SEC_54EC, SEC_54F, NONE
+    exemption_amount = Column(Float, default=0.0)
+    net_taxable_gain = Column(Float, default=0.0)
+    applicable_tax_rate = Column(Float, default=12.5) # e.g. 12.5%, 20%, slab
+    tax_payable = Column(Float, default=0.0)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class DailyOfficeSummary(Base):
+    __tablename__ = "daily_office_summaries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    summary_date = Column(Date, default=date.today)
+    team_name = Column(String(100), default="Team PMSC")
+    raw_update_count = Column(Integer, default=0)
+    filtered_noise_count = Column(Integer, default=0)
+    key_decisions_json = Column(Text, nullable=False)
+    action_items_json = Column(Text, nullable=False)
+    blockers_json = Column(Text, nullable=False)
+    formatted_whatsapp_text = Column(Text, nullable=False)
+    dispatch_status = Column(String(30), default="GENERATED") # GENERATED, POSTED_TO_PMSC, FAILED
+    posted_at = Column(DateTime, nullable=True)
+    created_by_user_email = Column(String(255), default="admin@smartfin.ai")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class AIUsageMetric(Base):
+    __tablename__ = "ai_usage_metrics"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_email = Column(String(255), nullable=False)
+    user_role = Column(String(50), default="employee")
+    module_name = Column(String(100), nullable=False) # NOTICE_MANAGER, GST_AGENT, FINANCE_ASSISTANT, ITR_BOT, CONSULTING_GEN, SALARY_TOOL
+    interaction_type = Column(String(50), default="QUERY") # QUERY, DRAFT, VERIFICATION, CALCULATION
+    prompt_tokens = Column(Integer, default=0)
+    completion_tokens = Column(Integer, default=0)
+    estimated_time_saved_mins = Column(Float, default=15.0)
+    cost_usd = Column(Float, default=0.002)
+    error_flag = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
