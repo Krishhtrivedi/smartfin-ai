@@ -20,7 +20,14 @@ import {
   TrendingUp,
   ShieldCheck,
   Building2,
-  UserCheck
+  UserCheck,
+  Clock,
+  Wifi,
+  WifiOff,
+  Copy,
+  Check,
+  Settings,
+  Radio
 } from 'lucide-react';
 import { api } from '../services/api';
 import { Modal } from '../components/common/Modal';
@@ -87,6 +94,17 @@ export const ComplianceHub: React.FC = () => {
   const [summaryData, setSummaryData] = useState<any | null>(null);
   const [generatingSummary, setGeneratingSummary] = useState(false);
   const [postingToPmsc, setPostingToPmsc] = useState(false);
+  const [waConfig, setWaConfig] = useState<any | null>(null);
+  const [loadingWaConfig, setLoadingWaConfig] = useState(false);
+  const [testingConnection, setTestingConnection] = useState(false);
+  const [testResult, setTestResult] = useState<any | null>(null);
+  const [scheduleEnabled, setScheduleEnabled] = useState(true);
+  const [scheduleTime, setScheduleTime] = useState('18:30');
+  const [savingSchedule, setSavingSchedule] = useState(false);
+  const [summaryHistory, setSummaryHistory] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [rawNotesInput, setRawNotesInput] = useState('');
+  const [copiedEnv, setCopiedEnv] = useState(false);
 
   // ==========================================
   // 7. Skill-Set Tools State
@@ -112,7 +130,37 @@ export const ComplianceHub: React.FC = () => {
     fetchItrCases();
     fetchArchivePackages();
     fetchCgRecords();
+    fetchWaConfig();
+    fetchSummaryHistory();
   }, []);
+
+  const fetchWaConfig = async () => {
+    setLoadingWaConfig(true);
+    try {
+      const cfg = await api.getWhatsAppConfig();
+      setWaConfig(cfg);
+      if (cfg?.schedule) {
+        setScheduleEnabled(cfg.schedule.enabled);
+        setScheduleTime(cfg.schedule.time_ist);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingWaConfig(false);
+    }
+  };
+
+  const fetchSummaryHistory = async () => {
+    setLoadingHistory(true);
+    try {
+      const hist = await api.getOfficeSummaryHistory();
+      setSummaryHistory(hist);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
 
   const fetchGstrLogs = async () => {
     try {
@@ -298,11 +346,43 @@ export const ComplianceHub: React.FC = () => {
   };
 
   // 6. WhatsApp Daily Summary Action
+  const handleTestConnection = async () => {
+    setTestingConnection(true);
+    setTestResult(null);
+    try {
+      const res = await api.testWhatsAppConnection();
+      setTestResult(res);
+      await fetchWaConfig();
+    } catch (err: any) {
+      setTestResult({ success: false, status: 'ERROR', message: err.message });
+    } finally {
+      setTestingConnection(false);
+    }
+  };
+
+  const handleSaveSchedule = async () => {
+    setSavingSchedule(true);
+    try {
+      const res = await api.updateWhatsAppSchedule({ enabled: scheduleEnabled, time_ist: scheduleTime });
+      alert(res.message || 'Auto-scheduler updated successfully.');
+      await fetchWaConfig();
+    } catch (err: any) {
+      alert(`Failed to save schedule: ${err.message}`);
+    } finally {
+      setSavingSchedule(false);
+    }
+  };
+
   const handleGenerateOfficeSummary = async () => {
     setGeneratingSummary(true);
     try {
-      const res = await api.generateOfficeSummary();
+      const payload: any = {};
+      if (rawNotesInput.trim()) {
+        payload.notes = rawNotesInput.trim();
+      }
+      const res = await api.generateOfficeSummary(payload);
       setSummaryData(res);
+      await fetchSummaryHistory();
     } catch (err: any) {
       alert(`Failed to synthesize office summary: ${err.message}`);
     } finally {
@@ -314,9 +394,10 @@ export const ComplianceHub: React.FC = () => {
     if (!summaryData) return;
     setPostingToPmsc(true);
     try {
-      await api.postOfficeSummaryToPmsc(summaryData.summary_id);
-      setSummaryData({ ...summaryData, posted: true });
-      alert('Executive briefing dispatched to Team PMSC WhatsApp Group.');
+      const res = await api.postOfficeSummaryToPmsc(summaryData.summary_id);
+      setSummaryData({ ...summaryData, posted: true, dispatch_status: res.status });
+      await fetchSummaryHistory();
+      alert(res.message || 'Executive briefing dispatched to Team PMSC WhatsApp Group.');
     } catch (err: any) {
       alert(`Failed to post: ${err.message}`);
     } finally {
@@ -999,81 +1080,318 @@ export const ComplianceHub: React.FC = () => {
       {/* 6. DAILY OFFICE WHATSAPP SUMMARY TO TEAM PMSC GROUP             */}
       {/* ============================================================== */}
       {activeTab === 'whatsapp_pmsc' && (
-        <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-6 shadow-xs">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-            <div>
-              <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold uppercase tracking-wider">
-                Automated Daily Pipeline
-              </span>
-              <h3 className="text-sm font-bold text-navy-950 mt-1 flex items-center gap-1.5">
-                <MessageSquare className="w-4 h-4 text-emerald-600" />
-                <span>Daily Office WhatsApp Summary to "Team PMSC" Group</span>
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Aggregates relevant office updates, filters noise/chatter, and formats a concise executive summary covering Key Decisions, Action Items & Blockers.
-              </p>
+        <div className="space-y-6">
+          {/* Top Status & Gateway Control Card */}
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold uppercase tracking-wider">
+                    Automated WhatsApp Pipeline
+                  </span>
+                  <span className="text-xs font-mono text-slate-400">| Target: Team PMSC Group</span>
+                </div>
+                <h3 className="text-sm font-bold text-navy-950 mt-1 flex items-center gap-1.5">
+                  <MessageSquare className="w-4 h-4 text-emerald-600" />
+                  <span>Daily Office Executive Summary & Auto-Scheduler</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Synthesizes daily office decisions, statutory deadlines & blockers and delivers directly to the "Team PMSC" WhatsApp group.
+                </p>
+              </div>
+
+              {/* Live Connection Badge & Test Button */}
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono">
+                  {waConfig?.is_configured ? (
+                    <>
+                      <Wifi className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="font-bold text-emerald-700">GATEWAY CONNECTED</span>
+                    </>
+                  ) : (
+                    <>
+                      <WifiOff className="w-3.5 h-3.5 text-amber-600" />
+                      <span className="font-bold text-amber-700">NOT CONFIGURED</span>
+                    </>
+                  )}
+                </div>
+
+                <button
+                  onClick={handleTestConnection}
+                  disabled={testingConnection}
+                  className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${testingConnection ? 'animate-spin' : ''}`} />
+                  <span>{testingConnection ? 'Testing...' : 'Test Connection'}</span>
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={handleGenerateOfficeSummary}
-                disabled={generatingSummary}
-                className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-colors disabled:opacity-50"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${generatingSummary ? 'animate-spin' : ''}`} />
-                <span>{generatingSummary ? 'Synthesizing...' : 'Aggregate & Generate Summary'}</span>
-              </button>
+            {/* Test Connection Result Alert */}
+            {testResult && (
+              <div className={`p-3 rounded-lg border text-xs flex items-center justify-between ${
+                testResult.success
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                  : testResult.status === 'NOT_CONFIGURED'
+                  ? 'bg-amber-50 border-amber-200 text-amber-800'
+                  : 'bg-rose-50 border-rose-200 text-rose-800'
+              }`}>
+                <div className="flex items-center space-x-2">
+                  {testResult.success ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  )}
+                  <span>{testResult.message}</span>
+                </div>
+                {testResult.latency_ms && (
+                  <span className="font-mono text-[11px] font-bold">Latency: {testResult.latency_ms}ms</span>
+                )}
+              </div>
+            )}
+
+            {/* If Not Configured, show instructions box */}
+            {waConfig && !waConfig.is_configured && (
+              <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-200 space-y-2 text-xs text-amber-900">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold uppercase tracking-wider flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                    <span>WhatsApp Gateway Setup Required (Render Environment)</span>
+                  </span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        'WHATSAPP_API_URL=https://api.yourgateway.com/send\nWHATSAPP_API_TOKEN=your_secure_token_here\nWHATSAPP_PMSC_GROUP_ID=1203630283920192@g.us\nWHATSAPP_GATEWAY_PROVIDER=GENERIC_WEBHOOK\nWHATSAPP_AUTO_SCHEDULE_TIME=18:30\nWHATSAPP_AUTO_SCHEDULE_ENABLED=true'
+                      );
+                      setCopiedEnv(true);
+                      setTimeout(() => setCopiedEnv(false), 2500);
+                    }}
+                    className="px-2.5 py-1 bg-white hover:bg-amber-100 rounded border border-amber-300 font-mono text-[11px] font-semibold text-amber-800 flex items-center gap-1"
+                  >
+                    {copiedEnv ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedEnv ? 'Copied .env Template!' : 'Copy .env Template'}</span>
+                  </button>
+                </div>
+                <p className="text-[11px] leading-relaxed text-amber-800">
+                  To automatically deliver summaries directly into your WhatsApp group without manual copying, add the following variables under <strong>Render Dashboard ➔ Environment</strong>. Safe simulation is currently active so generation and drafting remain 100% functional.
+                </p>
+                <div className="bg-white/80 p-2.5 rounded border border-amber-200 font-mono text-[11px] text-amber-950 space-y-0.5">
+                  <div>WHATSAPP_API_URL=https://api.yourgateway.com/send</div>
+                  <div>WHATSAPP_API_TOKEN=your_api_token</div>
+                  <div>WHATSAPP_PMSC_GROUP_ID=1203630283920192@g.us (or target phone number)</div>
+                  <div>WHATSAPP_AUTO_SCHEDULE_TIME=18:30</div>
+                </div>
+              </div>
+            )}
+
+            {/* Daily Auto-Scheduler Bar */}
+            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center space-x-2">
+                <Clock className="w-4 h-4 text-brand-600" />
+                <span className="font-semibold text-slate-700">Automated Daily Dispatch Schedule:</span>
+                <span className="font-mono text-slate-500">Every evening (Monday – Saturday)</span>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="time"
+                  value={scheduleTime}
+                  onChange={(e) => setScheduleTime(e.target.value)}
+                  className="px-2.5 py-1 border border-slate-300 rounded text-xs font-mono bg-white"
+                />
+                <label className="flex items-center space-x-1.5 cursor-pointer text-slate-700 font-medium select-none">
+                  <input
+                    type="checkbox"
+                    checked={scheduleEnabled}
+                    onChange={(e) => setScheduleEnabled(e.target.checked)}
+                    className="rounded text-brand-600 focus:ring-brand-500"
+                  />
+                  <span>Auto-Send Enabled (IST)</span>
+                </label>
+                <button
+                  onClick={handleSaveSchedule}
+                  disabled={savingSchedule}
+                  className="px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded text-xs transition-colors disabled:opacity-50"
+                >
+                  {savingSchedule ? 'Saving...' : 'Update'}
+                </button>
+              </div>
             </div>
           </div>
 
-          {summaryData ? (
+          {/* Generator Input & Action Box */}
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
+                  Summary Synthesis & Daily Input
+                </h4>
+                <p className="text-xs text-slate-500">
+                  Aggregates from system audit logs, open notices, and bank reconciliations, or supplement with today's operational notes below.
+                </p>
+              </div>
+
+              <button
+                onClick={handleGenerateOfficeSummary}
+                disabled={generatingSummary}
+                className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-colors disabled:opacity-50 shadow-xs"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${generatingSummary ? 'animate-spin' : ''}`} />
+                <span>{generatingSummary ? 'Synthesizing Updates...' : 'Generate Today\'s Summary'}</span>
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                Additional Daily Highlights / Meeting Notes (Optional)
+              </label>
+              <textarea
+                rows={2}
+                value={rawNotesInput}
+                onChange={(e) => setRawNotesInput(e.target.value)}
+                placeholder="e.g. Biraju Bhai cleared 148A hearing; HDFC payment approved for client Zenith; Priya dispatched October GSTR-1s..."
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+              />
+            </div>
+          </div>
+
+          {/* Active Summary Live Preview & Dispatch Card */}
+          {summaryData && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* WhatsApp Live Typography Preview */}
               <div className="lg:col-span-7 bg-[#EFEAE2] p-5 rounded-xl border border-slate-300 space-y-3 font-mono text-xs text-slate-900 shadow-inner">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-300">
-                  <span className="text-[11px] font-bold text-emerald-800 font-sans">
-                    WhatsApp Message Preview (Target: Team PMSC)
+                  <span className="text-[11px] font-bold text-emerald-800 font-sans flex items-center gap-1.5">
+                    <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>WhatsApp Live Bubble (Target: Team PMSC Group)</span>
                   </span>
-                  <span className="text-[10px] bg-white px-2 py-0.5 rounded text-slate-500">
-                    256-bit Encrypted
-                  </span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(summaryData.formatted_text);
+                      alert('Formatted summary copied to clipboard.');
+                    }}
+                    className="text-[10px] bg-white px-2 py-0.5 rounded text-slate-600 hover:bg-slate-50 border border-slate-200 flex items-center gap-1 font-sans font-semibold"
+                  >
+                    <Copy className="w-3 h-3" />
+                    <span>Copy Text</span>
+                  </button>
                 </div>
-                <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-slate-800 bg-white p-4 rounded-lg border border-slate-200">
+                <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-slate-800 bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
                   {summaryData.formatted_text}
                 </pre>
               </div>
 
               {/* Action Sidebar */}
-              <div className="lg:col-span-5 bg-white p-5 rounded-xl border border-slate-200 space-y-4">
+              <div className="lg:col-span-5 bg-white p-5 rounded-xl border border-slate-200 space-y-4 shadow-xs">
                 <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
-                  Dispatch to Team PMSC Group
+                  Dispatch Control
                 </h4>
                 <p className="text-xs text-slate-500">
-                  Reviewed by authorized administrator. Ready to broadcast to all Team PMSC group members.
+                  Sends directly through the configured WhatsApp integration gateway to the "Team PMSC" WhatsApp group.
                 </p>
+
+                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-1.5 text-xs font-mono">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Summary Date:</span>
+                    <span className="font-bold text-slate-800">{summaryData.date}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Target Channel:</span>
+                    <span className="font-bold text-emerald-700">Team PMSC Group</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Dispatch Status:</span>
+                    <span className={`font-bold ${summaryData.posted ? 'text-emerald-700' : 'text-amber-700'}`}>
+                      {summaryData.dispatch_status || (summaryData.posted ? 'POSTED_TO_PMSC' : 'READY_TO_SEND')}
+                    </span>
+                  </div>
+                </div>
 
                 {summaryData.posted ? (
                   <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-xs font-bold flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>Successfully Posted to Team PMSC WhatsApp Group</span>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                    <span>Successfully Dispatched to Team PMSC WhatsApp Group</span>
                   </div>
                 ) : (
                   <button
                     onClick={handlePostToPmsc}
                     disabled={postingToPmsc}
-                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg flex items-center justify-center space-x-2 transition-colors disabled:opacity-50"
+                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg flex items-center justify-center space-x-2 transition-colors disabled:opacity-50 shadow-xs"
                   >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>{postingToPmsc ? 'Broadcasting...' : 'Post to Team PMSC WhatsApp Group'}</span>
+                    <Send className={`w-3.5 h-3.5 ${postingToPmsc ? 'animate-bounce' : ''}`} />
+                    <span>{postingToPmsc ? 'Broadcasting to Team PMSC...' : 'Send Now to Team PMSC WhatsApp Group'}</span>
                   </button>
                 )}
               </div>
             </div>
-          ) : (
-            <div className="p-12 text-center text-xs font-mono text-slate-400 border border-dashed rounded-xl">
-              Click "Aggregate & Generate Summary" to extract today's key decisions, action items and blockers.
-            </div>
           )}
+
+          {/* Delivery Logs & Audit Trail Table */}
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
+                  Delivery History & Audit Trail (Team PMSC Group)
+                </h4>
+                <p className="text-[11px] text-slate-400">
+                  All summary dispatches logged with timestamp, user email and delivery status
+                </p>
+              </div>
+              <button
+                onClick={fetchSummaryHistory}
+                disabled={loadingHistory}
+                className="text-xs font-semibold text-brand-600 hover:underline flex items-center gap-1"
+              >
+                <RefreshCw className={`w-3 h-3 ${loadingHistory ? 'animate-spin' : ''}`} />
+                <span>Refresh History</span>
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs font-mono">
+                <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
+                  <tr>
+                    <th className="py-2.5 px-3">Date</th>
+                    <th className="py-2.5 px-3">Target Group</th>
+                    <th className="py-2.5 px-3">Dispatch Status</th>
+                    <th className="py-2.5 px-3">Sent / Logged At</th>
+                    <th className="py-2.5 px-3">Triggered By</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {summaryHistory.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-8 text-center text-slate-400 font-sans">
+                        No delivery logs recorded yet. Click "Generate Today's Summary" to start.
+                      </td>
+                    </tr>
+                  ) : (
+                    summaryHistory.map((item) => (
+                      <tr key={item.id} className="hover:bg-slate-50">
+                        <td className="py-2.5 px-3 font-bold text-slate-900">{item.summary_date}</td>
+                        <td className="py-2.5 px-3 text-emerald-800 font-bold">{item.team_name}</td>
+                        <td className="py-2.5 px-3">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            item.dispatch_status === 'POSTED_TO_PMSC'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : item.dispatch_status === 'FAILED'
+                              ? 'bg-rose-100 text-rose-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            {item.dispatch_status}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-500 text-[11px]">
+                          {item.posted_at || item.created_at || 'Pending'}
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-600 text-[11px]">{item.created_by}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       )}
 

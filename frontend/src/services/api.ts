@@ -272,7 +272,11 @@ export const api = {
   saveCapitalGains: (data: any) => request<any>('/compliance/capital-gains/save', { method: 'POST', body: JSON.stringify(data) }),
   getCapitalGains: () => request<any[]>('/compliance/capital-gains/records'),
 
-  // 7. Daily Office WhatsApp Summary (Team PMSC)
+  // 7. Daily Office WhatsApp Summary (Team PMSC) & Gateway
+  getWhatsAppConfig: () => request<any>('/compliance/whatsapp/config'),
+  testWhatsAppConnection: () => request<any>('/compliance/whatsapp/test-connection', { method: 'POST' }),
+  updateWhatsAppSchedule: (data: any) => request<any>('/compliance/whatsapp/schedule', { method: 'POST', body: JSON.stringify(data) }),
+  getOfficeSummaryHistory: () => request<any[]>('/compliance/office-summary/history'),
   generateOfficeSummary: (data?: any) => request<any>('/compliance/office-summary/generate', { method: 'POST', body: JSON.stringify(data || {}) }),
   postOfficeSummaryToPmsc: (summaryId: number) => request<any>(`/compliance/office-summary/${summaryId}/post-to-pmsc`, { method: 'POST' }),
 

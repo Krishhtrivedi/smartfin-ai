@@ -7,6 +7,8 @@ import re
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_role, log_audit_event, get_client_ip
+from app.services.whatsapp.client import WhatsAppClient
+from app.services.whatsapp.scheduler import PMSCWhatsAppScheduler
 from app.models.all_models import (
     User, StatutoryNotice, GSTRDispatchLog, GSTFilingReview,
     ITRCollectionCase, ITRArchivePackage, CapitalGainRecord,
@@ -747,8 +749,84 @@ def get_capital_gain_records(db: Session = Depends(get_db), current_user: User =
 
 
 # ==============================================================================
-# 7. DAILY OFFICE WHATSAPP SUMMARY TO TEAM PMSC GROUP
+# 7. DAILY OFFICE WHATSAPP SUMMARY TO TEAM PMSC GROUP & SCHEDULER
 # ==============================================================================
+
+@router.get("/whatsapp/config")
+def get_whatsapp_configuration(
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Returns current WhatsApp connection and schedule configuration (secrets masked).
+    """
+    return WhatsAppClient.get_env_config()
+
+@router.post("/whatsapp/test-connection")
+def test_whatsapp_gateway_connection(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Tests live HTTP reachability and authorization of configured WhatsApp API gateway.
+    """
+    result = WhatsAppClient.test_connection()
+    log_audit_event(
+        db, current_user, "TEST_WHATSAPP_GATEWAY", "SystemIntegration", "WhatsAppGateway",
+        {"status": result.get("status"), "latency_ms": result.get("latency_ms")},
+        request=request
+    )
+    return result
+
+@router.post("/whatsapp/schedule")
+def update_whatsapp_schedule(
+    payload: Dict[str, Any],
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"]))
+):
+    """
+    Configures server-side daily auto-scheduler for Team PMSC briefing.
+    """
+    enabled = bool(payload.get("enabled", True))
+    time_ist = str(payload.get("time_ist", "18:30")).strip()
+    
+    scheduler = PMSCWhatsAppScheduler.get_instance()
+    scheduler.update_config(enabled=enabled, time_ist=time_ist)
+    
+    log_audit_event(
+        db, current_user, "UPDATE_WHATSAPP_SCHEDULE", "DailyOfficeSummary", "ScheduleConfig",
+        {"enabled": enabled, "time_ist": time_ist},
+        request=request
+    )
+    return {
+        "message": f"WhatsApp daily auto-schedule updated to {time_ist} IST (Enabled: {enabled})",
+        "schedule": {"enabled": enabled, "time_ist": time_ist, "timezone": "Asia/Kolkata (IST)"}
+    }
+
+@router.get("/office-summary/history")
+def get_office_summary_history(
+    limit: int = 15,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Returns historical daily office summaries and WhatsApp delivery statuses.
+    """
+    summaries = db.query(DailyOfficeSummary).order_by(DailyOfficeSummary.summary_date.desc(), DailyOfficeSummary.id.desc()).limit(limit).all()
+    results = []
+    for s in summaries:
+        results.append({
+            "id": s.id,
+            "summary_date": str(s.summary_date),
+            "team_name": s.team_name,
+            "dispatch_status": s.dispatch_status,
+            "posted_at": str(s.posted_at) if s.posted_at else None,
+            "created_by": s.created_by_user_email,
+            "formatted_text": s.formatted_whatsapp_text,
+            "created_at": str(s.created_at)
+        })
+    return results
 
 @router.post("/office-summary/generate")
 def generate_daily_office_summary(
@@ -757,56 +835,19 @@ def generate_daily_office_summary(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    """
+    Aggregates office activity (notices, receivables, invoices) into a structured executive briefing.
+    """
     summary_date = payload.get("summary_date", str(date.today()))
+    scheduler = PMSCWhatsAppScheduler.get_instance()
     
-    # Synthesize office items
-    key_decisions = payload.get("key_decisions", [
-        "Approved Q3 GST reconciliation for Apex Global Enterprises Ltd (ITC claims matched)",
-        "Assigned 143(1) Income Tax statutory response for Zenith LLP to Birju Sir",
-        "Concluded BRS clearing for HDFC Current Account with zero unallocated variance"
-    ])
-    
-    action_items = payload.get("action_items", [
-        {"task": "File response for IT notice NOT-2026-001", "owner": "Birju Sir", "deadline": "24 Nov 2026"},
-        {"task": "Dispatch GSTR-3B return PDFs to corporate clients", "owner": "Priya", "deadline": "Today 5:00 PM"},
-        {"task": "Follow up for pending Form 16s with salaried batch A", "owner": "Operations Desk", "deadline": "Tomorrow"}
-    ])
-    
-    blockers = payload.get("blockers", [
-        "Awaiting AIS confirmation from client for high-value dividend mismatch",
-        "Vendor statement pending for Precision Tech Systems invoice clearing"
-    ])
-    
-    # Formulate WhatsApp Typography (*bold*, _italic_, bullet points)
-    wa_text = (
-        f"📊 *SMARTFIN.AI — DAILY EXECUTIVE BRIEFING*\n"
-        f"📅 Date: *{datetime.strptime(summary_date, '%Y-%m-%d').strftime('%d %B %Y')}* | Channel: *Team PMSC*\n"
-        f"-----------------------------------------\n\n"
-        f"📌 *KEY DECISIONS & CLIENT UPDATES:*\n"
-        + "\n".join([f"• {d}" for d in key_decisions])
-        + "\n\n⚡ *ACTION ITEMS & OWNERS:*\n"
-        + "\n".join([f"• *{a['task']}* ➔ @{a['owner']} (Due: _{a['deadline']}_)" for a in action_items])
-        + "\n\n⚠️ *BLOCKERS & PENDING FOLLOW-UPS:*\n"
-        + "\n".join([f"• {b}" for b in blockers])
-        + "\n\n-----------------------------------------\n"
-        f"_Automated by SMARTFIN.AI Executive Desk_"
+    summary = scheduler.build_and_dispatch_summary(
+        db=db,
+        summary_date_str=summary_date,
+        actor_email=current_user.email,
+        custom_input=payload if any(k in payload for k in ("key_decisions", "action_items", "blockers")) else None,
+        force_send=False # Only generate and preview
     )
-    
-    summary = DailyOfficeSummary(
-        summary_date=datetime.strptime(summary_date, "%Y-%m-%d").date(),
-        team_name="Team PMSC",
-        raw_update_count=len(key_decisions) + len(action_items) + len(blockers) + 12,
-        filtered_noise_count=12,
-        key_decisions_json=json.dumps(key_decisions),
-        action_items_json=json.dumps(action_items),
-        blockers_json=json.dumps(blockers),
-        formatted_whatsapp_text=wa_text,
-        dispatch_status="GENERATED",
-        created_by_user_email=current_user.email
-    )
-    db.add(summary)
-    db.commit()
-    db.refresh(summary)
     
     log_audit_event(
         db, current_user, "GENERATE_OFFICE_WHATSAPP_SUMMARY", "DailyOfficeSummary", str(summary.id),
@@ -817,10 +858,11 @@ def generate_daily_office_summary(
     return {
         "summary_id": summary.id,
         "date": summary_date,
-        "formatted_text": wa_text,
-        "key_decisions": key_decisions,
-        "action_items": action_items,
-        "blockers": blockers
+        "formatted_text": summary.formatted_whatsapp_text,
+        "key_decisions": json.loads(summary.key_decisions_json),
+        "action_items": json.loads(summary.action_items_json),
+        "blockers": json.loads(summary.blockers_json),
+        "dispatch_status": summary.dispatch_status
     }
 
 @router.post("/office-summary/{summary_id}/post-to-pmsc")
@@ -830,20 +872,41 @@ def post_summary_to_pmsc(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    """
+    Dispatches the generated summary directly to the Team PMSC WhatsApp group via WhatsApp Gateway.
+    """
     summary = db.query(DailyOfficeSummary).filter(DailyOfficeSummary.id == summary_id).first()
     if not summary:
         raise HTTPException(status_code=404, detail="Summary not found")
         
-    summary.dispatch_status = "POSTED_TO_PMSC"
-    summary.posted_at = datetime.utcnow()
+    # Dispatch via WhatsApp integration layer
+    send_result = WhatsAppClient.send_message_to_pmsc(summary.formatted_whatsapp_text)
+    
+    if send_result.get("success"):
+        summary.dispatch_status = "POSTED_TO_PMSC"
+        summary.posted_at = datetime.utcnow()
+    elif send_result.get("status") == "NOT_CONFIGURED":
+        summary.dispatch_status = "NOT_CONFIGURED_STORED"
+    else:
+        summary.dispatch_status = "FAILED"
+        
     db.commit()
     
     log_audit_event(
         db, current_user, "DISPATCH_PMSC_WHATSAPP_UPDATE", "DailyOfficeSummary", str(summary.id),
-        {"target_group": "Team PMSC", "posted_at": str(summary.posted_at)},
+        {
+            "target_group": "Team PMSC",
+            "dispatch_status": summary.dispatch_status,
+            "send_result": send_result
+        },
         request=request
     )
-    return {"message": "Briefing dispatched directly to Team PMSC WhatsApp Group", "status": summary.dispatch_status}
+    
+    return {
+        "message": "Briefing dispatched to Team PMSC WhatsApp Group" if send_result.get("success") else send_result.get("message", "Dispatch attempt recorded"),
+        "status": summary.dispatch_status,
+        "send_result": send_result
+    }
 
 
 # ==============================================================================

@@ -142,3 +142,62 @@ def test_gstr_dispatch_and_agent():
     )
     assert approve_res.status_code == 200
     assert approve_res.json()["status"] == "APPROVED_FILED"
+
+def test_whatsapp_integration_and_pmsc_summary():
+    token = get_admin_token()
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "X-Forwarded-For": "203.0.113.195, 10.0.0.1"
+    }
+
+    # 1. Check WhatsApp config endpoint
+    config_res = client.get("/api/v1/compliance/whatsapp/config", headers=headers)
+    assert config_res.status_code == 200
+    cfg = config_res.json()
+    assert "status" in cfg
+    assert "schedule" in cfg
+
+    # 2. Test Connection (should return safe status even when not configured)
+    test_conn_res = client.post("/api/v1/compliance/whatsapp/test-connection", headers=headers)
+    assert test_conn_res.status_code == 200
+    test_data = test_conn_res.json()
+    assert "status" in test_data
+
+    # 3. Update Schedule
+    sched_res = client.post(
+        "/api/v1/compliance/whatsapp/schedule",
+        json={"enabled": True, "time_ist": "18:45"},
+        headers=headers
+    )
+    assert sched_res.status_code == 200
+    assert sched_res.json()["schedule"]["time_ist"] == "18:45"
+
+    # 4. Generate Daily Office Summary
+    gen_res = client.post(
+        "/api/v1/compliance/office-summary/generate",
+        json={"summary_date": "2026-11-21"},
+        headers=headers
+    )
+    assert gen_res.status_code == 200
+    summary = gen_res.json()
+    assert "summary_id" in summary
+    assert "formatted_text" in summary
+    assert "Team PMSC" in summary["formatted_text"]
+    summary_id = summary["summary_id"]
+
+    # 5. Dispatch Summary to Team PMSC
+    post_res = client.post(
+        f"/api/v1/compliance/office-summary/{summary_id}/post-to-pmsc",
+        headers=headers
+    )
+    assert post_res.status_code == 200
+    post_data = post_res.json()
+    assert "status" in post_data
+    assert "send_result" in post_data
+
+    # 6. Check Delivery History
+    history_res = client.get("/api/v1/compliance/office-summary/history", headers=headers)
+    assert history_res.status_code == 200
+    hist = history_res.json()
+    assert len(hist) > 0
+    assert any(h["id"] == summary_id for h in hist)

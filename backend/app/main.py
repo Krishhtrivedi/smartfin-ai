@@ -79,6 +79,13 @@ def on_startup():
     finally:
         db.close()
 
+    # 3. Start automated background scheduler for PMSC WhatsApp Summaries
+    try:
+        from app.services.whatsapp.scheduler import PMSCWhatsAppScheduler
+        PMSCWhatsAppScheduler.get_instance().start()
+    except Exception as e:
+        print(f"WhatsApp Scheduler startup notice: {e}")
+
 @app.get("/health")
 def health_check():
     return {
