@@ -20,7 +20,9 @@ if (!fs.existsSync(AUTH_DIR)) {
 
 let sock = null;
 let currentQR = null;
-let connectionState = 'DISCONNECTED'; // DISCONNECTED, QR_READY, CONNECTING, CONNECTED
+let currentRawQR = null;
+let currentPairingCode = null;
+let connectionState = 'DISCONNECTED'; // DISCONNECTED, QR_READY, PAIRING_CODE_READY, CONNECTING, CONNECTED
 let connectedUser = null;
 let lastError = null;
 
@@ -33,20 +35,27 @@ async function initBaileysSocket(forceNew = false) {
                 fs.rmSync(AUTH_DIR, { recursive: true, force: true });
                 fs.mkdirSync(AUTH_DIR, { recursive: true });
             } catch (err) {
-                console.error('Failed to clear auth dir:', err);
+                console.error('[Baileys] Failed to clear auth dir:', err);
             }
         }
 
+        currentQR = null;
+        currentRawQR = null;
+        currentPairingCode = null;
+        lastError = null;
+
         const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
-        const { version } = await fetchLatestBaileysVersion();
+        const { version } = await fetchLatestBaileysVersion().catch(() => ({ version: [2, 3000, 1015901307] }));
 
         sock = makeWASocket({
             version,
             logger,
             printQRInTerminal: false,
             auth: state,
-            browser: ['SmartFin.AI', 'Chrome', '1.0.0'],
-            syncFullHistory: false
+            browser: ['SmartFin.AI Office', 'Chrome', '1.0.0'],
+            syncFullHistory: false,
+            connectTimeoutMs: 60000,
+            defaultQueryTimeoutMs: 60000
         });
 
         sock.ev.on('creds.update', saveCreds);
@@ -56,24 +65,27 @@ async function initBaileysSocket(forceNew = false) {
 
             if (qr) {
                 try {
-                    currentQR = await QRCode.toDataURL(qr);
+                    currentRawQR = qr;
+                    currentQR = await QRCode.toDataURL(qr, { margin: 2, scale: 7 });
                     connectionState = 'QR_READY';
-                    console.log('[Baileys] New QR Code generated for scanning.');
+                    console.log('[Baileys] New QR Code generated successfully.');
                 } catch (qrErr) {
-                    console.error('[Baileys] Error generating QR data URL:', qrErr);
+                    console.error('[Baileys] Error rendering QR image:', qrErr);
                 }
             }
 
             if (connection === 'connecting') {
-                if (connectionState !== 'QR_READY') {
+                if (connectionState !== 'QR_READY' && connectionState !== 'PAIRING_CODE_READY') {
                     connectionState = 'CONNECTING';
                 }
-                console.log('[Baileys] WhatsApp socket connecting...');
+                console.log('[Baileys] Socket connecting to WhatsApp Web...');
             }
 
             if (connection === 'open') {
                 connectionState = 'CONNECTED';
                 currentQR = null;
+                currentRawQR = null;
+                currentPairingCode = null;
                 lastError = null;
                 if (sock.user) {
                     const phoneNumber = sock.user.id ? sock.user.id.split(':')[0].split('@')[0] : 'Office WhatsApp';
@@ -82,20 +94,21 @@ async function initBaileysSocket(forceNew = false) {
                         phone: `+${phoneNumber}`,
                         name: sock.user.name || 'Office WhatsApp Device'
                     };
-                    console.log(`[Baileys] Connected successfully as ${connectedUser.phone} (${connectedUser.name})`);
+                    console.log(`[Baileys] Successfully connected as ${connectedUser.phone} (${connectedUser.name})`);
                 }
             }
 
             if (connection === 'close') {
                 const statusCode = lastDisconnect?.error?.output?.statusCode;
                 const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
-                console.log(`[Baileys] Connection closed. Reason: ${statusCode}, reconnect: ${shouldReconnect}`);
+                console.log(`[Baileys] Socket closed. Code: ${statusCode}, shouldReconnect: ${shouldReconnect}`);
 
                 if (statusCode === DisconnectReason.loggedOut) {
                     connectionState = 'DISCONNECTED';
                     connectedUser = null;
                     currentQR = null;
-                    lastError = 'Session logged out from phone. Please scan QR again.';
+                    currentPairingCode = null;
+                    lastError = 'Session was unlinked or logged out. Please link again.';
                     try {
                         fs.rmSync(AUTH_DIR, { recursive: true, force: true });
                     } catch {}
@@ -109,7 +122,7 @@ async function initBaileysSocket(forceNew = false) {
             }
         });
     } catch (e) {
-        console.error('[Baileys] Error starting socket:', e);
+        console.error('[Baileys] Fatal socket initialization error:', e);
         connectionState = 'DISCONNECTED';
         lastError = e.message;
     }
@@ -119,14 +132,14 @@ async function initBaileysSocket(forceNew = false) {
 try {
     const credsPath = path.join(AUTH_DIR, 'creds.json');
     if (fs.existsSync(credsPath)) {
-        console.log('[Baileys] Existing credentials found. Resuming session...');
+        console.log('[Baileys] Resuming persistent session from creds.json...');
         initBaileysSocket(false);
     }
 } catch (e) {
-    console.error('[Baileys] Startup creds check error:', e);
+    console.error('[Baileys] Startup auth check error:', e);
 }
 
-// HTTP Server for Python/FastAPI bridge communication
+// Microservice HTTP Server
 const server = http.createServer(async (req, res) => {
     const parsedUrl = url.parse(req.url, true);
     const pathname = parsedUrl.pathname;
@@ -151,18 +164,20 @@ const server = http.createServer(async (req, res) => {
         return res.end();
     }
 
-    // 1. Status
+    // 1. Live Status
     if (pathname === '/status' && method === 'GET') {
+        const isQrReady = Boolean(currentQR && connectionState !== 'CONNECTED');
         return sendJson(200, {
-            state: connectionState,
+            state: connectionState === 'CONNECTED' ? 'CONNECTED' : (isQrReady ? 'QR_READY' : connectionState),
             connected: connectionState === 'CONNECTED',
             user: connectedUser,
-            qr: connectionState === 'AWAITING_QR' ? currentQR : null,
+            qr: isQrReady ? currentQR : null,
+            pairingCode: currentPairingCode,
             error: lastError
         });
     }
 
-    // 2. Start / Generate QR
+    // 2. Start / Generate QR Code Session
     if (pathname === '/start-session' && method === 'POST') {
         if (connectionState === 'CONNECTED') {
             return sendJson(200, {
@@ -171,21 +186,88 @@ const server = http.createServer(async (req, res) => {
                 user: connectedUser
             });
         }
+
         await initBaileysSocket(true);
-        // Wait up to 3 seconds for QR code generation
-        for (let i = 0; i < 6; i++) {
+
+        // Wait up to 6 seconds for the initial QR to render
+        for (let i = 0; i < 12; i++) {
             if (currentQR || connectionState === 'CONNECTED') break;
             await new Promise(r => setTimeout(r, 500));
         }
+
         return sendJson(200, {
-            status: connectionState,
+            status: connectionState === 'CONNECTED' ? 'CONNECTED' : (currentQR ? 'QR_READY' : connectionState),
             qr: currentQR,
             user: connectedUser,
             error: lastError
         });
     }
 
-    // 3. Disconnect / Logout
+    // 3. Request 8-Digit Pairing Code (Phone Number based linking)
+    if (pathname === '/request-pairing-code' && method === 'POST') {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', async () => {
+            try {
+                const data = JSON.parse(body || '{}');
+                const rawPhone = data.phoneNumber || data.phone || '';
+                const cleanPhone = String(rawPhone).replace(/[^0-9]/g, '');
+
+                if (!cleanPhone || cleanPhone.length < 10) {
+                    return sendJson(400, {
+                        success: false,
+                        error: 'Please provide a valid phone number with country code (e.g. 919876543210).'
+                    });
+                }
+
+                if (connectionState === 'CONNECTED') {
+                    return sendJson(200, {
+                        success: true,
+                        status: 'CONNECTED',
+                        message: 'Already connected',
+                        user: connectedUser
+                    });
+                }
+
+                // If socket not active, start it
+                if (!sock) {
+                    await initBaileysSocket(true);
+                    await new Promise(r => setTimeout(r, 2000));
+                }
+
+                if (!sock.requestPairingCode) {
+                    return sendJson(500, {
+                        success: false,
+                        error: 'Pairing code is not supported by the current WhatsApp protocol version.'
+                    });
+                }
+
+                // Request 8-digit code from WhatsApp Web
+                let rawCode = await sock.requestPairingCode(cleanPhone);
+                const formattedCode = rawCode?.match(/.{1,4}/g)?.join('-') || rawCode;
+
+                currentPairingCode = formattedCode;
+                connectionState = 'PAIRING_CODE_READY';
+                console.log(`[Baileys] Generated phone pairing code: ${formattedCode} for +${cleanPhone}`);
+
+                return sendJson(200, {
+                    success: true,
+                    status: 'PAIRING_CODE_READY',
+                    pairingCode: formattedCode,
+                    phoneNumber: cleanPhone
+                });
+            } catch (err) {
+                console.error('[Baileys] Error requesting pairing code:', err);
+                return sendJson(500, {
+                    success: false,
+                    error: `Pairing code generation failed: ${err.message}`
+                });
+            }
+        });
+        return;
+    }
+
+    // 4. Disconnect / Logout
     if (pathname === '/logout' && method === 'POST') {
         try {
             if (sock) {
@@ -198,15 +280,17 @@ const server = http.createServer(async (req, res) => {
         connectionState = 'DISCONNECTED';
         connectedUser = null;
         currentQR = null;
+        currentRawQR = null;
+        currentPairingCode = null;
         return sendJson(200, { success: true, message: 'Logged out successfully' });
     }
 
-    // 4. Fetch Participating Groups
+    // 5. Fetch Real Joined Groups
     if (pathname === '/groups' && method === 'GET') {
         if (connectionState !== 'CONNECTED' || !sock) {
             return sendJson(400, {
                 success: false,
-                error: 'WhatsApp is not connected. Please scan QR code first.'
+                error: 'WhatsApp is not connected. Please scan QR code or enter pairing code first.'
             });
         }
         try {
@@ -220,7 +304,7 @@ const server = http.createServer(async (req, res) => {
                 is_pmsc: (g.subject || '').toLowerCase().includes('pmsc')
             }));
 
-            // Sort so PMSC groups come first
+            // Prioritize Team PMSC groups
             groupsList.sort((a, b) => (b.is_pmsc ? 1 : 0) - (a.is_pmsc ? 1 : 0));
 
             return sendJson(200, {
@@ -237,7 +321,7 @@ const server = http.createServer(async (req, res) => {
         }
     }
 
-    // 5. Send Real Message
+    // 6. Send Message to Real Group
     if (pathname === '/send-message' && method === 'POST') {
         let body = '';
         req.on('data', chunk => { body += chunk.toString(); });
@@ -250,7 +334,7 @@ const server = http.createServer(async (req, res) => {
                 if (connectionState !== 'CONNECTED' || !sock) {
                     return sendJson(400, {
                         success: false,
-                        error: 'Cannot send message: WhatsApp session is not active. Please scan QR code first.'
+                        error: 'Cannot send message: WhatsApp session is not connected. Please link your phone first.'
                     });
                 }
 
@@ -261,7 +345,6 @@ const server = http.createServer(async (req, res) => {
                     });
                 }
 
-                // Strictly dispatch real message
                 const result = await sock.sendMessage(targetJid, { text: messageText });
 
                 return sendJson(200, {
@@ -272,7 +355,7 @@ const server = http.createServer(async (req, res) => {
                     timestamp: result.messageTimestamp
                 });
             } catch (sendErr) {
-                console.error('[Baileys] Real dispatch failed:', sendErr);
+                console.error('[Baileys] Dispatch failed:', sendErr);
                 return sendJson(500, {
                     success: false,
                     error: `Message dispatch failed: ${sendErr.message}`

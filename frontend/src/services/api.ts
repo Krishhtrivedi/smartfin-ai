@@ -280,6 +280,8 @@ export const api = {
   // 7. Daily Office WhatsApp Summary (Team PMSC) & Real Baileys / Gateway
   getWhatsAppStatus: () => request<any>('/compliance/whatsapp/status'),
   startWhatsAppQRSession: () => request<any>('/compliance/whatsapp/session/start', { method: 'POST' }),
+  requestWhatsAppPairingCode: (phoneNumber: string) =>
+    request<any>('/compliance/whatsapp/session/pairing-code', { method: 'POST', body: JSON.stringify({ phone_number: phoneNumber }) }),
   logoutWhatsAppSession: () => request<any>('/compliance/whatsapp/session/logout', { method: 'POST' }),
   getWhatsAppGroups: () => request<any>('/compliance/whatsapp/groups'),
   selectWhatsAppGroup: (data: { group_id: string; group_name: string }) =>

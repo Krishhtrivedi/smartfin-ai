@@ -120,6 +120,7 @@ class WhatsAppClient:
             "state": baileys_status.get("state", "DISCONNECTED"),
             "connected_user": baileys_status.get("user"),
             "qr_code": baileys_status.get("qr"),
+            "pairing_code": baileys_status.get("pairingCode"),
             "selected_group": selected_grp,
             "has_selected_group": bool(selected_grp.get("id")),
             "external_gateway_configured": has_ext_gateway,
@@ -139,10 +140,35 @@ class WhatsAppClient:
         cls.ensure_bridge_running()
         try:
             req = urllib.request.Request(f"{BRIDGE_BASE_URL}/start-session", data=b"{}", headers={"Content-Type": "application/json"}, method="POST")
-            with urllib.request.urlopen(req, timeout=8) as resp:
+            with urllib.request.urlopen(req, timeout=10) as resp:
                 return json.loads(resp.read().decode("utf-8"))
         except Exception as e:
             return {"status": "ERROR", "error": str(e)}
+
+    @classmethod
+    def request_pairing_code(cls, phone_number: str) -> Dict[str, Any]:
+        """
+        Requests an 8-digit alphanumeric pairing code from WhatsApp Web for the given phone number.
+        """
+        cls.ensure_bridge_running()
+        try:
+            payload = json.dumps({"phoneNumber": phone_number}).encode("utf-8")
+            req = urllib.request.Request(
+                f"{BRIDGE_BASE_URL}/request-pairing-code",
+                data=payload,
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as he:
+            err_text = he.read().decode("utf-8", errors="ignore")
+            try:
+                return json.loads(err_text)
+            except Exception:
+                return {"success": False, "error": f"HTTP {he.code}: {he.reason}"}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     @classmethod
     def logout_session(cls) -> Dict[str, Any]:

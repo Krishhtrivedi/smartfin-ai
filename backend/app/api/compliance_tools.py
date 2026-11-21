@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Optional
 from datetime import datetime, date, timedelta
+from pydantic import BaseModel
 import json
 import re
 
@@ -824,6 +825,29 @@ def start_whatsapp_qr_session(
     log_audit_event(
         db, current_user, "START_WHATSAPP_QR_SESSION", "SystemIntegration", "WhatsAppBridge",
         {"status": result.get("status")},
+        request=request
+    )
+    return result
+
+class WhatsAppPairingCodeIn(BaseModel):
+    phone_number: str
+
+@router.post("/whatsapp/session/pairing-code")
+def request_whatsapp_pairing_code(
+    payload: WhatsAppPairingCodeIn,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"]))
+):
+    """
+    Requests an 8-digit alphanumeric pairing code from WhatsApp Web for the given phone number.
+    """
+    result = WhatsAppClient.request_pairing_code(payload.phone_number)
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result.get("error", "Failed to generate pairing code"))
+    log_audit_event(
+        db, current_user, "REQUEST_WHATSAPP_PAIRING_CODE", "SystemIntegration", "WhatsAppBridge",
+        {"phone_number": payload.phone_number, "status": result.get("status")},
         request=request
     )
     return result
