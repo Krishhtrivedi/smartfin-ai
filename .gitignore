@@ -38,3 +38,9 @@ backend/whatsapp_bridge/node_modules/
 backend/whatsapp_bridge/session_auth/
 backend/whatsapp_bridge/selected_group.json
 smartfin.db
+
+# SmartFin agent secrets and server-side client files
+desktop_agent/agent.env
+desktop_agent/.venv/
+uploads/whatsapp_inbox/
+uploads/automation/

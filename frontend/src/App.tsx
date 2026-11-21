@@ -16,6 +16,7 @@ import { AIAssistantPage } from './pages/AIAssistantPage';
 import { AuditLogs } from './pages/AuditLogs';
 import { StatutoryNotices } from './pages/StatutoryNotices';
 import { ComplianceHub } from './pages/ComplianceHub';
+import { AutomationCenter } from './pages/AutomationCenter';
 import { AIAnalytics } from './pages/AIAnalytics';
 import { VVPMSCChatbot } from './pages/VVPMSCChatbot';
 import { PMSCPublicWebsite } from './pages/PMSCPublicWebsite';
@@ -156,6 +157,8 @@ const AppContent: React.FC = () => {
         return <AuditLogs />;
       case 'notices':
         return <StatutoryNotices />;
+      case 'automation':
+        return <AutomationCenter />;
       case 'compliance_hub':
         return <ComplianceHub />;
       case 'ai_analytics':

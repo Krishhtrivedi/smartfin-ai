@@ -38,6 +38,15 @@ class Settings:
     
     # WhatsApp Configuration
     WHATSAPP_SESSION_DIR: str = os.getenv("WHATSAPP_SESSION_DIR", "")
+    # Folder where the WhatsApp bridge saves files clients send (server side)
+    # Same default as the bridge: <repo>/uploads/whatsapp_inbox
+    WHATSAPP_INBOX_DIR: str = os.getenv("WHATSAPP_INBOX_DIR", os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), "uploads", "whatsapp_inbox"))
+    # Shared secret between the WhatsApp bridge and this API (incoming-message webhook)
+    BRIDGE_WEBHOOK_SECRET: str = os.getenv("BRIDGE_WEBHOOK_SECRET", "")
+    # Token the SmartFin Mac agent sends as X-Agent-Token. Empty = agent API switched off.
+    AGENT_API_TOKEN: str = os.getenv("AGENT_API_TOKEN", "")
+    AUTOMATION_DIR: str = os.getenv("AUTOMATION_DIR", os.path.join(os.getenv("UPLOAD_DIR", "uploads"), "automation"))
     WHATSAPP_BRIDGE_PORT: int = int(os.getenv("WHATSAPP_BRIDGE_PORT", "8001"))
     WHATSAPP_AUTO_SCHEDULE_TIME: str = os.getenv("WHATSAPP_AUTO_SCHEDULE_TIME", "18:30")
     WHATSAPP_AUTO_SCHEDULE_ENABLED: bool = os.getenv("WHATSAPP_AUTO_SCHEDULE_ENABLED", "true").lower() in ("true", "1", "yes")

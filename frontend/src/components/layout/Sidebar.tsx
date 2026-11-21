@@ -37,6 +37,7 @@ export type NavigationTab =
   | 'audit'
   | 'notices'
   | 'compliance_hub'
+  | 'automation'
   | 'ai_analytics'
   | 'vv_chatbot'
   | 'pmsc_public'
@@ -60,154 +61,193 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { user, logout } = useAuth();
   const isAdmin = user?.role === 'admin';
 
-  const navItems: Array<{
+  interface NavItem {
     id: NavigationTab;
     label: string;
     icon: React.ComponentType<{ className?: string }>;
     code: string;
     roles?: string[];
     badge?: string;
-  }> = [
-    { 
-      id: 'dashboard', 
-      label: isAdmin ? 'Executive Dashboard' : 'My Workplace Dashboard', 
-      code: '00', 
-      icon: LayoutDashboard 
+  }
+
+  interface NavSection {
+    title: string;
+    badge?: string;
+    isSideOrPending?: boolean;
+    items: NavItem[];
+  }
+
+  const navSections: NavSection[] = [
+    {
+      title: 'CORE WORKPLACE & STATUTORY',
+      items: [
+        {
+          id: 'dashboard',
+          label: isAdmin ? 'Executive Dashboard' : 'My Workplace Dashboard',
+          code: '00',
+          icon: LayoutDashboard,
+          badge: 'Live',
+        },
+        {
+          id: 'customer',
+          label: 'Client Master & Receivables',
+          code: '01',
+          icon: Users2,
+          badge: '2,207 Assessees',
+        },
+        {
+          id: 'compliance_hub',
+          label: 'Statutory Automation Hub',
+          code: '02',
+          icon: FileCheck2,
+          badge: 'GSTR / ITR / WA',
+        },
+        {
+          id: 'automation',
+          label: 'Automation Center',
+          code: 'AC',
+          icon: Bot,
+          badge: 'GST / IT / WA',
+        },
+        {
+          id: 'notices',
+          label: 'Statutory Notices Desk',
+          code: '03',
+          icon: Scale,
+          badge: 'Desk',
+        },
+        {
+          id: 'audit',
+          label: 'Audit Trail & Security',
+          code: '04',
+          icon: ShieldCheck,
+          roles: ['admin'],
+        },
+      ],
     },
-    { 
-      id: 'gst', 
-      label: 'GST 2B Reconciliation', 
-      code: '01', 
-      icon: Receipt, 
-      badge: 'Admin',
-      roles: ['admin'] 
+    {
+      title: 'TAX & RECONCILIATION ENGINES',
+      items: [
+        {
+          id: 'gst',
+          label: 'GST 2B Reconciliation',
+          code: '05',
+          icon: Receipt,
+          badge: 'Admin',
+          roles: ['admin'],
+        },
+        {
+          id: 'vendor',
+          label: 'Vendor Ledgers & Aging',
+          code: '06',
+          icon: Building2,
+        },
+        {
+          id: 'tds',
+          label: 'TDS/TCS 26Q Compliance',
+          code: '07',
+          icon: FileSpreadsheet,
+          badge: 'Admin',
+          roles: ['admin'],
+        },
+        {
+          id: 'bank',
+          label: 'Bank BRS Statement',
+          code: '08',
+          icon: Landmark,
+          badge: 'Admin',
+          roles: ['admin'],
+        },
+        {
+          id: 'excel',
+          label: 'Excel Workflow Engine',
+          code: '09',
+          icon: FileCode2,
+          badge: 'Admin',
+          roles: ['admin'],
+        },
+        {
+          id: 'mis',
+          label: 'MIS Management Reports',
+          code: '10',
+          icon: BarChart3,
+          badge: 'Admin',
+          roles: ['admin'],
+        },
+      ],
     },
-    { 
-      id: 'vendor', 
-      label: 'Vendor Ledgers & Aging', 
-      code: '02', 
-      icon: Building2 
+    {
+      title: 'OFFICE OPERATIONS & ADVISORY',
+      items: [
+        {
+          id: 'office',
+          label: 'Office & HR Operations',
+          code: '11',
+          icon: Briefcase,
+        },
+        {
+          id: 'vv_chatbot',
+          label: 'VV-PMSC SOP Assistant',
+          code: '12',
+          icon: BookOpenCheck,
+          badge: 'SOP',
+        },
+        {
+          id: 'pmsc_public',
+          label: 'PMSC Public Website',
+          code: '13',
+          icon: Globe,
+          badge: 'Portal',
+        },
+        {
+          id: 'ai',
+          label: 'AI Finance Assistant',
+          code: '14',
+          icon: Bot,
+          badge: 'Copilot',
+        },
+      ],
     },
-    { 
-      id: 'customer', 
-      label: 'Client Master & Receivables', 
-      code: '03', 
-      icon: Users2 
-    },
-    { 
-      id: 'tds', 
-      label: 'TDS/TCS 26Q Compliance', 
-      code: '04', 
-      icon: FileSpreadsheet,
-      badge: 'Admin',
-      roles: ['admin'] 
-    },
-    { 
-      id: 'bank', 
-      label: 'Bank BRS Statement', 
-      code: '05', 
-      icon: Landmark, 
-      badge: 'Admin',
-      roles: ['admin'] 
-    },
-    { 
-      id: 'office', 
-      label: 'Office & HR Operations', 
-      code: '06', 
-      icon: Briefcase 
-    },
-    { 
-      id: 'excel', 
-      label: 'Excel Workflow Engine', 
-      code: '07', 
-      icon: FileCode2, 
-      badge: 'Admin',
-      roles: ['admin'] 
-    },
-    { 
-      id: 'mis', 
-      label: 'MIS Management Reports', 
-      code: '08', 
-      icon: BarChart3,
-      badge: 'Admin',
-      roles: ['admin'] 
-    },
-    { 
-      id: 'ai', 
-      label: 'AI Finance Assistant', 
-      code: '09', 
-      icon: Bot, 
-      badge: 'AI' 
-    },
-    { 
-      id: 'audit', 
-      label: 'Audit Trail & RBAC', 
-      code: '10', 
-      icon: ShieldCheck, 
-      roles: ['admin'] 
-    },
-    { 
-      id: 'notices', 
-      label: 'Statutory Notices (Birju Sir)', 
-      code: '11', 
-      icon: Scale, 
-      badge: 'Desk' 
-    },
-    { 
-      id: 'compliance_hub', 
-      label: 'Compliance Automation Hub', 
-      code: '12', 
-      icon: FileCheck2, 
-      badge: 'Hub' 
-    },
-    { 
-      id: 'ai_analytics', 
-      label: 'AI Usage & ROI Study', 
-      code: '13', 
-      icon: Cpu, 
-      badge: 'Telemetry',
-      roles: ['admin'] 
-    },
-    { 
-      id: 'vv_chatbot', 
-      label: 'VV-PMSC SOP Assistant', 
-      code: '14', 
-      icon: BookOpenCheck, 
-      badge: 'SOP' 
-    },
-    { 
-      id: 'pmsc_public', 
-      label: 'PMSC Public Website', 
-      code: '15', 
-      icon: Globe, 
-      badge: 'Portal' 
-    },
-    { 
-      id: 'family_ai', 
-      label: 'Family Knowledge AI', 
-      code: '16', 
-      icon: FolderLock, 
-      badge: 'WMFSK' 
-    },
-    { 
-      id: 'career_ai', 
-      label: 'Career Pathway AI', 
-      code: '17', 
-      icon: Compass, 
-      badge: 'Careers' 
-    },
-    { 
-      id: 'collection_ai', 
-      label: 'Collection AI Recovery', 
-      code: '18', 
-      icon: Receipt, 
-      badge: 'DSO' 
+    {
+      title: 'INCUBATOR APPS & EXPERIMENTS',
+      badge: 'SIDE / BETA',
+      isSideOrPending: true,
+      items: [
+        {
+          id: 'family_ai',
+          label: 'Family Knowledge AI',
+          code: '15',
+          icon: FolderLock,
+          badge: 'Beta',
+        },
+        {
+          id: 'career_ai',
+          label: 'Career Pathway AI',
+          code: '16',
+          icon: Compass,
+          badge: 'Beta',
+        },
+        {
+          id: 'collection_ai',
+          label: 'Collection AI Recovery',
+          code: '17',
+          icon: Receipt,
+          badge: 'Beta',
+        },
+        {
+          id: 'ai_analytics',
+          label: 'AI Usage & ROI Study',
+          code: '18',
+          icon: Cpu,
+          badge: 'Telemetry',
+          roles: ['admin'],
+        },
+      ],
     },
   ];
 
-  const allowedItems = navItems.filter(
-    (item) => !item.roles || isAdmin || (user && item.roles.includes(user.role))
-  );
+  const filterItem = (item: NavItem) =>
+    !item.roles || isAdmin || (user && item.roles.includes(user.role));
 
   return (
     <>
@@ -258,51 +298,81 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </span>
         </div>
 
-        {/* Navigation list */}
-        <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-1">
-          {allowedItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  onSelectTab(item.id);
-                  onClose();
-                }}
-                className={`w-full group flex items-center justify-between px-3 py-2.5 rounded-[3px] text-xs font-medium transition-all ${
-                  isActive
-                    ? 'bg-[#1A2F46] text-white border-l-4 border-[#E65909] shadow-inner font-semibold pl-2.5'
-                    : 'text-[#8B97A3] hover:text-[#E6ECF2] hover:bg-[#1A2F46]/50'
-                }`}
-              >
-                <div className="flex items-center space-x-2.5 min-w-0">
-                  <span className={`text-[10px] font-mono ${isActive ? 'text-[#F86927]' : 'text-[#7C8793]'}`}>
-                    {item.code}
-                  </span>
-                  <Icon
-                    className={`w-4 h-4 flex-shrink-0 ${
-                      isActive ? 'text-[#E65909]' : 'text-[#8B97A3] group-hover:text-white'
-                    }`}
-                  />
-                  <span className="truncate">{item.label}</span>
-                </div>
+        {/* Navigation list (Organized into 4 explicit sections: Core Operations vs Incubator) */}
+        <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-4">
+          {navSections.map((section, idx) => {
+            const visibleItems = section.items.filter(filterItem);
+            if (visibleItems.length === 0) return null;
 
-                <div className="flex items-center space-x-1.5 flex-shrink-0">
-                  {item.badge && (
-                    <span
-                      className={`text-[9px] px-1.5 py-0.5 rounded-[2px] font-mono uppercase tracking-wider ${
-                        isActive
-                          ? 'bg-[#E65909] text-white font-semibold'
-                          : 'bg-[#1A2F46] text-[#8B97A3] border border-[#364452]'
-                      }`}
-                    >
-                      {item.badge}
+            return (
+              <div key={idx} className="space-y-1">
+                {/* Section Header */}
+                <div className={`px-2 pt-2 pb-1 flex items-center justify-between ${
+                  section.isSideOrPending ? 'mt-3 pt-3 border-t border-[#364452]/70' : ''
+                }`}>
+                  <span className={`text-[9px] font-mono font-bold tracking-widest uppercase ${
+                    section.isSideOrPending ? 'text-amber-400' : 'text-[#8B97A3]'
+                  }`}>
+                    {section.title}
+                  </span>
+                  {section.badge && (
+                    <span className="text-[8px] font-mono font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30 px-1 py-0.2 rounded uppercase">
+                      {section.badge}
                     </span>
                   )}
-                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-[#E65909]" />}
                 </div>
-              </button>
+
+                {/* Items */}
+                <div className="space-y-0.5">
+                  {visibleItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = currentTab === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          onSelectTab(item.id);
+                          onClose();
+                        }}
+                        className={`w-full group flex items-center justify-between px-2.5 py-2 rounded-[3px] text-xs font-medium transition-all ${
+                          isActive
+                            ? 'bg-[#1A2F46] text-white border-l-4 border-[#E65909] shadow-inner font-semibold pl-2'
+                            : section.isSideOrPending
+                            ? 'text-[#7C8793] hover:text-[#E6ECF2] hover:bg-[#1A2F46]/40'
+                            : 'text-[#8B97A3] hover:text-[#E6ECF2] hover:bg-[#1A2F46]/50'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-2 min-w-0">
+                          <span className={`text-[10px] font-mono ${isActive ? 'text-[#F86927]' : 'text-[#626E7A]'}`}>
+                            {item.code}
+                          </span>
+                          <Icon
+                            className={`w-3.5 h-3.5 flex-shrink-0 ${
+                              isActive ? 'text-[#E65909]' : 'text-[#8B97A3] group-hover:text-white'
+                            }`}
+                          />
+                          <span className="truncate text-[11px] font-sans">{item.label}</span>
+                        </div>
+
+                        <div className="flex items-center space-x-1 flex-shrink-0">
+                          {item.badge && (
+                            <span
+                              className={`text-[8px] px-1 py-0.2 rounded-[2px] font-mono uppercase tracking-wider ${
+                                isActive
+                                  ? 'bg-[#E65909] text-white font-semibold'
+                                  : 'bg-[#1A2F46] text-[#8B97A3] border border-[#364452]'
+                              }`}
+                            >
+                              {item.badge}
+                            </span>
+                          )}
+                          {isActive && <ChevronRight className="w-3 h-3 text-[#E65909]" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
         </nav>

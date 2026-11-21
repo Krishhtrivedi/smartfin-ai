@@ -24,9 +24,19 @@ from app.api.ai import router as ai_router
 from app.api.audit import router as audit_router
 from app.api.compliance_tools import router as compliance_router
 from app.api.incubator import router as incubator_router
+from app.api.automation import router as automation_router
 
 # Initialize Database Schema
 Base.metadata.create_all(bind=engine)
+
+# Add model columns missing from existing tables (safe, add-only; needed on Render PostgreSQL)
+try:
+    from app.core.schema_sync import add_missing_columns
+    _added = add_missing_columns(engine, Base.metadata)
+    if _added:
+        print(f"Schema sync: added columns {_added}")
+except Exception as _e:
+    print(f"Schema sync notice: {_e}")
 
 app = FastAPI(
     title="SMARTFIN.AI",
@@ -58,6 +68,7 @@ app.include_router(ai_router, prefix=settings.API_V1_STR)
 app.include_router(audit_router, prefix=settings.API_V1_STR)
 app.include_router(compliance_router, prefix=settings.API_V1_STR)
 app.include_router(incubator_router, prefix=settings.API_V1_STR)
+app.include_router(automation_router, prefix=settings.API_V1_STR)
 
 @app.on_event("startup")
 def on_startup():

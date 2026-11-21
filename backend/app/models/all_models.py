@@ -603,6 +603,14 @@ class ClientReportSubmission(Base):
     received_at = Column(DateTime, default=datetime.utcnow)
     reminder_sent_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    # Added for phone-matched receipts (no name / keyword guessing)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True, index=True)
+    original_file_name = Column(String(255), nullable=True)
+    file_sha256 = Column(String(64), nullable=True)
+    file_size = Column(Integer, nullable=True)
+    source_message_id = Column(String(255), nullable=True)
+    desktop_path = Column(String(500), nullable=True)
+    desktop_synced_at = Column(DateTime, nullable=True)
 
 class AIUsageMetric(Base):
     __tablename__ = "ai_usage_metrics"
@@ -632,3 +640,72 @@ class PublicClientInquiry(Base):
     status = Column(String(50), default="NEW") # NEW, CONTACTED, CONVERTED, CLOSED
     client_ip = Column(String(100), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+# ==============================================================================
+# AUTOMATION CENTER (jobs run by the SmartFin Mac agent)
+# A job only reaches SUCCESS when the agent hands over proof (file + checks).
+# ==============================================================================
+
+class AutomationJob(Base):
+    __tablename__ = "automation_jobs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    job_type = Column(String(30), nullable=False, index=True)   # GSTR1_DOWNLOAD | IT_NOTICES_FETCH
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False, index=True)
+    params_json = Column(Text, nullable=True)                   # {"financial_year": "...", "period": "MMYYYY", "auto_send": bool}
+    status = Column(String(30), default="QUEUED", nullable=False, index=True)
+    # QUEUED | RUNNING | WAITING_FOR_HUMAN | SUCCESS | NEEDS_REVIEW | FAILED | CANCELLED
+    status_message = Column(Text, nullable=True)
+    agent_name = Column(String(100), nullable=True)
+    created_by_email = Column(String(255), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    claimed_at = Column(DateTime, nullable=True)
+    last_update_at = Column(DateTime, default=datetime.utcnow)
+    finished_at = Column(DateTime, nullable=True)
+    file_path = Column(String(500), nullable=True)               # server copy of the downloaded file
+    file_sha256 = Column(String(64), nullable=True)
+    file_size = Column(Integer, nullable=True)
+    desktop_path = Column(String(500), nullable=True)            # where the agent saved it on the Mac
+    checks_json = Column(Text, nullable=True)                    # verification results
+    dispatch_json = Column(Text, nullable=True)                  # email / WhatsApp results with IDs
+
+    customer = relationship("Customer")
+
+
+class AgentHeartbeat(Base):
+    __tablename__ = "agent_heartbeats"
+
+    id = Column(Integer, primary_key=True, index=True)
+    agent_name = Column(String(100), unique=True, nullable=False)
+    version = Column(String(30), nullable=True)
+    desktop_root = Column(String(500), nullable=True)
+    last_seen_at = Column(DateTime, default=datetime.utcnow)
+
+
+class PortalNotice(Base):
+    """Items read from the Income Tax portal (e-Proceedings / outstanding demand). Never invented:
+    a field the page did not show stays empty and the row is flagged needs_review."""
+    __tablename__ = "portal_notices"
+
+    id = Column(Integer, primary_key=True, index=True)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False, index=True)
+    kind = Column(String(20), nullable=False)                    # NOTICE | DEMAND
+    portal_ref = Column(String(100), nullable=True, index=True)  # DIN / notice no. / demand ref as shown
+    row_fingerprint = Column(String(64), nullable=False, index=True)
+    section = Column(String(100), nullable=True)
+    assessment_year = Column(String(20), nullable=True)
+    description = Column(Text, nullable=True)
+    issue_date = Column(Date, nullable=True)
+    due_date = Column(Date, nullable=True)
+    response_status = Column(String(30), nullable=True)          # RESPONDED | PENDING | None (unknown)
+    amount = Column(Float, nullable=True)
+    raw_cells_json = Column(Text, nullable=False)
+    needs_review = Column(Boolean, default=False)
+    review_reasons = Column(Text, nullable=True)
+    first_seen_at = Column(DateTime, default=datetime.utcnow)
+    last_seen_at = Column(DateTime, default=datetime.utcnow)
+    seen_on_last_fetch = Column(Boolean, default=True)
+    last_job_id = Column(Integer, nullable=True)
+
+    customer = relationship("Customer")

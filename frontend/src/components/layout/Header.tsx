@@ -4,11 +4,13 @@ import {
   Bell,
   Sparkles,
   AlertTriangle,
-  Building
+  Building,
+  Activity
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import { NavigationTab } from './Sidebar';
+import { DiagnosticsModal } from '../common/DiagnosticsModal';
 
 interface HeaderProps {
   currentTab: NavigationTab;
@@ -25,6 +27,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [diagnosticsOpen, setDiagnosticsOpen] = useState(false);
 
   const tabTitles: Record<NavigationTab, { title: string; subtitle: string; spec: string }> = {
     dashboard: { 
@@ -86,6 +89,11 @@ export const Header: React.FC<HeaderProps> = ({
       spec: '11 / BIRJU SIR DESK', 
       title: 'Statutory Notice Management & Legal Response Desk', 
       subtitle: 'Income Tax & GST notices, limitation countdowns, risk assessments, draft replies & tracking' 
+    },
+    automation: {
+      spec: 'AC / AUTOMATION',
+      title: 'Automation Center',
+      subtitle: 'GSTR-1 download & send, Income Tax notices, TDS/GST report reminders and the office Mac agent'
     },
     compliance_hub: { 
       spec: '12 / AUTOMATION HUB', 
@@ -154,23 +162,23 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="h-18 bg-[#F6F3EE] border-b border-[#C5CBD2] px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
       {/* Left Title & Mobile Button */}
-      <div className="flex items-center space-x-3 overflow-hidden">
+      <div className="flex items-center space-x-3 min-w-0 flex-1 mr-3">
         <button
           onClick={onOpenMobileMenu}
-          className="p-2 text-[#4A545D] hover:text-[#171E25] hover:bg-[#ECE9E3] rounded-[3px] lg:hidden border border-[#C5CBD2]"
+          className="p-2 text-[#4A545D] hover:text-[#171E25] hover:bg-[#ECE9E3] rounded-[3px] lg:hidden border border-[#C5CBD2] flex-shrink-0"
         >
           <Menu className="w-5 h-5" />
         </button>
 
-        <div>
+        <div className="min-w-0 flex-1">
           <div className="flex items-center space-x-2">
-            <span className="spec-tag text-[#E65909] font-bold bg-[#E65909]/10 px-1.5 py-0.5 rounded-[2px] border border-[#E65909]/20">
+            <span className="spec-tag text-[#E65909] font-bold bg-[#E65909]/10 px-1.5 py-0.5 rounded-[2px] border border-[#E65909]/20 flex-shrink-0 text-[10px] font-mono">
               {current.spec}
             </span>
-            <h1 className="text-base sm:text-lg font-display font-bold text-[#1A2F46] truncate">
+            <h1 className="text-sm sm:text-base md:text-lg font-display font-bold text-[#1A2F46] truncate">
               {current.title}
             </h1>
-            <span className="hidden sm:inline-flex items-center text-[10px] font-mono font-medium bg-[#ECE9E3] text-[#4A545D] px-2 py-0.5 rounded-[2px] border border-[#C5CBD2]">
+            <span className="hidden sm:inline-flex items-center text-[10px] font-mono font-medium bg-[#ECE9E3] text-[#4A545D] px-2 py-0.5 rounded-[2px] border border-[#C5CBD2] flex-shrink-0">
               FY 2026-27
             </span>
           </div>
@@ -181,14 +189,16 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Right Action Icons & Profile */}
-      <div className="flex items-center space-x-2 sm:space-x-3">
-        {/* Production System Org Badge */}
-        <div className="hidden xl:flex items-center bg-[#ECE9E3] px-2.5 py-1 rounded-[3px] border border-[#C5CBD2] space-x-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span className="text-[10px] font-mono text-[#1A2F46] font-bold uppercase tracking-wider">
-            SMARTFIN.AI // LIVE PRODUCTION
-          </span>
-        </div>
+      <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+        {/* System Diagnostics Trigger (Zero Simulation) */}
+        <button
+          onClick={() => setDiagnosticsOpen(true)}
+          className="flex items-center space-x-1.5 px-2.5 py-1.5 text-xs font-semibold bg-white hover:bg-[#ECE9E3] text-[#1A2F46] border border-[#C5CBD2] rounded-[3px] transition-colors shadow-xs"
+          title="Connections & Data Flow Diagnostics"
+        >
+          <Activity className="w-3.5 h-3.5 text-emerald-600" />
+          <span className="hidden md:inline font-mono text-[11px]">Diagnostics</span>
+        </button>
 
         {/* Quick AI Assistant Trigger */}
         <button
@@ -271,6 +281,12 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Live System Diagnostics & Data Flow Modal */}
+      <DiagnosticsModal
+        isOpen={diagnosticsOpen}
+        onClose={() => setDiagnosticsOpen(false)}
+      />
     </header>
   );
 };

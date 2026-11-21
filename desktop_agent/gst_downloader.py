@@ -125,6 +125,11 @@ def run_gst_download(client_name: str, gstin: str, year: str, period: str, usern
             print("ℹ️ File saved locally. Connect SmartFin.AI backend to auto-dispatch via WhatsApp.")
 
 if __name__ == "__main__":
+    sys.exit("This script is retired. Use smartfin_agent.py instead: it reports real status to SmartFin, "
+             "uses AGENT_API_TOKEN instead of an admin password, and never fills in made-up notice data.")
+
+if False:  # retired entry point kept for reference
+
     parser = argparse.ArgumentParser(description="SmartFin.AI GST Portal Downloader")
     parser.add_argument("--client", default="Acme_Enterprises", help="Client / Company Name")
     parser.add_argument("--gstin", default="27AACCA9876C1Z1", help="Client GSTIN")

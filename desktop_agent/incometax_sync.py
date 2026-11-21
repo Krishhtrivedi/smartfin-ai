@@ -140,6 +140,11 @@ def run_incometax_sync(pan: str, client_name: str):
             print("✅ All notices successfully synced to SmartFin.AI ERP!")
 
 if __name__ == "__main__":
+    sys.exit("This script is retired. Use smartfin_agent.py instead: it reports real status to SmartFin, "
+             "uses AGENT_API_TOKEN instead of an admin password, and never fills in made-up notice data.")
+
+if False:  # retired entry point kept for reference
+
     parser = argparse.ArgumentParser(description="SmartFin.AI Income Tax Sync")
     parser.add_argument("--pan", default="ABCDE1234F", help="Client PAN")
     parser.add_argument("--client", default="Singhania Logistics LLP", help="Client Name")

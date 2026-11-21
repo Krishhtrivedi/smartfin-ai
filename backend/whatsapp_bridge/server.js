@@ -31,25 +31,36 @@ let unreadMessagesStore = []; // In-memory store of incoming unread WhatsApp mes
 const logger = pino({ level: 'silent' });
 
 function forwardToFastAPI(msgRecord) {
+    // Same machine as the API. On Render the API listens on $PORT (not always 8000).
     try {
         const postData = JSON.stringify(msgRecord);
         const options = {
             hostname: '127.0.0.1',
-            port: 8000,
+            port: Number(process.env.API_PORT || process.env.PORT || 8000),
             path: '/api/v1/compliance/whatsapp/incoming-webhook',
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(postData)
+                'Content-Length': Buffer.byteLength(postData),
+                'X-Bridge-Secret': process.env.BRIDGE_WEBHOOK_SECRET || ''
             },
-            timeout: 2000
+            timeout: 5000
         };
-        const req = http.request(options, (res) => {});
-        req.on('error', () => {});
+        const req = http.request(options, (res) => {
+            if (res.statusCode >= 400) console.error(`[Baileys] API rejected incoming message (HTTP ${res.statusCode}). Check BRIDGE_WEBHOOK_SECRET.`);
+            res.resume();
+        });
+        req.on('error', (e) => console.error('[Baileys] Could not reach API webhook:', e.message));
         req.write(postData);
         req.end();
-    } catch (e) {}
+    } catch (e) {
+        console.error('[Baileys] forwardToFastAPI error:', e.message);
+    }
 }
+
+// Files clients send are saved here (server side); the API matches the sender's phone
+// to the Client Master and the Mac agent copies them into Desktop/<client folder>.
+const INBOX_DIR = process.env.WHATSAPP_INBOX_DIR || path.join(__dirname, '..', '..', 'uploads', 'whatsapp_inbox');
 
 async function initBaileysSocket(forceNew = false) {
     try {
@@ -175,34 +186,35 @@ async function initBaileysSocket(forceNew = false) {
                     const timestampSeconds = msg.messageTimestamp ? Number(msg.messageTimestamp) : Math.floor(Date.now() / 1000);
                     const msgId = msg.key.id || `wa_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
-                    // Auto-save incoming document/media attachments directly to ~/Desktop/<ClientName>/TDS_GST_Reports/
+                    // Save incoming documents/images to the server inbox. Folder is NOT chosen by the
+                    // sender's WhatsApp display name; the API matches the sender's phone number instead.
                     let savedFilePath = null;
                     let hasAttachment = false;
+                    let originalFileName = null;
+                    let attachmentError = null;
                     if (msg.message?.documentMessage || msg.message?.imageMessage) {
+                        hasAttachment = true;
                         try {
-                            hasAttachment = true;
-                            const desktopDir = process.env.DESKTOP_DIR || path.join(process.env.HOME || '', 'Desktop');
-                            const cleanClientName = senderName.replace(/[^a-zA-Z0-9_-]/g, '_');
-                            const targetDir = path.join(desktopDir, cleanClientName, 'TDS_GST_Reports');
-                            fs.mkdirSync(targetDir, { recursive: true });
-
-                            const rawFileName = msg.message?.documentMessage?.fileName || `report_${Date.now()}.${msg.message?.imageMessage ? 'jpg' : 'pdf'}`;
-                            const sanitized = `${new Date().toISOString().slice(0, 10)}_${rawFileName.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-                            const fullPath = path.join(targetDir, sanitized);
-
+                            fs.mkdirSync(INBOX_DIR, { recursive: true });
+                            originalFileName = msg.message?.documentMessage?.fileName || `image_${timestampSeconds}.jpg`;
+                            const safe = originalFileName.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-120);
+                            const fullPath = path.join(INBOX_DIR, `${timestampSeconds}_${String(msgId).replace(/[^a-zA-Z0-9]/g, '')}_${safe}`);
                             const buffer = await downloadMediaMessage(
                                 msg,
                                 'buffer',
                                 {},
                                 { logger, reuploadRequest: sock?.updateMediaMessage }
                             );
-                            if (buffer) {
+                            if (buffer && buffer.length > 0) {
                                 fs.writeFileSync(fullPath, buffer);
                                 savedFilePath = fullPath;
-                                console.log(`[Baileys] Auto-saved incoming report to: ${fullPath}`);
+                                console.log(`[Baileys] Saved incoming file (${buffer.length} bytes): ${fullPath}`);
+                            } else {
+                                attachmentError = 'Empty download';
                             }
                         } catch (downErr) {
-                            console.error('[Baileys] Attachment download notice:', downErr.message);
+                            attachmentError = downErr.message;
+                            console.error('[Baileys] Attachment download failed:', downErr.message);
                         }
                     }
 
@@ -217,7 +229,9 @@ async function initBaileysSocket(forceNew = false) {
                         is_group: isGroup,
                         is_read: false,
                         has_attachment: hasAttachment,
-                        attachment_path: savedFilePath
+                        attachment_path: savedFilePath,
+                        attachment_file_name: originalFileName,
+                        attachment_error: attachmentError
                     };
 
                     if (!unreadMessagesStore.some(m => m.message_id === msgRecord.message_id)) {
@@ -470,6 +484,44 @@ const server = http.createServer(async (req, res) => {
                     success: false,
                     error: `Message dispatch failed: ${sendErr.message}`
                 });
+            }
+        });
+        return;
+    }
+
+    // 6b. Send a document (e.g. GSTR-1 PDF) to a person
+    if (pathname === '/send-document' && method === 'POST') {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', async () => {
+            try {
+                const data = JSON.parse(body || '{}');
+                if (connectionState !== 'CONNECTED' || !sock) {
+                    return sendJson(400, { success: false, error: 'WhatsApp is not connected. Link your phone first.' });
+                }
+                if (!data.jid || !data.file_path) {
+                    return sendJson(400, { success: false, error: 'Missing required fields: jid and file_path' });
+                }
+                if (!fs.existsSync(data.file_path)) {
+                    return sendJson(400, { success: false, error: `File not found on server: ${path.basename(data.file_path)}` });
+                }
+                const buffer = fs.readFileSync(data.file_path);
+                const result = await sock.sendMessage(data.jid, {
+                    document: buffer,
+                    fileName: data.file_name || path.basename(data.file_path),
+                    mimetype: data.mimetype || 'application/pdf',
+                    caption: data.caption || undefined
+                });
+                return sendJson(200, {
+                    success: true,
+                    status: 'SENT',
+                    messageId: result.key.id,
+                    targetJid: data.jid,
+                    timestamp: result.messageTimestamp
+                });
+            } catch (sendErr) {
+                console.error('[Baileys] Document send failed:', sendErr);
+                return sendJson(500, { success: false, error: `Document send failed: ${sendErr.message}` });
             }
         });
         return;

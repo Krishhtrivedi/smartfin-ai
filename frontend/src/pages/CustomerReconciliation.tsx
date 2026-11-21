@@ -518,69 +518,51 @@ export const CustomerReconciliation: React.FC = () => {
 
   return (
     <div className="space-y-5">
-      {/* Top Banner & Control Strip */}
-      <div className="bg-[#0D2035] text-white p-4 rounded-[3px] border border-[#364452] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2">
-            <span className="spec-tag text-[#E65909] font-bold bg-[#E65909]/10 px-2 py-0.5 rounded-[2px] border border-[#E65909]/30 text-[10px] font-mono tracking-wider">
-              03 / CLIENT MASTER & TRADE RECEIVABLES
-            </span>
-            <span className="text-[10px] font-mono text-[#8B97A3] uppercase tracking-wider">
-              Unified Client Directory & Statutory Hub
-            </span>
-          </div>
-          <h2 className="text-base font-display font-bold text-white mt-1">
-            Client Master & Trade Receivables Hub
-          </h2>
-          <p className="text-xs text-[#8B97A3] mt-0.5">
-            Admin CRUD management, Excel Master mapping (GST, TDS, IT Genius), WhatsApp & Email registry, and Sales ledger.
-          </p>
+      {/* Primary Sub-Tab Switcher & Action Toolbar (Eliminated Redundant Double Banner) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#C5CBD2] pb-2">
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setActiveModuleMode('DIRECTORY')}
+            className={`px-3.5 py-1.5 text-xs font-semibold rounded-[3px] flex items-center space-x-2 transition-all ${
+              activeModuleMode === 'DIRECTORY'
+                ? 'bg-[#1A2F46] text-white shadow-xs font-bold'
+                : 'text-[#5D646C] hover:text-[#1A2F46] hover:bg-[#ECE9E3]'
+            }`}
+          >
+            <Users2 className="w-4 h-4 text-[#E65909]" />
+            <span>1. Client Master Directory ({totalMasterCount.toLocaleString()})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveModuleMode('RECEIVABLES')}
+            className={`px-3.5 py-1.5 text-xs font-semibold rounded-[3px] flex items-center space-x-2 transition-all ${
+              activeModuleMode === 'RECEIVABLES'
+                ? 'bg-[#1A2F46] text-white shadow-xs font-bold'
+                : 'text-[#5D646C] hover:text-[#1A2F46] hover:bg-[#ECE9E3]'
+            }`}
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+            <span>2. Trade Receivables & Invoices</span>
+          </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center space-x-2">
           <button
             onClick={() => setAddCustomerModalOpen(true)}
-            className="btn-signal flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-[3px]"
+            className="btn-signal flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-[3px] shadow-xs"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>+ Add New Client</span>
+            <span>+ Add Client</span>
           </button>
 
           <button
             onClick={() => setMasterImportModalOpen(true)}
-            className="bg-[#1A2F46] hover:bg-[#23374d] text-white border border-[#364452] px-3 py-1.5 text-xs font-semibold rounded-[3px] flex items-center space-x-1.5 transition-colors shadow-xs"
+            className="bg-white hover:bg-[#ECE9E3] text-[#1A2F46] border border-[#C5CBD2] px-3 py-1.5 text-xs font-semibold rounded-[3px] flex items-center space-x-1.5 transition-colors shadow-xs"
           >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
             <span>Sync Excel Masters</span>
           </button>
         </div>
-      </div>
-
-      {/* Primary Sub-Tab Switcher: 1. Client Master Directory vs 2. Trade Receivables */}
-      <div className="flex items-center space-x-2 border-b border-[#C5CBD2] pb-1">
-        <button
-          onClick={() => setActiveModuleMode('DIRECTORY')}
-          className={`px-4 py-2 text-xs font-semibold rounded-[3px] flex items-center space-x-2 transition-all ${
-            activeModuleMode === 'DIRECTORY'
-              ? 'bg-[#1A2F46] text-white shadow-xs font-bold'
-              : 'text-[#5D646C] hover:text-[#1A2F46] hover:bg-[#ECE9E3]'
-          }`}
-        >
-          <Users2 className="w-4 h-4 text-[#E65909]" />
-          <span>1. Client Master Directory ({totalMasterCount.toLocaleString()})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveModuleMode('RECEIVABLES')}
-          className={`px-4 py-2 text-xs font-semibold rounded-[3px] flex items-center space-x-2 transition-all ${
-            activeModuleMode === 'RECEIVABLES'
-              ? 'bg-[#1A2F46] text-white shadow-xs font-bold'
-              : 'text-[#5D646C] hover:text-[#1A2F46] hover:bg-[#ECE9E3]'
-          }`}
-        >
-          <Receipt className="w-4 h-4 text-emerald-600" />
-          <span>2. Trade Receivables & Subledger</span>
-        </button>
       </div>
 
       {/* VIEW 1: CLIENT MASTER DIRECTORY */}
@@ -628,7 +610,7 @@ export const CustomerReconciliation: React.FC = () => {
           {/* Directory Control Strip */}
           <div className="bg-white p-3 rounded-[3px] border border-[#C5CBD2] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
             {/* Search Input */}
-            <div className="relative flex-1 max-w-md">
+            <div className="relative flex-1 min-w-[260px]">
               <Search className="w-3.5 h-3.5 text-[#8B97A3] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
@@ -648,7 +630,7 @@ export const CustomerReconciliation: React.FC = () => {
             </div>
 
             {/* Filter Chips */}
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5 flex-shrink-0">
               {[
                 { id: 'ALL', label: `All (${totalMasterCount})` },
                 { id: 'GST', label: `GST (${gstRegisteredCount})` },
@@ -675,16 +657,16 @@ export const CustomerReconciliation: React.FC = () => {
           {/* Master Clients Table */}
           <div className="bg-white rounded-[3px] border border-[#C5CBD2] shadow-xs overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="min-w-[1020px] w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-[#1A2F46] text-white text-[11px] font-mono uppercase tracking-wider border-b border-[#364452]">
-                    <th className="py-2.5 px-3 font-semibold">Client / Trade Entity</th>
-                    <th className="py-2.5 px-3 font-semibold">Identifiers (GSTIN / PAN / TAN)</th>
-                    <th className="py-2.5 px-3 font-semibold">Contact (WhatsApp / Email)</th>
-                    <th className="py-2.5 px-3 font-semibold">Desktop Folder</th>
-                    <th className="py-2.5 px-3 font-semibold text-center">Portals Linked</th>
-                    <th className="py-2.5 px-3 font-semibold text-center">Status</th>
-                    <th className="py-2.5 px-3 font-semibold text-right">Actions</th>
+                    <th className="py-2.5 px-3 font-semibold min-w-[240px]">Client / Trade Entity</th>
+                    <th className="py-2.5 px-3 font-semibold min-w-[190px]">Identifiers (GSTIN / PAN / TAN)</th>
+                    <th className="py-2.5 px-3 font-semibold min-w-[170px]">Contact (WhatsApp / Email)</th>
+                    <th className="py-2.5 px-3 font-semibold min-w-[140px]">Desktop Folder</th>
+                    <th className="py-2.5 px-3 font-semibold min-w-[110px] text-center">Portals Linked</th>
+                    <th className="py-2.5 px-3 font-semibold min-w-[90px] text-center">Status</th>
+                    <th className="py-2.5 px-3 font-semibold min-w-[110px] text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#ECE9E3] font-sans">

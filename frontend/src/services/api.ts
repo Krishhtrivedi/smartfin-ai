@@ -42,7 +42,14 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     let errorDetail = 'Network request failed';
     try {
       const errJson = await response.json();
-      errorDetail = errJson.detail || errJson.message || errorDetail;
+      const d = errJson.detail ?? errJson.message;
+      if (typeof d === 'string') {
+        errorDetail = d;
+      } else if (Array.isArray(d)) {
+        errorDetail = d.map((x: any) => `${Array.isArray(x.loc) ? x.loc[x.loc.length - 1] : 'field'}: ${x.msg}`).join('; ');
+      } else if (d && typeof d === 'object') {
+        errorDetail = [d.message, ...(Array.isArray(d.errors) ? d.errors : [])].filter(Boolean).join(' ') || errorDetail;
+      }
     } catch {
       errorDetail = await response.text() || errorDetail;
     }
@@ -59,6 +66,20 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 }
 
 export const api = {
+  // Automation Center
+  getAutomationOverview: () => request<any>('/automation/overview'),
+  searchAutomationClients: (search: string) => request<any[]>(`/automation/clients?search=${encodeURIComponent(search)}&limit=15`),
+  getAutomationJobs: (jobType?: string) => request<any[]>(`/automation/jobs${jobType ? `?job_type=${jobType}` : ''}`),
+  createAutomationJob: (data: { job_type: string; customer_id: number; financial_year?: string; period?: string; auto_send?: boolean }) =>
+    request<any>('/automation/jobs', { method: 'POST', body: JSON.stringify(data) }),
+  cancelAutomationJob: (id: number) => request<any>(`/automation/jobs/${id}/cancel`, { method: 'POST' }),
+  sendAutomationJob: (id: number, data: { email: boolean; whatsapp: boolean; confirm_reviewed?: boolean }) =>
+    request<any>(`/automation/jobs/${id}/send`, { method: 'POST', body: JSON.stringify(data) }),
+  downloadAutomationJobFile: (id: number) => request<Blob>(`/automation/jobs/${id}/file`),
+  getPortalNotices: (show: string) => request<any[]>(`/automation/it-notices?show=${show}`),
+  assignUnmatchedReport: (submissionId: number, customerId: number, savePhone: boolean) =>
+    request<any>(`/compliance/whatsapp/client-reports/unmatched/${submissionId}/assign`, { method: 'POST', body: JSON.stringify({ customer_id: customerId, save_phone: savePhone }) }),
+
   // Auth
   login: (email: string, password: string) =>
     request<any>('/auth/login', {
@@ -252,6 +273,9 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ prompt, context_type: contextType }),
     }),
+
+  // Diagnostics & System Health
+  getSystemDiagnostics: () => request<any>('/compliance/system-diagnostics'),
 
   // Audit Logs & Notifications
   getAuditLogs: (limit: number = 50) => request<any[]>(`/audit/logs?limit=${limit}`),

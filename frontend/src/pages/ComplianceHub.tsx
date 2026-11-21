@@ -34,7 +34,8 @@ import {
   Smartphone,
   Inbox,
   ListChecks,
-  Eye
+  Eye,
+  Search
 } from 'lucide-react';
 import { api } from '../services/api';
 import { Modal } from '../components/common/Modal';
@@ -132,6 +133,9 @@ export const ComplianceHub: React.FC = () => {
   const [loadingReportTracker, setLoadingReportTracker] = useState(false);
   const [reportTrackerSubTab, setReportTrackerSubTab] = useState<'PENDING' | 'RECEIVED'>('PENDING');
   const [sendingReminders, setSendingReminders] = useState(false);
+  const [trackerSearch, setTrackerSearch] = useState('');
+  const [trackerPage, setTrackerPage] = useState(1);
+  const trackerPageSize = 25;
 
   // ==========================================
   // 7. Skill-Set Tools State
@@ -656,8 +660,8 @@ export const ComplianceHub: React.FC = () => {
         </div>
       </div>
 
-      {/* Sub-Nav Tabs */}
-      <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 border-b border-slate-200">
+      {/* Sub-Nav Tabs (Clean responsive wrap) */}
+      <div className="flex flex-wrap items-center gap-1.5 pb-2 border-b border-slate-200">
         {[
           { key: 'gstr_email', label: '1. GSTR PDF Auto-Email', icon: Mail },
           { key: 'gst_agent', label: '2. GSTR Auto-Filing Agent', icon: Bot },
@@ -1821,93 +1825,161 @@ export const ComplianceHub: React.FC = () => {
               </div>
             </div>
 
-            {/* List 1: Pending Clients */}
-            {reportTrackerSubTab === 'PENDING' && (
-              <div className="overflow-x-auto max-h-[300px] overflow-y-auto pr-1">
-                {!reportTracker?.pending || reportTracker.pending.length === 0 ? (
-                  <div className="p-6 bg-emerald-50/50 rounded-lg border border-emerald-200 text-center space-y-1 text-emerald-800 text-xs">
-                    <CheckCircle2 className="w-6 h-6 text-emerald-600 mx-auto" />
-                    <p className="font-bold">100% Compliance Achieved!</p>
-                    <p className="text-[11px] text-emerald-700">All registered clients have submitted their TDS & GST reports for {reportTracker?.period}.</p>
-                  </div>
-                ) : (
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-mono text-[11px]">
-                      <tr>
-                        <th className="py-2 px-3">Client / Company Name</th>
-                        <th className="py-2 px-3">GSTIN</th>
-                        <th className="py-2 px-3">Phone</th>
-                        <th className="py-2 px-3 text-center">Status</th>
-                        <th className="py-2 px-3 text-right">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {reportTracker.pending.map((client: any) => (
-                        <tr key={client.customer_id || client.client_name} className="hover:bg-slate-50/70">
-                          <td className="py-2 px-3 font-semibold text-navy-950">{client.client_name}</td>
-                          <td className="py-2 px-3 font-mono text-[11px] text-slate-600">{client.gstin || 'N/A'}</td>
-                          <td className="py-2 px-3 font-mono text-[11px] text-slate-600">{client.phone || 'No Phone'}</td>
-                          <td className="py-2 px-3 text-center">
-                            <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 font-mono text-[10px] font-bold">
-                              PENDING
-                            </span>
-                          </td>
-                          <td className="py-2 px-3 text-right">
-                            <button
-                              onClick={() => handleSendReportReminders(client.customer_id ? [client.customer_id] : undefined)}
-                              disabled={sendingReminders || !waStatus?.can_send || !client.phone}
-                              className="px-2 py-1 bg-slate-100 hover:bg-brand-50 hover:text-brand-700 text-slate-600 rounded text-[11px] font-semibold transition-colors disabled:opacity-40"
-                            >
-                              Send Reminder
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+            {/* Search Bar & Pagination Controls for Clients in Tracker */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50/70 p-2 rounded-lg border border-slate-200 text-xs">
+              <div className="relative flex-1 max-w-xs">
+                <Search className="w-3 h-3 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search client, GSTIN or phone..."
+                  value={trackerSearch}
+                  onChange={(e) => { setTrackerSearch(e.target.value); setTrackerPage(1); }}
+                  className="w-full pl-7 pr-6 py-1 text-xs bg-white border border-slate-200 rounded focus:outline-none focus:border-brand-500"
+                />
+                {trackerSearch && (
+                  <button onClick={() => { setTrackerSearch(''); setTrackerPage(1); }} className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-slate-400">×</button>
                 )}
               </div>
-            )}
+
+              {/* Page Controls */}
+              {(() => {
+                const list = reportTrackerSubTab === 'PENDING' ? (reportTracker?.pending || []) : (reportTracker?.received || []);
+                const filtered = list.filter((c: any) => {
+                  if (!trackerSearch.trim()) return true;
+                  const q = trackerSearch.toLowerCase();
+                  return (c.client_name && c.client_name.toLowerCase().includes(q)) || (c.gstin && c.gstin.toLowerCase().includes(q)) || (c.phone && c.phone.toLowerCase().includes(q));
+                });
+                const totalPages = Math.ceil(filtered.length / trackerPageSize) || 1;
+                return (
+                  <div className="flex items-center space-x-2 text-[11px] font-mono">
+                    <span className="text-slate-500">
+                      Showing {Math.min(filtered.length, (trackerPage - 1) * trackerPageSize + 1)}–{Math.min(filtered.length, trackerPage * trackerPageSize)} of {filtered.length}
+                    </span>
+                    <button
+                      onClick={() => setTrackerPage(p => Math.max(1, p - 1))}
+                      disabled={trackerPage <= 1}
+                      className="px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-700 disabled:opacity-40"
+                    >
+                      Prev
+                    </button>
+                    <span className="text-slate-700 font-bold">{trackerPage}/{totalPages}</span>
+                    <button
+                      onClick={() => setTrackerPage(p => Math.min(totalPages, p + 1))}
+                      disabled={trackerPage >= totalPages}
+                      className="px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-700 disabled:opacity-40"
+                    >
+                      Next
+                    </button>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* List 1: Pending Clients */}
+            {reportTrackerSubTab === 'PENDING' && (() => {
+              const pendingList = (reportTracker?.pending || []).filter((c: any) => {
+                if (!trackerSearch.trim()) return true;
+                const q = trackerSearch.toLowerCase();
+                return (c.client_name && c.client_name.toLowerCase().includes(q)) || (c.gstin && c.gstin.toLowerCase().includes(q)) || (c.phone && c.phone.toLowerCase().includes(q));
+              });
+              const pageItems = pendingList.slice((trackerPage - 1) * trackerPageSize, trackerPage * trackerPageSize);
+
+              return (
+                <div className="overflow-x-auto max-h-[360px] overflow-y-auto pr-1">
+                  {pendingList.length === 0 ? (
+                    <div className="p-6 bg-emerald-50/50 rounded-lg border border-emerald-200 text-center space-y-1 text-emerald-800 text-xs">
+                      <CheckCircle2 className="w-6 h-6 text-emerald-600 mx-auto" />
+                      <p className="font-bold">No Pending Clients</p>
+                      <p className="text-[11px] text-emerald-700">All matched clients have submitted their reports or none match your search query.</p>
+                    </div>
+                  ) : (
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-mono text-[11px] sticky top-0">
+                        <tr>
+                          <th className="py-2 px-3">Client / Company Name</th>
+                          <th className="py-2 px-3">GSTIN</th>
+                          <th className="py-2 px-3">Phone</th>
+                          <th className="py-2 px-3 text-center">Status</th>
+                          <th className="py-2 px-3 text-right">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {pageItems.map((client: any) => (
+                          <tr key={client.customer_id || client.client_name} className="hover:bg-slate-50/70">
+                            <td className="py-2 px-3 font-semibold text-navy-950">{client.client_name}</td>
+                            <td className="py-2 px-3 font-mono text-[11px] text-slate-600">{client.gstin || 'N/A'}</td>
+                            <td className="py-2 px-3 font-mono text-[11px] text-slate-600">{client.phone || 'No Phone'}</td>
+                            <td className="py-2 px-3 text-center">
+                              <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 font-mono text-[10px] font-bold">
+                                PENDING
+                              </span>
+                            </td>
+                            <td className="py-2 px-3 text-right">
+                              <button
+                                onClick={() => handleSendReportReminders(client.customer_id ? [client.customer_id] : undefined)}
+                                disabled={sendingReminders || !waStatus?.can_send || !client.phone}
+                                className="px-2 py-1 bg-slate-100 hover:bg-brand-50 hover:text-brand-700 text-slate-600 rounded text-[11px] font-semibold transition-colors disabled:opacity-40"
+                              >
+                                Send Reminder
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* List 2: Received Clients */}
-            {reportTrackerSubTab === 'RECEIVED' && (
-              <div className="overflow-x-auto max-h-[300px] overflow-y-auto pr-1">
-                {!reportTracker?.received || reportTracker.received.length === 0 ? (
-                  <div className="p-6 bg-slate-50 rounded-lg border border-slate-200 text-center space-y-1 text-slate-500 text-xs">
-                    <Clock className="w-6 h-6 text-slate-400 mx-auto" />
-                    <p className="font-semibold text-navy-950">No Reports Received Yet</p>
-                    <p className="text-[11px]">When clients reply on WhatsApp with their statement or PDF, it will auto-save to Desktop and appear here.</p>
-                  </div>
-                ) : (
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-mono text-[11px]">
-                      <tr>
-                        <th className="py-2 px-3">Client / Company Name</th>
-                        <th className="py-2 px-3">Received Timestamp</th>
-                        <th className="py-2 px-3">Local Desktop File Path</th>
-                        <th className="py-2 px-3 text-center">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {reportTracker.received.map((client: any, idx: number) => (
-                        <tr key={idx} className="hover:bg-slate-50/70">
-                          <td className="py-2 px-3 font-semibold text-navy-950">{client.client_name}</td>
-                          <td className="py-2 px-3 font-mono text-[11px] text-slate-600">{client.received_at || 'Just Now'}</td>
-                          <td className="py-2 px-3 font-mono text-[10px] text-emerald-800 max-w-xs truncate" title={client.file_path}>
-                            {client.file_path || 'Saved in ~/Desktop/<Client>/TDS_GST_Reports/'}
-                          </td>
-                          <td className="py-2 px-3 text-center">
-                            <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono text-[10px] font-bold">
-                              ✓ RECEIVED
-                            </span>
-                          </td>
+            {reportTrackerSubTab === 'RECEIVED' && (() => {
+              const receivedList = (reportTracker?.received || []).filter((c: any) => {
+                if (!trackerSearch.trim()) return true;
+                const q = trackerSearch.toLowerCase();
+                return (c.client_name && c.client_name.toLowerCase().includes(q)) || (c.file_path && c.file_path.toLowerCase().includes(q));
+              });
+              const pageItems = receivedList.slice((trackerPage - 1) * trackerPageSize, trackerPage * trackerPageSize);
+
+              return (
+                <div className="overflow-x-auto max-h-[360px] overflow-y-auto pr-1">
+                  {receivedList.length === 0 ? (
+                    <div className="p-6 bg-slate-50 rounded-lg border border-slate-200 text-center space-y-1 text-slate-500 text-xs">
+                      <Clock className="w-6 h-6 text-slate-400 mx-auto" />
+                      <p className="font-semibold text-navy-950">No Reports Received Yet</p>
+                      <p className="text-[11px]">When clients reply on WhatsApp with their statement or PDF, it will auto-save to Desktop and appear here.</p>
+                    </div>
+                  ) : (
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-mono text-[11px] sticky top-0">
+                        <tr>
+                          <th className="py-2 px-3">Client / Company Name</th>
+                          <th className="py-2 px-3">Received Timestamp</th>
+                          <th className="py-2 px-3">Local Desktop File Path</th>
+                          <th className="py-2 px-3 text-center">Status</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            )}
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {pageItems.map((client: any, idx: number) => (
+                          <tr key={idx} className="hover:bg-slate-50/70">
+                            <td className="py-2 px-3 font-semibold text-navy-950">{client.client_name}</td>
+                            <td className="py-2 px-3 font-mono text-[11px] text-slate-600">{client.received_at || 'Just Now'}</td>
+                            <td className="py-2 px-3 font-mono text-[10px] text-emerald-800 max-w-xs truncate" title={client.file_path}>
+                              {client.file_path || 'Saved in ~/Desktop/<Client>/TDS_GST_Reports/'}
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono text-[10px] font-bold">
+                                ✓ RECEIVED
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Generator Input & Action Box */}

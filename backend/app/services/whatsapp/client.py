@@ -296,6 +296,32 @@ class WhatsAppClient:
         }
 
     @classmethod
+    def send_document(cls, jid: str, file_path: str, file_name: str, caption: str = "") -> Dict[str, Any]:
+        """Sends a file (e.g. GSTR-1 PDF) to one person. success=True only with a WhatsApp message ID."""
+        status = cls.get_live_status()
+        if not status.get("is_connected"):
+            return {"success": False, "status": "NOT_CONNECTED",
+                    "error": "WhatsApp is not connected. Scan the QR code in Compliance Hub first."}
+        try:
+            payload = json.dumps({"jid": jid, "file_path": os.path.abspath(file_path), "file_name": file_name,
+                                  "caption": caption, "mimetype": "application/pdf"}).encode("utf-8")
+            req = urllib.request.Request(f"{BRIDGE_BASE_URL}/send-document", data=payload,
+                                         headers={"Content-Type": "application/json"}, method="POST")
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as he:
+            try:
+                data = json.loads(he.read().decode("utf-8"))
+            except Exception:
+                data = {"error": f"HTTP {he.code}"}
+            return {"success": False, "status": "FAILED", "error": data.get("error", f"HTTP {he.code}")}
+        except Exception as e:
+            return {"success": False, "status": "FAILED", "error": f"WhatsApp bridge error: {e}"}
+        if data.get("success") and data.get("messageId"):
+            return {"success": True, "status": "SENT", "message_id": data["messageId"]}
+        return {"success": False, "status": "FAILED", "error": data.get("error", "No message ID returned")}
+
+    @classmethod
     def get_unread_messages(cls) -> Dict[str, Any]:
         """
         Queries live unread messages from the Baileys bridge.
