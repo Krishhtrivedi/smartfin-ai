@@ -17,6 +17,11 @@ import { BankAccount, BankTransaction } from '../types';
 import { Badge } from '../components/common/Badge';
 import { Modal } from '../components/common/Modal';
 
+const formatINR = (val: number | null | undefined): string => {
+  if (val === null || val === undefined || isNaN(Number(val))) return '0';
+  return Number(val).toLocaleString('en-IN');
+};
+
 export const BankReconciliation: React.FC = () => {
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
@@ -292,22 +297,22 @@ export const BankReconciliation: React.FC = () => {
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
             <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
               <span className="text-slate-500 font-medium">Balance as per Bank Statement:</span>
-              <p className="text-base font-bold text-navy-950 mt-1">₹{brsSummary.balance_as_per_bank.toLocaleString('en-IN')}</p>
+              <p className="text-base font-bold text-navy-950 mt-1">₹{formatINR(brsSummary.balance_as_per_bank)}</p>
             </div>
 
             <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
               <span className="text-emerald-800 font-medium">(+) Cheques deposited not credited:</span>
-              <p className="text-base font-bold text-emerald-700 mt-1">₹{brsSummary.cheques_deposited_not_credited.toLocaleString('en-IN')}</p>
+              <p className="text-base font-bold text-emerald-700 mt-1">₹{formatINR(brsSummary.cheques_deposited_not_credited)}</p>
             </div>
 
             <div className="p-3 rounded-xl bg-rose-50 border border-rose-200">
               <span className="text-rose-800 font-medium">(-) Cheques issued not presented:</span>
-              <p className="text-base font-bold text-rose-700 mt-1">₹{brsSummary.cheques_issued_not_presented.toLocaleString('en-IN')}</p>
+              <p className="text-base font-bold text-rose-700 mt-1">₹{formatINR(brsSummary.cheques_issued_not_presented)}</p>
             </div>
 
             <div className="p-3 rounded-xl bg-blue-50 border border-blue-200">
               <span className="text-brand-800 font-medium">(=) Calculated Ledger Balance:</span>
-              <p className="text-base font-bold text-brand-900 mt-1">₹{brsSummary.balance_as_per_books.toLocaleString('en-IN')}</p>
+              <p className="text-base font-bold text-brand-900 mt-1">₹{formatINR(brsSummary.balance_as_per_books)}</p>
             </div>
           </div>
         </div>
@@ -361,13 +366,13 @@ export const BankReconciliation: React.FC = () => {
                     {t.reference_number || '—'}
                   </td>
                   <td className="py-2.5 px-4 text-right font-semibold text-rose-600">
-                    {t.debit_amount > 0 ? `₹${t.debit_amount.toLocaleString('en-IN')}` : '—'}
+                    {t.debit_amount > 0 ? `₹${formatINR(t.debit_amount)}` : '—'}
                   </td>
                   <td className="py-2.5 px-4 text-right font-semibold text-emerald-600">
-                    {t.credit_amount > 0 ? `₹${t.credit_amount.toLocaleString('en-IN')}` : '—'}
+                    {t.credit_amount > 0 ? `₹${formatINR(t.credit_amount)}` : '—'}
                   </td>
                   <td className="py-2.5 px-4 text-right font-bold text-navy-950">
-                    ₹{t.balance_after.toLocaleString('en-IN')}
+                    ₹{formatINR(t.balance_after)}
                   </td>
                   <td className="py-2.5 px-4 text-center">
                     <Badge variant={t.reconciliation_status === 'MATCHED' ? 'success' : 'danger'}>

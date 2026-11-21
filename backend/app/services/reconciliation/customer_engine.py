@@ -64,14 +64,16 @@ class CustomerReconciliationEngine:
             "customer_id": customer.id,
             "customer_name": customer.name,
             "gstin": customer.gstin,
-            "credit_limit": customer.credit_limit,
+            "credit_limit": customer.credit_limit or 0.0,
             "credit_utilization_pct": credit_utilization_pct,
             "total_sales": round(total_sales, 2),
             "total_received": round(total_received, 2),
+            "total_receipts": round(total_received, 2),
             "outstanding_balance": round(calculated_outstanding, 2),
             "aging": {k: round(v, 2) for k, v in aging.items()},
             "invoices_count": len(invoices),
             "receipts_count": len(receipts),
+            "unpaid_invoices_count": len(uncollected_invoices),
             "uncollected_invoices_count": len(uncollected_invoices)
         }
 

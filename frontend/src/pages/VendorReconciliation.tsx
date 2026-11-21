@@ -14,6 +14,11 @@ import { api } from '../services/api';
 import { VendorSummary, Invoice } from '../types';
 import { Modal } from '../components/common/Modal';
 
+const formatINR = (val: number | null | undefined): string => {
+  if (val === null || val === undefined || isNaN(Number(val))) return '0';
+  return Number(val).toLocaleString('en-IN');
+};
+
 export const VendorReconciliation: React.FC = () => {
   const [vendors, setVendors] = useState<VendorSummary[]>([]);
   const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
@@ -236,7 +241,7 @@ export const VendorReconciliation: React.FC = () => {
               Vendors ({vendors.length})
             </span>
             <span className="text-[11px] font-bold text-rose-600 font-mono">
-              Total Due: ₹{totalOutstanding.toLocaleString('en-IN')}
+              Total Due: ₹{formatINR(totalOutstanding)}
             </span>
           </div>
 
@@ -267,14 +272,14 @@ export const VendorReconciliation: React.FC = () => {
                   >
                     <div className="flex items-center justify-between">
                       <h4 className="text-xs font-bold text-slate-900 truncate max-w-[180px]">{v.name}</h4>
-                      <span className="text-[10px] font-mono text-slate-500">{v.payment_terms_days}d terms</span>
+                      <span className="text-[10px] font-mono text-slate-500">{v.payment_terms_days || 30}d terms</span>
                     </div>
                     <p className="text-[10px] font-mono text-slate-400 mt-0.5">{v.gstin || 'Unregistered'}</p>
 
                     <div className="mt-2 pt-2 border-t border-slate-100/80 flex items-center justify-between text-xs">
                       <span className="text-[11px] text-slate-500">Balance Due:</span>
-                      <span className={`font-mono font-bold ${v.outstanding_balance > 0 ? 'text-rose-600' : 'text-slate-500'}`}>
-                        ₹{v.outstanding_balance.toLocaleString('en-IN')}
+                      <span className={`font-mono font-bold ${(v.outstanding_balance || 0) > 0 ? 'text-rose-600' : 'text-slate-500'}`}>
+                        ₹{formatINR(v.outstanding_balance)}
                       </span>
                     </div>
                   </div>
@@ -297,20 +302,20 @@ export const VendorReconciliation: React.FC = () => {
               <div className="grid grid-cols-3 gap-3">
                 <div className="bg-white p-4 rounded-xl border border-slate-200">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Purchases</p>
-                  <p className="text-lg font-bold text-navy-950 mt-1 font-mono">₹{reconciliationData.total_purchases.toLocaleString('en-IN')}</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">{reconciliationData.invoices_count} bills recorded</p>
+                  <p className="text-lg font-bold text-navy-950 mt-1 font-mono">₹{formatINR(reconciliationData.total_purchases)}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">{reconciliationData.invoices_count || 0} bills recorded</p>
                 </div>
 
                 <div className="bg-white p-4 rounded-xl border border-slate-200">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Paid</p>
-                  <p className="text-lg font-bold text-emerald-600 mt-1 font-mono">₹{reconciliationData.total_payments.toLocaleString('en-IN')}</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">{reconciliationData.payments_count} payment vouchers</p>
+                  <p className="text-lg font-bold text-emerald-600 mt-1 font-mono">₹{formatINR(reconciliationData.total_payments)}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">{reconciliationData.payments_count || 0} payment vouchers</p>
                 </div>
 
                 <div className="bg-white p-4 rounded-xl border border-slate-200">
                   <p className="text-[10px] font-bold text-rose-600 uppercase tracking-wider">Outstanding Due</p>
-                  <p className="text-lg font-bold text-rose-600 mt-1 font-mono">₹{reconciliationData.outstanding_balance.toLocaleString('en-IN')}</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">{reconciliationData.unpaid_invoices_count} unpaid invoices</p>
+                  <p className="text-lg font-bold text-rose-600 mt-1 font-mono">₹{formatINR(reconciliationData.outstanding_balance)}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">{reconciliationData.unpaid_invoices_count || 0} unpaid invoices</p>
                 </div>
               </div>
 
@@ -351,9 +356,9 @@ export const VendorReconciliation: React.FC = () => {
                           <tr key={inv.id} className="hover:bg-slate-50/60 font-mono">
                             <td className="py-2.5 px-4 font-semibold text-slate-900">{inv.invoice_number}</td>
                             <td className="py-2.5 px-4 text-slate-500">{inv.invoice_date}</td>
-                            <td className="py-2.5 px-4 text-right">₹{inv.taxable_amount.toLocaleString('en-IN')}</td>
-                            <td className="py-2.5 px-4 text-right text-slate-600">₹{inv.total_tax.toLocaleString('en-IN')}</td>
-                            <td className="py-2.5 px-4 text-right font-bold text-navy-950">₹{inv.total_amount.toLocaleString('en-IN')}</td>
+                            <td className="py-2.5 px-4 text-right">₹{formatINR(inv.taxable_amount)}</td>
+                            <td className="py-2.5 px-4 text-right text-slate-600">₹{formatINR(inv.total_tax)}</td>
+                            <td className="py-2.5 px-4 text-right font-bold text-navy-950">₹{formatINR(inv.total_amount)}</td>
                             <td className="py-2.5 px-4 text-center">
                               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                                 inv.status === 'PAID'
@@ -547,15 +552,15 @@ export const VendorReconciliation: React.FC = () => {
             <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs font-mono space-y-1">
               <div className="flex justify-between">
                 <span>Taxable Amount:</span>
-                <span>₹{(parseFloat(invTaxable) || 0).toLocaleString('en-IN')}</span>
+                <span>₹{formatINR(parseFloat(invTaxable) || 0)}</span>
               </div>
               <div className="flex justify-between text-slate-600">
                 <span>GST ({invGstRate}%):</span>
-                <span>₹{(((parseFloat(invTaxable) || 0) * invGstRate) / 100).toLocaleString('en-IN')}</span>
+                <span>₹{formatINR(((parseFloat(invTaxable) || 0) * invGstRate) / 100)}</span>
               </div>
               <div className="flex justify-between font-bold text-navy-950 border-t pt-1">
                 <span>Total Bill Amount:</span>
-                <span>₹{(((parseFloat(invTaxable) || 0) * (1 + invGstRate / 100))).toLocaleString('en-IN')}</span>
+                <span>₹{formatINR(((parseFloat(invTaxable) || 0) * (1 + invGstRate / 100)))}</span>
               </div>
             </div>
           )}

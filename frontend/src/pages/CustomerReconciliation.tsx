@@ -14,6 +14,11 @@ import { api } from '../services/api';
 import { CustomerSummary, Invoice } from '../types';
 import { Modal } from '../components/common/Modal';
 
+const formatINR = (val: number | null | undefined): string => {
+  if (val === null || val === undefined || isNaN(Number(val))) return '0';
+  return Number(val).toLocaleString('en-IN');
+};
+
 export const CustomerReconciliation: React.FC = () => {
   const [customers, setCustomers] = useState<CustomerSummary[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(null);
@@ -204,7 +209,7 @@ export const CustomerReconciliation: React.FC = () => {
               Customers ({customers.length})
             </span>
             <span className="text-[11px] font-bold text-emerald-600 font-mono">
-              Receivables: ₹{totalReceivables.toLocaleString('en-IN')}
+              Receivables: ₹{formatINR(totalReceivables)}
             </span>
           </div>
 
@@ -235,14 +240,16 @@ export const CustomerReconciliation: React.FC = () => {
                   >
                     <div className="flex items-center justify-between">
                       <h4 className="text-xs font-bold text-slate-900 truncate max-w-[180px]">{c.name}</h4>
-                      <span className="text-[10px] font-semibold text-slate-500">Limit: ₹{(c.credit_limit / 100000).toFixed(1)}L</span>
+                      <span className="text-[10px] font-semibold text-slate-500">
+                        Limit: ₹{(((c.credit_limit || 0) / 100000)).toFixed(1)}L
+                      </span>
                     </div>
                     <p className="text-[10px] font-mono text-slate-400 mt-0.5">{c.gstin || 'Unregistered'}</p>
 
                     <div className="mt-2 pt-2 border-t border-slate-100/80 flex items-center justify-between text-xs">
                       <span className="text-[11px] text-slate-500">Receivable:</span>
-                      <span className={`font-mono font-bold ${c.outstanding_balance > 0 ? 'text-emerald-600' : 'text-slate-500'}`}>
-                        ₹{c.outstanding_balance.toLocaleString('en-IN')}
+                      <span className={`font-mono font-bold ${(c.outstanding_balance || 0) > 0 ? 'text-emerald-600' : 'text-slate-500'}`}>
+                        ₹{formatINR(c.outstanding_balance)}
                       </span>
                     </div>
                   </div>
@@ -265,22 +272,58 @@ export const CustomerReconciliation: React.FC = () => {
               <div className="grid grid-cols-3 gap-3">
                 <div className="bg-white p-4 rounded-xl border border-slate-200">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Sales</p>
-                  <p className="text-lg font-bold text-navy-950 mt-1 font-mono">₹{reconciliationData.total_sales.toLocaleString('en-IN')}</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">{reconciliationData.invoices_count} invoices issued</p>
+                  <p className="text-lg font-bold text-navy-950 mt-1 font-mono">₹{formatINR(reconciliationData.total_sales)}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">{reconciliationData.invoices_count || 0} invoices issued</p>
                 </div>
 
                 <div className="bg-white p-4 rounded-xl border border-slate-200">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Received</p>
-                  <p className="text-lg font-bold text-emerald-600 mt-1 font-mono">₹{reconciliationData.total_receipts.toLocaleString('en-IN')}</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">{reconciliationData.receipts_count} payment receipts</p>
+                  <p className="text-lg font-bold text-emerald-600 mt-1 font-mono">
+                    ₹{formatINR(reconciliationData.total_receipts ?? reconciliationData.total_received)}
+                  </p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">{reconciliationData.receipts_count || 0} payment receipts</p>
                 </div>
 
                 <div className="bg-white p-4 rounded-xl border border-slate-200">
                   <p className="text-[10px] font-bold text-rose-600 uppercase tracking-wider">Total Outstanding</p>
-                  <p className="text-lg font-bold text-rose-600 mt-1 font-mono">₹{reconciliationData.outstanding_balance.toLocaleString('en-IN')}</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">{reconciliationData.unpaid_invoices_count} unpaid bills</p>
+                  <p className="text-lg font-bold text-rose-600 mt-1 font-mono">₹{formatINR(reconciliationData.outstanding_balance)}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">
+                    {reconciliationData.unpaid_invoices_count ?? reconciliationData.uncollected_invoices_count ?? 0} unpaid bills
+                  </p>
                 </div>
               </div>
+
+              {/* Receivables Aging Breakdown */}
+              {reconciliationData.aging && (
+                <div className="bg-white p-4 rounded-xl border border-slate-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Receivables Aging Schedule
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-400">
+                      Credit Limit: ₹{formatINR(reconciliationData.credit_limit)} | Utilized: {reconciliationData.credit_utilization_pct || 0}%
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-center text-xs font-mono">
+                    <div className="p-2 rounded-lg bg-emerald-50/70 border border-emerald-100">
+                      <span className="text-[10px] text-emerald-800 block font-sans font-medium">0–30 Days</span>
+                      <span className="font-bold text-emerald-700">₹{formatINR(reconciliationData.aging.current_0_30)}</span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-blue-50/70 border border-blue-100">
+                      <span className="text-[10px] text-blue-800 block font-sans font-medium">31–60 Days</span>
+                      <span className="font-bold text-blue-700">₹{formatINR(reconciliationData.aging.period_31_60)}</span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-amber-50/70 border border-amber-100">
+                      <span className="text-[10px] text-amber-800 block font-sans font-medium">61–90 Days</span>
+                      <span className="font-bold text-amber-700">₹{formatINR(reconciliationData.aging.period_61_90)}</span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-rose-50/70 border border-rose-100">
+                      <span className="text-[10px] text-rose-800 block font-sans font-medium">90+ Days</span>
+                      <span className="font-bold text-rose-700">₹{formatINR(reconciliationData.aging.over_90)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Sales Invoices List */}
               <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
@@ -319,9 +362,9 @@ export const CustomerReconciliation: React.FC = () => {
                           <tr key={inv.id} className="hover:bg-slate-50/60">
                             <td className="py-2.5 px-4 font-semibold text-slate-900">{inv.invoice_number}</td>
                             <td className="py-2.5 px-4 text-slate-500">{inv.invoice_date}</td>
-                            <td className="py-2.5 px-4 text-right">₹{inv.taxable_amount.toLocaleString('en-IN')}</td>
-                            <td className="py-2.5 px-4 text-right text-slate-600">₹{inv.total_tax.toLocaleString('en-IN')}</td>
-                            <td className="py-2.5 px-4 text-right font-bold text-navy-950">₹{inv.total_amount.toLocaleString('en-IN')}</td>
+                            <td className="py-2.5 px-4 text-right">₹{formatINR(inv.taxable_amount)}</td>
+                            <td className="py-2.5 px-4 text-right text-slate-600">₹{formatINR(inv.total_tax)}</td>
+                            <td className="py-2.5 px-4 text-right font-bold text-navy-950">₹{formatINR(inv.total_amount)}</td>
                             <td className="py-2.5 px-4 text-center">
                               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                                 inv.status === 'PAID'
@@ -515,15 +558,15 @@ export const CustomerReconciliation: React.FC = () => {
             <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs font-mono space-y-1">
               <div className="flex justify-between">
                 <span>Taxable Amount:</span>
-                <span>₹{(parseFloat(invTaxable) || 0).toLocaleString('en-IN')}</span>
+                <span>₹{formatINR(parseFloat(invTaxable) || 0)}</span>
               </div>
               <div className="flex justify-between text-slate-600">
                 <span>GST Output ({invGstRate}%):</span>
-                <span>₹{(((parseFloat(invTaxable) || 0) * invGstRate) / 100).toLocaleString('en-IN')}</span>
+                <span>₹{formatINR(((parseFloat(invTaxable) || 0) * invGstRate) / 100)}</span>
               </div>
               <div className="flex justify-between font-bold text-navy-950 border-t pt-1">
                 <span>Total Receivable Amount:</span>
-                <span>₹{(((parseFloat(invTaxable) || 0) * (1 + invGstRate / 100))).toLocaleString('en-IN')}</span>
+                <span>₹{formatINR(((parseFloat(invTaxable) || 0) * (1 + invGstRate / 100)))}</span>
               </div>
             </div>
           )}
