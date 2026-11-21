@@ -290,6 +290,19 @@ export const api = {
   // 9. Skill-Set Tools: Consulting Report & Salary Calculation
   generateConsultingReport: (data: any) => request<any>('/compliance/tools/generate-consulting-report', { method: 'POST', body: JSON.stringify(data) }),
   calculateSalary: (data: any) => request<any>('/compliance/tools/calculate-salary', { method: 'POST', body: JSON.stringify(data) }),
+
+  // 10. Incubator & Standalone Online Products
+  querySOPAssistant: (query: string, category?: string) =>
+    request<any>('/chatbot/sop-query', { method: 'POST', body: JSON.stringify({ query, category: category || 'ALL' }) }),
+  submitPublicClientIntake: (data: any) =>
+    request<any>('/public/client-intake', { method: 'POST', body: JSON.stringify(data) }),
+  getPublicInquiries: () => request<any[]>('/public/client-intake/inquiries'),
+  evaluateFamilyAI: (data: any) =>
+    request<any>('/portals/family-ai/evaluate', { method: 'POST', body: JSON.stringify(data) }),
+  generateCareerRoadmap: (data: any) =>
+    request<any>('/portals/career-ai/roadmap', { method: 'POST', body: JSON.stringify(data) }),
+  draftCollectionSequence: (data: any) =>
+    request<any>('/portals/collection-ai/draft', { method: 'POST', body: JSON.stringify(data) }),
 };
 
 function downloadBlob(blob: Blob, filename: string) {

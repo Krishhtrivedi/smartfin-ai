@@ -17,6 +17,11 @@ import { AuditLogs } from './pages/AuditLogs';
 import { StatutoryNotices } from './pages/StatutoryNotices';
 import { ComplianceHub } from './pages/ComplianceHub';
 import { AIAnalytics } from './pages/AIAnalytics';
+import { VVPMSCChatbot } from './pages/VVPMSCChatbot';
+import { PMSCPublicWebsite } from './pages/PMSCPublicWebsite';
+import { FamilyKnowledgeAI } from './pages/portals/FamilyKnowledgeAI';
+import { CareerPathwayAI } from './pages/portals/CareerPathwayAI';
+import { CollectionAI } from './pages/portals/CollectionAI';
 import { ShieldAlert, KeyRound, AlertCircle, CheckCircle2, Lock, X } from 'lucide-react';
 
 const ADMIN_ONLY_TABS: NavigationTab[] = ['gst', 'tds', 'bank', 'excel', 'mis', 'audit', 'ai_analytics'];
@@ -24,6 +29,7 @@ const ADMIN_ONLY_TABS: NavigationTab[] = ['gst', 'tds', 'bank', 'excel', 'mis', 
 const AppContent: React.FC = () => {
   const { user, isAuthenticated, isLoading, changePassword, logout } = useAuth();
   const [currentTab, setCurrentTab] = useState<NavigationTab>('dashboard');
+  const [showPublicSite, setShowPublicSite] = useState(false);
 
   // Mandatory Password Change Modal state
   const [dismissedPwdModal, setDismissedPwdModal] = useState(false);
@@ -45,7 +51,25 @@ const AppContent: React.FC = () => {
   }
 
   if (!isAuthenticated) {
-    return <Login />;
+    if (showPublicSite) {
+      return (
+        <div className="min-h-screen bg-[#F8F9FA] p-4 sm:p-8">
+          <div className="max-w-7xl mx-auto mb-4 flex items-center justify-between">
+            <span className="text-xs font-mono text-slate-500 font-bold">PMSC PUBLIC PORTAL</span>
+            <button
+              onClick={() => setShowPublicSite(false)}
+              className="text-xs font-semibold px-4 py-2 bg-[#1A2F46] text-white rounded-lg hover:bg-[#0D2035] transition-colors"
+            >
+              ← Back to ERP Login
+            </button>
+          </div>
+          <div className="max-w-7xl mx-auto">
+            <PMSCPublicWebsite />
+          </div>
+        </div>
+      );
+    }
+    return <Login onOpenPublicSite={() => setShowPublicSite(true)} />;
   }
 
   // Handle mandatory password change for first-time login
@@ -136,6 +160,16 @@ const AppContent: React.FC = () => {
         return <ComplianceHub />;
       case 'ai_analytics':
         return <AIAnalytics />;
+      case 'vv_chatbot':
+        return <VVPMSCChatbot />;
+      case 'pmsc_public':
+        return <PMSCPublicWebsite />;
+      case 'family_ai':
+        return <FamilyKnowledgeAI />;
+      case 'career_ai':
+        return <CareerPathwayAI />;
+      case 'collection_ai':
+        return <CollectionAI />;
       default:
         return <Dashboard onNavigateTab={(tab) => setCurrentTab(tab)} />;
     }

@@ -23,6 +23,7 @@ from app.api.mis import router as mis_router
 from app.api.ai import router as ai_router
 from app.api.audit import router as audit_router
 from app.api.compliance_tools import router as compliance_router
+from app.api.incubator import router as incubator_router
 
 # Initialize Database Schema
 Base.metadata.create_all(bind=engine)
@@ -56,6 +57,7 @@ app.include_router(mis_router, prefix=settings.API_V1_STR)
 app.include_router(ai_router, prefix=settings.API_V1_STR)
 app.include_router(audit_router, prefix=settings.API_V1_STR)
 app.include_router(compliance_router, prefix=settings.API_V1_STR)
+app.include_router(incubator_router, prefix=settings.API_V1_STR)
 
 @app.on_event("startup")
 def on_startup():

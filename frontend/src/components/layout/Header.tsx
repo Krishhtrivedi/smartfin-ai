@@ -97,6 +97,31 @@ export const Header: React.FC<HeaderProps> = ({
       title: 'AI Usage Study & Optimization Analytics', 
       subtitle: 'Telemetry on prompt volume, token economics, man-hours saved, ROI & prompt optimization metrics' 
     },
+    vv_chatbot: {
+      spec: '14 / INTERNAL CHATBOT',
+      title: 'VV-PMSC Internal SOP & Policy Assistant',
+      subtitle: 'Authoritative guidance on firm checklists, 148A protocols, PMS mandates, and office HR policies'
+    },
+    pmsc_public: {
+      spec: '15 / PUBLIC PORTAL',
+      title: 'PMSC Institutional Consulting & Advisory',
+      subtitle: 'Public-facing firm presence, wealth management philosophy, statutory defense, and client intake'
+    },
+    family_ai: {
+      spec: '16 / WMFSK AI',
+      title: 'What My Family Should Know AI',
+      subtitle: 'Encrypted family estate preparedness, asset inventory checklists, and real-time cyber fraud scanner'
+    },
+    career_ai: {
+      spec: '17 / CAREER AI',
+      title: 'Career Pathway AI Acceleration',
+      subtitle: 'Skill gap mapping, 12-month career progression milestones, certification navigator & salary ROI benchmarks'
+    },
+    collection_ai: {
+      spec: '18 / COLLECTION AI',
+      title: 'Collection AI Trade Receivables Recovery',
+      subtitle: 'Automated B2B credit recovery sequences, aging tiers, and MSME Act statutory interest notices'
+    },
   };
 
   useEffect(() => {

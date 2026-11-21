@@ -16,7 +16,10 @@ import {
   Compass,
   Scale,
   FileCheck2,
-  Cpu
+  Cpu,
+  BookOpenCheck,
+  Globe,
+  FolderLock
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -34,7 +37,12 @@ export type NavigationTab =
   | 'audit'
   | 'notices'
   | 'compliance_hub'
-  | 'ai_analytics';
+  | 'ai_analytics'
+  | 'vv_chatbot'
+  | 'pmsc_public'
+  | 'family_ai'
+  | 'career_ai'
+  | 'collection_ai';
 
 interface SidebarProps {
   currentTab: NavigationTab;
@@ -159,6 +167,41 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: Cpu, 
       badge: 'Telemetry',
       roles: ['admin'] 
+    },
+    { 
+      id: 'vv_chatbot', 
+      label: 'VV-PMSC SOP Assistant', 
+      code: '14', 
+      icon: BookOpenCheck, 
+      badge: 'SOP' 
+    },
+    { 
+      id: 'pmsc_public', 
+      label: 'PMSC Public Website', 
+      code: '15', 
+      icon: Globe, 
+      badge: 'Portal' 
+    },
+    { 
+      id: 'family_ai', 
+      label: 'Family Knowledge AI', 
+      code: '16', 
+      icon: FolderLock, 
+      badge: 'WMFSK' 
+    },
+    { 
+      id: 'career_ai', 
+      label: 'Career Pathway AI', 
+      code: '17', 
+      icon: Compass, 
+      badge: 'Careers' 
+    },
+    { 
+      id: 'collection_ai', 
+      label: 'Collection AI Recovery', 
+      code: '18', 
+      icon: Receipt, 
+      badge: 'DSO' 
     },
   ];
 

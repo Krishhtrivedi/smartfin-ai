@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { Compass, ArrowRight, Lock, Mail, AlertCircle, CheckCircle2, ShieldCheck, KeyRound, Eye, EyeOff } from 'lucide-react';
+import { Compass, ArrowRight, Lock, Mail, AlertCircle, CheckCircle2, ShieldCheck, KeyRound, Eye, EyeOff, Globe } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-export const Login: React.FC = () => {
+interface LoginProps {
+  onOpenPublicSite?: () => void;
+}
+
+export const Login: React.FC<LoginProps> = ({ onOpenPublicSite }) => {
   const { login, forgotPassword, resetPassword, isLoading } = useAuth();
   const [mode, setMode] = useState<'login' | 'forgot' | 'reset'>('login');
   
@@ -377,8 +381,22 @@ export const Login: React.FC = () => {
             </form>
           )}
 
+          {/* Public Portal Switcher */}
+          {onOpenPublicSite && (
+            <div className="mt-4 pt-3 border-t border-[#C5CBD2]/60 text-center">
+              <button
+                type="button"
+                onClick={onOpenPublicSite}
+                className="text-xs font-mono text-[#E65909] hover:underline font-semibold flex items-center justify-center space-x-1 mx-auto"
+              >
+                <Globe className="w-3.5 h-3.5" />
+                <span>Visit PMSC Public Institutional Website ↗</span>
+              </button>
+            </div>
+          )}
+
           {/* Security Notice */}
-          <div className="mt-5 pt-4 border-t border-[#C5CBD2] text-[11px] text-[#5D646C] font-mono flex items-center justify-between">
+          <div className="mt-4 pt-3 border-t border-[#C5CBD2] text-[11px] text-[#5D646C] font-mono flex items-center justify-between">
             <span className="flex items-center space-x-1">
               <ShieldCheck className="w-3.5 h-3.5 text-[#E65909]" />
               <span>TLS 1.3 / Strict RBAC</span>

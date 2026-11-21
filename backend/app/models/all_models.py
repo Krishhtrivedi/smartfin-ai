@@ -573,3 +573,17 @@ class AIUsageMetric(Base):
     cost_usd = Column(Float, default=0.002)
     error_flag = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class PublicClientInquiry(Base):
+    __tablename__ = "public_client_inquiries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    full_name = Column(String(255), nullable=False)
+    entity_name = Column(String(255), nullable=True)
+    service_type = Column(String(100), nullable=False) # PMS_WEALTH, TAX_LITIGATION, AR_COLLECTIONS, VIRTUAL_CFO, GENERAL_CONSULTING
+    email = Column(String(255), nullable=False)
+    phone = Column(String(50), nullable=False)
+    message = Column(Text, nullable=True)
+    status = Column(String(50), default="NEW") # NEW, CONTACTED, CONVERTED, CLOSED
+    client_ip = Column(String(100), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
