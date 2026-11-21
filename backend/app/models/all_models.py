@@ -438,7 +438,7 @@ class StatutoryNotice(Base):
     issue_date = Column(Date, nullable=False)
     due_date = Column(Date, nullable=False)
     risk_level = Column(String(20), default="MEDIUM") # LOW, MEDIUM, HIGH, CRITICAL
-    assigned_owner = Column(String(100), default="Birju Trivedi (Birju Sir)") # e.g. Birju sir
+    assigned_owner = Column(String(100), default="Biraju Bhai (Birju Sir)") # e.g. Biraju Bhai
     status = Column(String(50), default="RECEIVED") # RECEIVED, UNDER_REVIEW, DRAFTING_REPLY, FILED, CLOSED
     demand_amount = Column(Float, default=0.0)
     penalty_amount = Column(Float, default=0.0)

@@ -43,7 +43,7 @@ export const StatutoryNotices: React.FC = () => {
     new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0]
   );
   const [riskLevel, setRiskLevel] = useState('HIGH');
-  const [assignedOwner, setAssignedOwner] = useState('Birju Trivedi (Birju Sir)');
+  const [assignedOwner, setAssignedOwner] = useState('Biraju Bhai (Birju Sir)');
   const [demandAmount, setDemandAmount] = useState('0');
   const [description, setDescription] = useState('');
 
@@ -184,7 +184,7 @@ export const StatutoryNotices: React.FC = () => {
             <span className="px-2 py-0.5 rounded bg-brand-50 text-brand-700 text-[10px] font-mono font-bold uppercase tracking-wider">
               Statutory Response Desk
             </span>
-            <span className="text-xs font-mono text-slate-400">| Assigned Lead: Birju Trivedi (Birju Sir)</span>
+            <span className="text-xs font-mono text-slate-400">| Assigned Lead: Biraju Bhai (Birju Sir)</span>
           </div>
           <h2 className="text-base font-bold text-navy-950 mt-1 flex items-center gap-2">
             <AlertOctagon className="w-4 h-4 text-rose-600" />
@@ -561,9 +561,9 @@ export const StatutoryNotices: React.FC = () => {
                 onChange={(e) => setAssignedOwner(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
               >
-                <option value="Birju Trivedi (Birju Sir)">Birju Trivedi (Birju Sir)</option>
-                <option value="Pinal Patel">Pinal Patel</option>
-                <option value="Nilesh Shah">Nilesh Shah</option>
+                <option value="Biraju Bhai (Birju Sir)">Biraju Bhai (Birju Sir)</option>
+                <option value="Pinal Shah">Pinal Shah</option>
+                <option value="Nilesh Jain">Nilesh Jain</option>
                 <option value="Operations Staff">Operations Staff</option>
               </select>
             </div>

@@ -33,7 +33,7 @@ def test_statutory_notices_crud():
         "issue_date": "2026-10-15",
         "due_date": "2026-11-30",
         "risk_level": "CRITICAL",
-        "assigned_owner": "Birju Trivedi (Birju Sir)",
+        "assigned_owner": "Biraju Bhai (Birju Sir)",
         "demand_amount": 450000.0,
         "description": "Alleged unexplained cash credits under section 68."
     }
@@ -49,7 +49,7 @@ def test_statutory_notices_crud():
     notices = list_res.json()
     target_notice = next((n for n in notices if n["id"] == notice_id), None)
     assert target_notice is not None
-    assert target_notice["assigned_owner"] == "Birju Trivedi (Birju Sir)"
+    assert target_notice["assigned_owner"] == "Biraju Bhai (Birju Sir)"
     assert target_notice["risk_level"] == "CRITICAL"
 
     # 3. Update status & notes

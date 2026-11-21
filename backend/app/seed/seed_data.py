@@ -15,7 +15,7 @@ DEFAULT_INITIAL_PASSWORD = "SmartFin@2026!"
 PROD_ACCOUNTS = [
     {
         "email": "pinal@smartfin.ai",
-        "full_name": "Pinal Patel",
+        "full_name": "Pinal Shah",
         "role": "admin",
         "department": "Executive Management",
         "designation": "Executive Director & System Administrator",
@@ -26,7 +26,7 @@ PROD_ACCOUNTS = [
     },
     {
         "email": "nilesh@smartfin.ai",
-        "full_name": "Nilesh Shah",
+        "full_name": "Nilesh Jain",
         "role": "admin",
         "department": "Executive Management",
         "designation": "Executive Director & System Administrator",
@@ -37,7 +37,7 @@ PROD_ACCOUNTS = [
     },
     {
         "email": "birju@smartfin.ai",
-        "full_name": "Birju Trivedi",
+        "full_name": "Biraju Bhai",
         "role": "admin",
         "department": "Executive Management",
         "designation": "Executive Director & System Administrator",

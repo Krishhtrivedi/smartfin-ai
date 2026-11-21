@@ -81,7 +81,7 @@ def create_notice(
         issue_date=issue_dt,
         due_date=due_dt,
         risk_level=payload.get("risk_level", "MEDIUM"),
-        assigned_owner=payload.get("assigned_owner", "Birju Trivedi (Birju Sir)"),
+        assigned_owner=payload.get("assigned_owner", "Biraju Bhai (Birju Sir)"),
         status=payload.get("status", "RECEIVED"),
         demand_amount=float(payload.get("demand_amount", 0.0)),
         penalty_amount=float(payload.get("penalty_amount", 0.0)),
