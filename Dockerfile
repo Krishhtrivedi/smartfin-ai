@@ -36,5 +36,5 @@ COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
 EXPOSE 8000
 
-# Bind dynamically to Render's assigned $PORT
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --app-dir backend"]
+# Bind dynamically to Render's assigned $PORT and start Baileys WhatsApp Bridge daemon
+CMD ["sh", "-c", "node backend/whatsapp_bridge/server.js & uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --app-dir backend"]

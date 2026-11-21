@@ -152,7 +152,8 @@ export const ComplianceHub: React.FC = () => {
 
   useEffect(() => {
     let interval: any = null;
-    if (activeTab === 'whatsapp_pmsc' && waStatus?.state === 'AWAITING_QR') {
+    const isScanningOrConnecting = waStatus?.state === 'AWAITING_QR' || waStatus?.state === 'QR_READY' || waStatus?.state === 'CONNECTING';
+    if (activeTab === 'whatsapp_pmsc' && isScanningOrConnecting) {
       interval = setInterval(async () => {
         const s = await fetchWaStatus();
         if (s?.is_connected) {
@@ -1190,24 +1191,31 @@ export const ComplianceHub: React.FC = () => {
                 <div className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono ${
                   waStatus?.is_connected
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                    : waStatus?.state === 'AWAITING_QR'
+                    : (waStatus?.state === 'AWAITING_QR' || waStatus?.state === 'QR_READY')
                     ? 'bg-amber-50 border-amber-200 text-amber-800 animate-pulse'
-                    : 'bg-slate-50 border-slate-200 text-slate-600'
+                    : waStatus?.state === 'CONNECTING'
+                    ? 'bg-amber-50 border-amber-200 text-amber-800'
+                    : 'bg-rose-50 border-rose-200 text-rose-800'
                 }`}>
                   {waStatus?.is_connected ? (
                     <>
                       <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
-                      <span className="font-bold">LINKED: {waStatus.connected_user?.id || 'Office Phone'}</span>
+                      <span className="font-bold">🟢 CONNECTED ({waStatus.connected_user?.phone || waStatus.connected_user?.id || 'Office WhatsApp'})</span>
                     </>
-                  ) : waStatus?.state === 'AWAITING_QR' ? (
+                  ) : (waStatus?.state === 'AWAITING_QR' || waStatus?.state === 'QR_READY') ? (
                     <>
                       <QrCode className="w-3.5 h-3.5 text-amber-600" />
-                      <span className="font-bold">AWAITING QR SCAN</span>
+                      <span className="font-bold">🟡 SCAN QR TO CONNECT</span>
+                    </>
+                  ) : waStatus?.state === 'CONNECTING' ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 text-amber-600 animate-spin" />
+                      <span className="font-bold">🟡 CONNECTING...</span>
                     </>
                   ) : (
                     <>
-                      <WifiOff className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="font-bold">DISCONNECTED</span>
+                      <WifiOff className="w-3.5 h-3.5 text-rose-600" />
+                      <span className="font-bold">🔴 DISCONNECTED</span>
                     </>
                   )}
                 </div>
@@ -1235,7 +1243,7 @@ export const ComplianceHub: React.FC = () => {
             </div>
 
             {/* AWAITING QR CODE SCAN BOX */}
-            {waStatus?.state === 'AWAITING_QR' && waStatus?.qr_code && (
+            {(waStatus?.state === 'AWAITING_QR' || waStatus?.state === 'QR_READY') && waStatus?.qr_code && (
               <div className="p-6 bg-gradient-to-b from-amber-50/80 to-white rounded-xl border border-amber-200 space-y-4 text-center">
                 <div className="max-w-md mx-auto space-y-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold tracking-wide">

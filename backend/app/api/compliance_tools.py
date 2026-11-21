@@ -971,6 +971,11 @@ def post_summary_to_pmsc(
         
     status = WhatsAppClient.get_live_status()
     if not status.get("can_send"):
+        log_audit_event(
+            db, current_user, "WHATSAPP_BLOCKED_DISCONNECTED", "DailyOfficeSummary", str(summary.id),
+            {"reason": "WhatsApp session disconnected", "status": "BLOCKED"},
+            request=request
+        )
         raise HTTPException(
             status_code=400,
             detail="Cannot send message: WhatsApp is not connected. Please scan QR code to link your office phone or configure gateway credentials."
@@ -985,7 +990,7 @@ def post_summary_to_pmsc(
         db.commit()
         
         log_audit_event(
-            db, current_user, "DISPATCH_PMSC_WHATSAPP_UPDATE", "DailyOfficeSummary", str(summary.id),
+            db, current_user, "WHATSAPP_SENT", "DailyOfficeSummary", str(summary.id),
             {
                 "target_group": send_result.get("target_group"),
                 "delivery_mode": send_result.get("delivery_mode"),
@@ -1007,7 +1012,7 @@ def post_summary_to_pmsc(
         
         err_msg = send_result.get("error", "Transmission failed on WhatsApp Gateway")
         log_audit_event(
-            db, current_user, "DISPATCH_PMSC_WHATSAPP_FAILED", "DailyOfficeSummary", str(summary.id),
+            db, current_user, "WHATSAPP_FAILED", "DailyOfficeSummary", str(summary.id),
             {"error": err_msg, "status": "FAILED"},
             request=request
         )

@@ -12,7 +12,7 @@ const {
 const pino = require('pino');
 
 const PORT = process.env.WHATSAPP_BRIDGE_PORT || 8001;
-const AUTH_DIR = path.join(__dirname, 'session_auth');
+const AUTH_DIR = process.env.WHATSAPP_SESSION_DIR || path.join(__dirname, 'session_auth');
 
 if (!fs.existsSync(AUTH_DIR)) {
     fs.mkdirSync(AUTH_DIR, { recursive: true });
@@ -20,7 +20,7 @@ if (!fs.existsSync(AUTH_DIR)) {
 
 let sock = null;
 let currentQR = null;
-let connectionState = 'DISCONNECTED'; // DISCONNECTED, AWAITING_QR, CONNECTED
+let connectionState = 'DISCONNECTED'; // DISCONNECTED, QR_READY, CONNECTING, CONNECTED
 let connectedUser = null;
 let lastError = null;
 
@@ -57,11 +57,18 @@ async function initBaileysSocket(forceNew = false) {
             if (qr) {
                 try {
                     currentQR = await QRCode.toDataURL(qr);
-                    connectionState = 'AWAITING_QR';
+                    connectionState = 'QR_READY';
                     console.log('[Baileys] New QR Code generated for scanning.');
                 } catch (qrErr) {
                     console.error('[Baileys] Error generating QR data URL:', qrErr);
                 }
+            }
+
+            if (connection === 'connecting') {
+                if (connectionState !== 'QR_READY') {
+                    connectionState = 'CONNECTING';
+                }
+                console.log('[Baileys] WhatsApp socket connecting...');
             }
 
             if (connection === 'open') {
@@ -93,7 +100,7 @@ async function initBaileysSocket(forceNew = false) {
                         fs.rmSync(AUTH_DIR, { recursive: true, force: true });
                     } catch {}
                 } else if (shouldReconnect) {
-                    connectionState = 'RECONNECTING';
+                    connectionState = 'CONNECTING';
                     setTimeout(() => initBaileysSocket(false), 3000);
                 } else {
                     connectionState = 'DISCONNECTED';

@@ -8,7 +8,12 @@ from typing import Dict, Any, Optional, List
 
 BRIDGE_PORT = int(os.getenv("WHATSAPP_BRIDGE_PORT", "8001"))
 BRIDGE_BASE_URL = f"http://127.0.0.1:{BRIDGE_PORT}"
-SELECTED_GROUP_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "whatsapp_bridge", "selected_group.json")
+
+SESSION_DIR = os.getenv("WHATSAPP_SESSION_DIR", "").strip()
+if SESSION_DIR:
+    SELECTED_GROUP_FILE = os.path.join(SESSION_DIR, "selected_group.json")
+else:
+    SELECTED_GROUP_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "whatsapp_bridge", "selected_group.json")
 
 class WhatsAppClient:
     _bridge_process = None
