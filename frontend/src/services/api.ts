@@ -290,6 +290,10 @@ export const api = {
   getWhatsAppUnreadMessages: () => request<any>('/compliance/whatsapp/unread-messages'),
   markWhatsAppMessagesRead: (data: { message_ids?: number[]; mark_all?: boolean }) =>
     request<any>('/compliance/whatsapp/messages/mark-read', { method: 'POST', body: JSON.stringify(data) }),
+  getClientReportsTracker: (period?: string) =>
+    request<any>(`/compliance/whatsapp/client-reports/tracker${period ? `?period=${encodeURIComponent(period)}` : ''}`),
+  sendClientReportReminders: (data: { client_ids?: number[]; period?: string; custom_message?: string }) =>
+    request<any>('/compliance/whatsapp/client-reports/send-reminders', { method: 'POST', body: JSON.stringify(data) }),
   getOfficeSummaryHistory: () => request<any[]>('/compliance/office-summary/history'),
   generateOfficeSummary: (data?: any) => request<any>('/compliance/office-summary/generate', { method: 'POST', body: JSON.stringify(data || {}) }),
   postOfficeSummaryToPmsc: (summaryId: number) => request<any>(`/compliance/office-summary/${summaryId}/post-to-pmsc`, { method: 'POST' }),

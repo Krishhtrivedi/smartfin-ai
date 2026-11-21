@@ -7,7 +7,8 @@ const {
     default: makeWASocket,
     DisconnectReason,
     useMultiFileAuthState,
-    fetchLatestBaileysVersion
+    fetchLatestBaileysVersion,
+    downloadMediaMessage
 } = require('@whiskeysockets/baileys');
 const pino = require('pino');
 
@@ -174,6 +175,37 @@ async function initBaileysSocket(forceNew = false) {
                     const timestampSeconds = msg.messageTimestamp ? Number(msg.messageTimestamp) : Math.floor(Date.now() / 1000);
                     const msgId = msg.key.id || `wa_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
+                    // Auto-save incoming document/media attachments directly to ~/Desktop/<ClientName>/TDS_GST_Reports/
+                    let savedFilePath = null;
+                    let hasAttachment = false;
+                    if (msg.message?.documentMessage || msg.message?.imageMessage) {
+                        try {
+                            hasAttachment = true;
+                            const desktopDir = process.env.DESKTOP_DIR || path.join(process.env.HOME || '', 'Desktop');
+                            const cleanClientName = senderName.replace(/[^a-zA-Z0-9_-]/g, '_');
+                            const targetDir = path.join(desktopDir, cleanClientName, 'TDS_GST_Reports');
+                            fs.mkdirSync(targetDir, { recursive: true });
+
+                            const rawFileName = msg.message?.documentMessage?.fileName || `report_${Date.now()}.${msg.message?.imageMessage ? 'jpg' : 'pdf'}`;
+                            const sanitized = `${new Date().toISOString().slice(0, 10)}_${rawFileName.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+                            const fullPath = path.join(targetDir, sanitized);
+
+                            const buffer = await downloadMediaMessage(
+                                msg,
+                                'buffer',
+                                {},
+                                { logger, reuploadRequest: sock?.updateMediaMessage }
+                            );
+                            if (buffer) {
+                                fs.writeFileSync(fullPath, buffer);
+                                savedFilePath = fullPath;
+                                console.log(`[Baileys] Auto-saved incoming report to: ${fullPath}`);
+                            }
+                        } catch (downErr) {
+                            console.error('[Baileys] Attachment download notice:', downErr.message);
+                        }
+                    }
+
                     const msgRecord = {
                         message_id: msgId,
                         chat_jid: remoteJid,
@@ -183,7 +215,9 @@ async function initBaileysSocket(forceNew = false) {
                         message_text: text.trim(),
                         timestamp: new Date(timestampSeconds * 1000).toISOString(),
                         is_group: isGroup,
-                        is_read: false
+                        is_read: false,
+                        has_attachment: hasAttachment,
+                        attachment_path: savedFilePath
                     };
 
                     if (!unreadMessagesStore.some(m => m.message_id === msgRecord.message_id)) {

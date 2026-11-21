@@ -16,7 +16,7 @@ from app.models.all_models import (
     User, StatutoryNotice, GSTRDispatchLog, GSTFilingReview,
     ITRCollectionCase, ITRArchivePackage, CapitalGainRecord,
     DailyOfficeSummary, AIUsageMetric, Customer, Vendor, Invoice,
-    WhatsAppIncomingMessage
+    WhatsAppIncomingMessage, ClientReportSubmission
 )
 
 router = APIRouter(prefix="/compliance", tags=["Compliance & Gap Completion Pack"])
@@ -993,18 +993,48 @@ def receive_whatsapp_incoming_webhook(
         except Exception:
             pass
 
+    has_attachment = bool(payload.get("has_attachment", False))
+    attachment_path = payload.get("attachment_path")
+    sender_name = payload.get("sender_name", "")
+
     msg = WhatsAppIncomingMessage(
         message_id=mid,
         chat_jid=payload.get("chat_jid", ""),
         chat_name=payload.get("chat_name", ""),
         sender_jid=payload.get("sender_jid", ""),
-        sender_name=payload.get("sender_name", ""),
+        sender_name=sender_name,
         message_text=payload.get("message_text", ""),
         message_timestamp=ts,
         is_group=bool(payload.get("is_group", False)),
-        is_read=False
+        is_read=False,
+        has_attachment=has_attachment,
+        attachment_path=attachment_path
     )
     db.add(msg)
+
+    # Auto-log client report submission if attachment was received or mentions TDS/GST
+    txt_lower = (payload.get("message_text") or "").lower()
+    if has_attachment or any(k in txt_lower for k in ("tds", "gst", "report", "return", "statement")):
+        current_period = date.today().strftime("%b %Y")
+        existing_sub = db.query(ClientReportSubmission).filter(
+            ClientReportSubmission.client_name == sender_name,
+            ClientReportSubmission.period == current_period
+        ).first()
+        if not existing_sub:
+            db.add(ClientReportSubmission(
+                client_name=sender_name or "Client",
+                phone=payload.get("sender_jid", "").split("@")[0],
+                report_type="TDS_GST_REPORT",
+                period=current_period,
+                file_path=attachment_path,
+                status="RECEIVED",
+                received_at=ts
+            ))
+        else:
+            existing_sub.status = "RECEIVED"
+            existing_sub.file_path = attachment_path or existing_sub.file_path
+            existing_sub.received_at = ts
+
     db.commit()
     db.refresh(msg)
     return {"status": "STORED", "id": msg.id, "message_id": mid}
@@ -1139,6 +1169,170 @@ def mark_whatsapp_messages_read(
         "marked_count": marked_count,
         "remaining_count": remaining_count,
         "message": f"Successfully marked {marked_count} message(s) as read."
+    }
+
+# ==============================================================================
+# MONTHLY CLIENT TDS & GST REPORT TRACKER & SMART REMINDERS
+# ==============================================================================
+
+@router.get("/whatsapp/client-reports/tracker")
+def get_client_reports_tracker(
+    period: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Returns monthly client TDS & GST report compliance tracker:
+    - Lists clients who have ALREADY sent their reports (received).
+    - Lists clients who have NOT sent their reports yet (pending).
+    """
+    current_period = period or date.today().strftime("%b %Y")
+
+    # 1. Fetch all registered customers/clients from ERP
+    customers = db.query(Customer).all()
+
+    # 2. Fetch all submissions for this period
+    submissions = db.query(ClientReportSubmission).filter(
+        ClientReportSubmission.period == current_period
+    ).all()
+    received_map = {s.client_name.strip().lower(): s for s in submissions if s.status == "RECEIVED"}
+
+    received_list = []
+    pending_list = []
+
+    for c in customers:
+        c_name_key = c.name.strip().lower()
+        if c_name_key in received_map:
+            sub = received_map[c_name_key]
+            received_list.append({
+                "customer_id": c.id,
+                "client_name": c.name,
+                "gstin": c.gstin,
+                "phone": c.phone or sub.phone,
+                "email": c.email,
+                "status": "RECEIVED",
+                "file_path": sub.file_path,
+                "received_at": sub.received_at.strftime("%d %b %Y, %I:%M %p") if sub.received_at else None
+            })
+        else:
+            pending_list.append({
+                "customer_id": c.id,
+                "client_name": c.name,
+                "gstin": c.gstin,
+                "phone": c.phone,
+                "email": c.email,
+                "status": "PENDING",
+                "reminder_sent": False
+            })
+
+    # Also include any direct WhatsApp senders who submitted reports but aren't in Customer table yet
+    for s_name, sub in received_map.items():
+        if not any(r["client_name"].strip().lower() == s_name for r in received_list):
+            received_list.append({
+                "customer_id": None,
+                "client_name": sub.client_name,
+                "gstin": sub.gstin_or_pan,
+                "phone": sub.phone,
+                "email": None,
+                "status": "RECEIVED",
+                "file_path": sub.file_path,
+                "received_at": sub.received_at.strftime("%d %b %Y, %I:%M %p") if sub.received_at else None
+            })
+
+    return {
+        "period": current_period,
+        "total_clients": len(received_list) + len(pending_list),
+        "received_count": len(received_list),
+        "pending_count": len(pending_list),
+        "received": received_list,
+        "pending": pending_list
+    }
+
+class SendRemindersPayload(BaseModel):
+    client_ids: Optional[List[int]] = None
+    period: Optional[str] = None
+    custom_message: Optional[str] = None
+
+@router.post("/whatsapp/client-reports/send-reminders")
+def send_client_report_reminders(
+    payload: SendRemindersPayload,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Sends customized WhatsApp reminders to clients who have NOT yet sent their TDS/GST report.
+    STRICTLY IGNORES clients who have already submitted.
+    """
+    status = WhatsAppClient.get_live_status()
+    if not status.get("can_send"):
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot send reminders: WhatsApp is not connected. Link your office phone first via QR scan or pairing code."
+        )
+
+    current_period = payload.period or date.today().strftime("%b %Y")
+
+    # Get already received clients
+    subs = db.query(ClientReportSubmission).filter(
+        ClientReportSubmission.period == current_period,
+        ClientReportSubmission.status == "RECEIVED"
+    ).all()
+    already_received_names = {s.client_name.strip().lower() for s in subs}
+
+    # Query target customers
+    query = db.query(Customer)
+    if payload.client_ids:
+        query = query.filter(Customer.id.in_(payload.client_ids))
+    target_customers = query.all()
+
+    sent_count = 0
+    ignored_count = 0
+    results = []
+
+    for c in target_customers:
+        # Ignore clients who already submitted!
+        if c.name.strip().lower() in already_received_names:
+            ignored_count += 1
+            continue
+
+        client_phone = (c.phone or "").strip().replace(" ", "").replace("+", "").replace("-", "")
+        if not client_phone or len(client_phone) < 10:
+            results.append({
+                "client": c.name,
+                "status": "SKIPPED_NO_PHONE",
+                "phone": c.phone
+            })
+            continue
+
+        target_jid = f"{client_phone}@s.whatsapp.net"
+        msg_text = payload.custom_message or (
+            f"Dear {c.name},\n\n"
+            f"This is a gentle reminder from PMSC (Vichar Vimarsh Group) to kindly share your *TDS and GST report for {current_period}* "
+            f"with our operations desk so we can finalize statutory filings before the due date.\n\n"
+            f"You can reply directly to this chat with your PDF or Excel statement.\n\n"
+            f"Thank you,\n*PMSC Compliance Desk*"
+        )
+
+        send_res = WhatsAppClient.send_real_message(msg_text, target_group_id=target_jid)
+        if send_res.get("success"):
+            sent_count += 1
+            results.append({"client": c.name, "phone": client_phone, "status": "REMINDER_DELIVERED"})
+        else:
+            results.append({"client": c.name, "phone": client_phone, "status": "FAILED", "error": send_res.get("error")})
+
+    log_audit_event(
+        db, current_user, "DISPATCH_TDS_GST_REPORT_REMINDERS", "Customer", "Batch",
+        {"sent_count": sent_count, "ignored_already_received": ignored_count, "period": current_period},
+        request=request
+    )
+
+    return {
+        "success": True,
+        "period": current_period,
+        "sent_count": sent_count,
+        "ignored_already_received_count": ignored_count,
+        "details": results
     }
 
 @router.get("/office-summary/history")

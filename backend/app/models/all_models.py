@@ -573,7 +573,24 @@ class WhatsAppIncomingMessage(Base):
     message_timestamp = Column(DateTime, nullable=False, default=datetime.utcnow)
     is_group = Column(Boolean, default=False)
     is_read = Column(Boolean, default=False, index=True)
+    has_attachment = Column(Boolean, default=False)
+    attachment_path = Column(String(500), nullable=True)
     reviewed_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class ClientReportSubmission(Base):
+    __tablename__ = "client_report_submissions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    client_name = Column(String(255), nullable=False, index=True)
+    gstin_or_pan = Column(String(50), nullable=True)
+    phone = Column(String(50), nullable=True)
+    report_type = Column(String(50), default="TDS_GST_REPORT")
+    period = Column(String(20), default="CURRENT")
+    file_path = Column(String(500), nullable=True)
+    status = Column(String(30), default="RECEIVED") # RECEIVED, PENDING, REMINDER_SENT
+    received_at = Column(DateTime, default=datetime.utcnow)
+    reminder_sent_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class AIUsageMetric(Base):
