@@ -17,11 +17,11 @@ import {
 import { api } from '../../services/api';
 
 export const FamilyKnowledgeAI: React.FC = () => {
-  // Checklist State
-  const [dematChecked, setDematChecked] = useState(true);
-  const [insuranceChecked, setInsuranceChecked] = useState(true);
+  // Checklist State - Starts un-checked for honest client assessment
+  const [dematChecked, setDematChecked] = useState(false);
+  const [insuranceChecked, setInsuranceChecked] = useState(false);
   const [lockerChecked, setLockerChecked] = useState(false);
-  const [caChecked, setCaChecked] = useState(true);
+  const [caChecked, setCaChecked] = useState(false);
   const [willsChecked, setWillsChecked] = useState(false);
 
   // Fraud Scanner State

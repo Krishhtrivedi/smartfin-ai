@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Building2,
   ShieldCheck,
@@ -15,11 +15,16 @@ import {
   ExternalLink,
   ChevronRight,
   Maximize2,
-  Minimize2
+  Minimize2,
+  RefreshCw,
+  Inbox,
+  UserCheck
 } from 'lucide-react';
 import { api } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 export const PMSCPublicWebsite: React.FC = () => {
+  const { user } = useAuth();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [formData, setFormData] = useState({
     full_name: '',
@@ -31,6 +36,25 @@ export const PMSCPublicWebsite: React.FC = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitResult, setSubmitResult] = useState<any | null>(null);
+  const [inquiries, setInquiries] = useState<any[]>([]);
+  const [loadingInquiries, setLoadingInquiries] = useState(false);
+
+  const fetchInquiries = async () => {
+    if (user?.role !== 'admin') return;
+    setLoadingInquiries(true);
+    try {
+      const data = await api.getPublicInquiries();
+      setInquiries(data);
+    } catch (err: any) {
+      console.error('Error fetching leads:', err);
+    } finally {
+      setLoadingInquiries(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInquiries();
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +72,9 @@ export const PMSCPublicWebsite: React.FC = () => {
         phone: '',
         message: ''
       });
+      if (user?.role === 'admin') {
+        fetchInquiries();
+      }
     } catch (err: any) {
       alert(`Submission failed: ${err.message}`);
     } finally {
@@ -323,6 +350,92 @@ export const PMSCPublicWebsite: React.FC = () => {
           </div>
         </form>
       </div>
+
+      {/* Admin Leads Review Desk (Only visible to authenticated administrators/partners) */}
+      {user?.role === 'admin' && (
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center space-x-2">
+              <span className="p-1.5 rounded-lg bg-[#E65909]/10 text-[#E65909]">
+                <UserCheck className="w-4 h-4" />
+              </span>
+              <div>
+                <h4 className="text-xs font-bold font-display text-navy-950 uppercase tracking-wider">
+                  Partner Review Desk: Inbound Consultation Inquiries
+                </h4>
+                <p className="text-[11px] text-slate-500">
+                  Live database of confidential consultation leads received from the PMSC public institutional portal.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={fetchInquiries}
+              disabled={loadingInquiries}
+              className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-mono rounded-lg flex items-center space-x-1.5 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${loadingInquiries ? 'animate-spin text-[#E65909]' : ''}`} />
+              <span>Refresh Inquiries</span>
+            </button>
+          </div>
+
+          {inquiries.length === 0 ? (
+            <div className="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
+              <Inbox className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-xs font-semibold text-slate-600">No Inbound Consultation Leads Yet</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                New inquiries submitted via the form above will appear here in real-time.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 text-slate-600 font-mono text-[11px] border-b border-slate-200">
+                  <tr>
+                    <th className="py-2.5 px-3">Intake Code</th>
+                    <th className="py-2.5 px-3">Client / Entity</th>
+                    <th className="py-2.5 px-3">Advisory Need</th>
+                    <th className="py-2.5 px-3">Contact</th>
+                    <th className="py-2.5 px-3">Details / Notes</th>
+                    <th className="py-2.5 px-3">Logged IP</th>
+                    <th className="py-2.5 px-3">Received At</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 font-sans">
+                  {inquiries.map((inq) => (
+                    <tr key={inq.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="py-2.5 px-3 font-mono text-[11px] font-bold text-[#E65909]">
+                        {inq.intake_code}
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <div className="font-semibold text-navy-950">{inq.full_name}</div>
+                        <div className="text-[11px] text-slate-500 font-mono">{inq.entity_name}</div>
+                      </td>
+                      <td className="py-2.5 px-3 font-mono text-[11px]">
+                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium">
+                          {inq.service_type}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-3 font-mono text-[11px] space-y-0.5">
+                        <div className="text-slate-800">{inq.email}</div>
+                        <div className="text-slate-500">{inq.phone}</div>
+                      </td>
+                      <td className="py-2.5 px-3 text-[11px] text-slate-600 max-w-xs truncate">
+                        {inq.message || <span className="italic text-slate-400">No brief provided</span>}
+                      </td>
+                      <td className="py-2.5 px-3 font-mono text-[10px] text-slate-500">
+                        {inq.client_ip}
+                      </td>
+                      <td className="py-2.5 px-3 font-mono text-[11px] text-slate-500 whitespace-nowrap">
+                        {inq.created_at}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="pt-6 border-t border-slate-200 text-slate-500 text-xs flex flex-col sm:flex-row items-center justify-between gap-3 font-mono">

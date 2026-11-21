@@ -16,22 +16,26 @@ import {
 import { api } from '../../services/api';
 
 export const CollectionAI: React.FC = () => {
-  const [customerName, setCustomerName] = useState('Zenith Retail & Logistics Ltd');
-  const [invoiceNumber, setInvoiceNumber] = useState('INV-2026-0891');
-  const [amountDue, setAmountDue] = useState('285000');
-  const [daysOverdue, setDaysOverdue] = useState(38);
+  const [customerName, setCustomerName] = useState('');
+  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [amountDue, setAmountDue] = useState('');
+  const [daysOverdue, setDaysOverdue] = useState<number>(30);
   const [draftResult, setDraftResult] = useState<any | null>(null);
   const [drafting, setDrafting] = useState(false);
   const [copiedType, setCopiedType] = useState<string | null>(null);
 
   const handleGenerateDraft = async () => {
+    if (!customerName.trim() || !invoiceNumber.trim()) {
+      alert('Please specify Customer Name and Invoice Number.');
+      return;
+    }
     setDrafting(true);
     try {
       const res = await api.draftCollectionSequence({
-        customer_name: customerName,
-        invoice_number: invoiceNumber,
+        customer_name: customerName.trim(),
+        invoice_number: invoiceNumber.trim(),
         amount_due: parseFloat(amountDue) || 0,
-        days_overdue: daysOverdue
+        days_overdue: typeof daysOverdue === 'number' ? daysOverdue : (parseInt(String(daysOverdue), 10) || 0)
       });
       setDraftResult(res);
     } catch (err: any) {

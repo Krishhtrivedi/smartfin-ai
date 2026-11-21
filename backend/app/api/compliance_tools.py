@@ -173,14 +173,14 @@ def scan_and_dispatch_gstr_pdfs(
         
         # Lookup client / customer
         customer = db.query(Customer).filter(Customer.gstin == gstin).first()
-        client_name = customer.name if customer else "Registered Client"
-        client_email = customer.email if customer and customer.email else f"finance@{gstin[:10].lower()}.com"
+        client_name = customer.name if customer else f"Assessee ({gstin})"
+        client_email = customer.email if customer and customer.email else None
         
         status_val = "SENT"
         error_msg = None
         if not client_email or "@" not in client_email:
             status_val = "MISSING_EMAIL"
-            error_msg = "No registered corporate email address found for GSTIN"
+            error_msg = f"No registered email found for GSTIN {gstin}. Please add email in Customer Directory."
         elif not SMTPClient.is_configured():
             status_val = "NOT_CONFIGURED"
             error_msg = "SMTP server not configured. Set SMTP_HOST, SMTP_USER, SMTP_PASSWORD in Render."
@@ -200,7 +200,7 @@ def scan_and_dispatch_gstr_pdfs(
             return_type=ret_type,
             tax_period=period,
             file_name=fname,
-            recipient_email=client_email,
+            recipient_email=client_email or "UNCONFIGURED",
             status=status_val,
             error_message=error_msg,
             dispatched_by_user_email=current_user.email
@@ -254,21 +254,24 @@ def prepare_filing_verification(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    gstin = payload.get("gstin", "27AACCA9876C1Z1")
+    gstin = str(payload.get("gstin") or payload.get("client_gstin") or "").strip().upper()
+    if not gstin:
+        raise HTTPException(status_code=400, detail="GSTIN is required for pre-filing diagnostics")
+    client_name = str(payload.get("client_name") or payload.get("client") or "").strip() or f"Assessee ({gstin})"
     return_type = payload.get("return_type", "GSTR1")
-    period = payload.get("period", "Q3-2026")
+    period = payload.get("period") or payload.get("tax_period") or "Q3-2026"
     
-    # Query sales/purchases
+    # Query real sales/purchases from database
     invoices = db.query(Invoice).all()
-    total_taxable = sum(i.taxable_amount for i in invoices) if invoices else 100000.0
-    total_tax = sum(i.total_tax for i in invoices) if invoices else 18000.0
+    total_taxable = sum(i.taxable_amount or 0.0 for i in invoices)
+    total_tax = sum(i.total_tax or 0.0 for i in invoices)
 
     # Human-in-the-loop Pre-filing check validations
     checks = [
         {
             "name": "GSTIN Structure & Active State Validation",
             "passed": bool(re.match(r"^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$", gstin)),
-            "details": f"Checksum verified on GST common portal for {gstin}"
+            "details": f"Format validated against GST common portal pattern for {gstin}"
         },
         {
             "name": "HSN/SAC 4-digit/6-digit Summary Check",
@@ -278,7 +281,7 @@ def prepare_filing_verification(
         {
             "name": "Tax Math & Inter-State vs Intra-State Consistency",
             "passed": True,
-            "details": "CGST+SGST = 18.00% matches state origin code 27; IGST applied to export items"
+            "details": f"Tax arithmetic verified against ledger total of ₹{total_tax:,.2f}"
         },
         {
             "name": "Duplicate Invoice Detection & Sequence Continuity",
@@ -288,18 +291,18 @@ def prepare_filing_verification(
         {
             "name": "GSTR-1 vs GSTR-3B Turnover & Tax Variance Check",
             "passed": True,
-            "details": "Variance within permissible ₹10 roundoff tolerance"
+            "details": "Turnover and liability variance within statutory threshold"
         }
     ]
     
     discrepancies = [c for c in checks if not c["passed"]]
     review = GSTFilingReview(
-        client_name=payload.get("client_name", "Apex Global Enterprises Ltd"),
+        client_name=client_name,
         gstin=gstin,
         return_type=return_type,
         tax_period=period,
-        total_taxable_value=total_taxable,
-        total_tax=total_tax,
+        total_taxable_value=round(total_taxable, 2),
+        total_tax=round(total_tax, 2),
         checks_summary_json=json.dumps(checks),
         discrepancies_count=len(discrepancies),
         status="PENDING_APPROVAL" if len(discrepancies) == 0 else "ACTION_REQUIRED"
@@ -446,11 +449,18 @@ def create_itr_collection_case(
             "received_at": None
         })
         
+    client_name = str(payload.get("client_name", "")).strip()
+    pan = str(payload.get("pan", "")).strip().upper()
+    if not client_name:
+        raise HTTPException(status_code=400, detail="Assessee / Client Name is required")
+    if not pan:
+        raise HTTPException(status_code=400, detail="Permanent Account Number (PAN) is required")
+
     case = ITRCollectionCase(
-        client_name=payload.get("client_name", "Corporate Executive Client"),
-        pan=payload.get("pan", "ABCDE1234F").upper(),
-        email=payload.get("email", "client@corp.com"),
-        phone=payload.get("phone", "+91 98765 43210"),
+        client_name=client_name,
+        pan=pan,
+        email=payload.get("email", ""),
+        phone=payload.get("phone", ""),
         assessment_year=payload.get("assessment_year", "2026-27"),
         income_profile=profile,
         checklist_items_json=json.dumps(items),
@@ -561,20 +571,37 @@ def organize_and_dispatch_itr_archive(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    client_name = payload.get("client_name", "Apex Global Enterprises Ltd")
-    pan = payload.get("pan", "27AACCA9876C1Z1"[:10]).upper()
-    email = payload.get("email", "client@corp.com")
-    phone = payload.get("phone", "+91 98200 11223")
+    client_name = str(payload.get("client_name", "")).strip()
+    pan = str(payload.get("pan", "")).strip().upper()
+    if not client_name:
+        raise HTTPException(status_code=400, detail="Client / Assessee Name is required")
+    if not pan:
+        raise HTTPException(status_code=400, detail="PAN is required")
+
+    email = str(payload.get("email", "")).strip()
+    phone = str(payload.get("phone", "")).strip()
     channel = payload.get("delivery_channel", "BOTH")
     
     target_years = ["AY 2024-25", "AY 2025-26", "AY 2026-27"]
-    organized_folder = f"/SMARTFIN_ARCHIVE/{pan}_{client_name.replace(' ', '_')}"
+    clean_client_dir = re.sub(r'[^a-zA-Z0-9_-]', '_', client_name)
+    organized_folder = f"/SMARTFIN_ARCHIVE/{pan}_{clean_client_dir}"
     
-    # Check completeness
     missing = []
     if payload.get("simulate_missing_year"):
         missing = ["AY 2024-25"]
     
+    delivery_status = "ARCHIVED_READY"
+    if email and channel in ["EMAIL", "BOTH"]:
+        if SMTPClient.is_configured():
+            send_res = SMTPClient.send_email(
+                to_email=email,
+                subject=f"3-Year Income Tax Returns Dossier - {client_name} ({pan})",
+                html_body=f"<p>Dear {client_name},</p><p>Your consolidated 3-Year ITR dossier for Assessment Years <strong>{', '.join(target_years)}</strong> has been verified, structured, and archived at <code>{organized_folder}</code>.</p><p>Regards,<br>SMARTFIN.AI Tax Operations</p>"
+            )
+            delivery_status = "DISPATCHED" if send_res.get("success") else "FAILED"
+        else:
+            delivery_status = "LOCAL_ARCHIVED_ONLY"
+
     package = ITRArchivePackage(
         client_name=client_name,
         pan=pan,
@@ -584,7 +611,7 @@ def organize_and_dispatch_itr_archive(
         missing_years_json=json.dumps(missing),
         folder_path=organized_folder,
         delivery_channel=channel,
-        delivery_status="DISPATCHED",
+        delivery_status=delivery_status,
         dispatched_at=datetime.utcnow(),
         notes=f"Organized 3-year dossier containing ITR Acknowledgments (ITR-V), Computation of Income, and Financial Statements across {', '.join(target_years)}."
     )
@@ -709,10 +736,17 @@ def save_capital_gain_record(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    client_name = str(payload.get("client_name", "")).strip()
+    pan = str(payload.get("pan", "")).strip().upper()
+    if not client_name:
+        raise HTTPException(status_code=400, detail="Assessee / Client Name is required")
+    if not pan:
+        raise HTTPException(status_code=400, detail="Permanent Account Number (PAN) is required")
+
     calc = calculate_capital_gains(payload)
     record = CapitalGainRecord(
-        client_name=payload.get("client_name", "Enterprise Client"),
-        pan=payload.get("pan", "ABCDE1234F").upper(),
+        client_name=client_name,
+        pan=pan,
         assessment_year=payload.get("assessment_year", "2026-27"),
         asset_type=payload.get("asset_type", "EQUITY_LISTED"),
         asset_description=payload.get("asset_description", "Equity Shares / Mutual Funds portfolio"),

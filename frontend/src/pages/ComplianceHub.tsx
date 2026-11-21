@@ -45,16 +45,14 @@ export const ComplianceHub: React.FC = () => {
   // 1. GSTR PDF Email Auto-Sender State
   // ==========================================
   const [gstrLogs, setGstrLogs] = useState<any[]>([]);
-  const [gstrFilesInput, setGstrFilesInput] = useState(
-    'GSTR1_27AACCA9876C1Z1_102026.pdf\nGSTR3B_27AACCA9876C1Z1_102026.pdf\nGSTR2B_27AABCT1234A1Z5_102026.pdf'
-  );
+  const [gstrFilesInput, setGstrFilesInput] = useState('');
   const [dispatchingGstr, setDispatchingGstr] = useState(false);
 
   // ==========================================
   // 2. GSTR AI Agent (Human-in-the-Loop) State
   // ==========================================
-  const [gstinInput, setGstinInput] = useState('27AACCA9876C1Z1');
-  const [clientInput, setClientInput] = useState('Apex Global Enterprises Ltd');
+  const [gstinInput, setGstinInput] = useState('');
+  const [clientInput, setClientInput] = useState('');
   const [returnTypeInput, setReturnTypeInput] = useState('GSTR1');
   const [periodInput, setPeriodInput] = useState('Q3-2026');
   const [agentPreparing, setAgentPreparing] = useState(false);
@@ -70,7 +68,7 @@ export const ComplianceHub: React.FC = () => {
   const [itrClientName, setItrClientName] = useState('');
   const [itrPan, setItrPan] = useState('');
   const [itrProfile, setItrProfile] = useState('SALARIED');
-  const [itrPhone, setItrPhone] = useState('+91 98765 43210');
+  const [itrPhone, setItrPhone] = useState('');
   const [itrEmail, setItrEmail] = useState('');
 
   // ==========================================
@@ -82,12 +80,14 @@ export const ComplianceHub: React.FC = () => {
   // ==========================================
   // 5. Capital Gains & Tax Payable State
   // ==========================================
+  const [cgClientName, setCgClientName] = useState('');
+  const [cgPan, setCgPan] = useState('');
   const [cgAssetType, setCgAssetType] = useState('EQUITY_LISTED');
   const [cgBuyDate, setCgBuyDate] = useState('2024-04-01');
   const [cgSaleDate, setCgSaleDate] = useState('2026-11-01');
-  const [cgSaleVal, setCgSaleVal] = useState('500000');
-  const [cgCostVal, setCgCostVal] = useState('300000');
-  const [cgExpenses, setCgExpenses] = useState('2500');
+  const [cgSaleVal, setCgSaleVal] = useState('');
+  const [cgCostVal, setCgCostVal] = useState('');
+  const [cgExpenses, setCgExpenses] = useState('0');
   const [cgExemption, setCgExemption] = useState('0');
   const [cgResult, setCgResult] = useState<any | null>(null);
   const [cgRecords, setCgRecords] = useState<any[]>([]);
@@ -125,18 +125,18 @@ export const ComplianceHub: React.FC = () => {
   // 7. Skill-Set Tools State
   // ==========================================
   // Consulting Report
-  const [consultingClient, setConsultingClient] = useState('Zenith Retail & Logistics Ltd');
-  const [consultingTitle, setConsultingTitle] = useState('Financial Controls & Statutory Reconciliation Modernisation');
-  const [consultingFindings, setConsultingFindings] = useState('Manual ledger postings causing ITC loss of ₹8.4L, delayed vendor payments averaging 52 days, repetitive GSTR-3B variance notices.');
+  const [consultingClient, setConsultingClient] = useState('');
+  const [consultingTitle, setConsultingTitle] = useState('');
+  const [consultingFindings, setConsultingFindings] = useState('');
   const [consultingReport, setConsultingReport] = useState<any | null>(null);
   const [generatingReport, setGeneratingReport] = useState(false);
 
   // Salary Calculator
-  const [ctcInput, setCtcInput] = useState('75000');
+  const [ctcInput, setCtcInput] = useState('');
   const [basicPctInput, setBasicPctInput] = useState('50');
   const [hraPctInput, setHraPctInput] = useState('40');
   const [lopDaysInput, setLopDaysInput] = useState('0');
-  const [tdsMonthlyInput, setTdsMonthlyInput] = useState('2500');
+  const [tdsMonthlyInput, setTdsMonthlyInput] = useState('0');
   const [salaryResult, setSalaryResult] = useState<any | null>(null);
 
   // Fetch initial data
@@ -366,10 +366,14 @@ export const ComplianceHub: React.FC = () => {
   };
 
   const handleSaveCgRecord = async () => {
+    if (!cgClientName.trim() || !cgPan.trim()) {
+      alert('Please enter Client/Assessee Name and PAN before saving computation record.');
+      return;
+    }
     try {
       await api.saveCapitalGains({
-        client_name: 'Apex Global Enterprises Ltd',
-        pan: 'AACCA9876C',
+        client_name: cgClientName.trim(),
+        pan: cgPan.trim().toUpperCase(),
         asset_type: cgAssetType,
         purchase_date: cgBuyDate,
         sale_date: cgSaleDate,
@@ -1039,6 +1043,30 @@ export const ComplianceHub: React.FC = () => {
             </div>
 
             <div className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-600 mb-1 font-semibold">Client / Assessee Name *</label>
+                  <input
+                    type="text"
+                    value={cgClientName}
+                    onChange={(e) => setCgClientName(e.target.value)}
+                    placeholder="e.g. Apex Global Enterprises Ltd"
+                    className="w-full p-2 border border-slate-200 rounded-lg text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-600 mb-1 font-semibold">Assessee PAN *</label>
+                  <input
+                    type="text"
+                    value={cgPan}
+                    onChange={(e) => setCgPan(e.target.value.toUpperCase())}
+                    placeholder="AACCA9876C"
+                    maxLength={10}
+                    className="w-full p-2 border border-slate-200 rounded-lg font-mono text-xs"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-slate-600 mb-1 font-semibold">Asset Class</label>
                 <select

@@ -458,7 +458,7 @@ class GSTRDispatchLog(Base):
     return_type = Column(String(20), nullable=False) # GSTR1, GSTR2B, GSTR3B
     tax_period = Column(String(20), nullable=False) # e.g. 102026, Q3-2026
     file_name = Column(String(255), nullable=False)
-    recipient_email = Column(String(255), nullable=False)
+    recipient_email = Column(String(255), nullable=True)
     status = Column(String(30), default="SENT") # SENT, FAILED, MISSING_EMAIL
     error_message = Column(Text, nullable=True)
     sent_at = Column(DateTime, default=datetime.utcnow)
