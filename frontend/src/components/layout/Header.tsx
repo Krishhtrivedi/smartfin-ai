@@ -44,8 +44,8 @@ export const Header: React.FC<HeaderProps> = ({
     },
     customer: { 
       spec: '03 / RECEIVABLES', 
-      title: 'Customer Receivables & Collection Ledger', 
-      subtitle: 'Sales invoices, receipts, debit/credit adjustments & outstanding trade balances' 
+      title: 'Customer Receivables & Collections', 
+      subtitle: 'Sales invoices, payment receipts, aging analysis & trade receivables ledger' 
     },
     tds: { 
       spec: '04 / TAX COMPLIANCE', 

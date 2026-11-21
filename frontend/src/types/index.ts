@@ -165,11 +165,16 @@ export interface CustomerSummary {
   id: number;
   name: string;
   gstin?: string;
+  pan?: string;
+  email?: string;
+  phone?: string;
+  state?: string;
   credit_limit: number;
   total_sales: number;
   total_received: number;
   outstanding_balance: number;
   invoice_count: number;
+  receipt_count?: number;
 }
 
 export interface TDSRecord {

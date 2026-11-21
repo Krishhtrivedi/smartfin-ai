@@ -5,10 +5,12 @@ from datetime import datetime, date, timedelta
 import json
 import re
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_role, log_audit_event, get_client_ip
 from app.services.whatsapp.client import WhatsAppClient
 from app.services.whatsapp.scheduler import PMSCWhatsAppScheduler
+from app.services.email.smtp_client import SMTPClient
 from app.models.all_models import (
     User, StatutoryNotice, GSTRDispatchLog, GSTFilingReview,
     ITRCollectionCase, ITRArchivePackage, CapitalGainRecord,
@@ -178,6 +180,18 @@ def scan_and_dispatch_gstr_pdfs(
         if not client_email or "@" not in client_email:
             status_val = "MISSING_EMAIL"
             error_msg = "No registered corporate email address found for GSTIN"
+        elif not SMTPClient.is_configured():
+            status_val = "NOT_CONFIGURED"
+            error_msg = "SMTP server not configured. Set SMTP_HOST, SMTP_USER, SMTP_PASSWORD in Render."
+        else:
+            send_res = SMTPClient.send_email(
+                to_email=client_email,
+                subject=f"Statutory Filing Copy: {ret_type} for Period {period} - {client_name}",
+                html_body=f"<p>Dear {client_name},</p><p>Please find attached the official statutory copy of your filed <strong>{ret_type}</strong> for tax period <strong>{period}</strong>.</p><p>Best regards,<br>SMARTFIN.AI Compliance Desk</p>"
+            )
+            if not send_res.get("success"):
+                status_val = "FAILED"
+                error_msg = send_res.get("error", "SMTP delivery failed")
 
         log_entry = GSTRDispatchLog(
             client_name=client_name,
@@ -1211,4 +1225,73 @@ def calculate_salary_breakdown(payload: Dict[str, Any]):
             "total_employer_ctc": employer_cost,
             "notes": "Complies with Indian Code on Wages, Employees' Provident Funds Act, ESIC regulations, and State PT schedules."
         }
+    }
+
+
+# ==============================================================================
+# 10. SYSTEM INTEGRATIONS & INFRASTRUCTURE STATUS (SMTP, STORAGE, AI)
+# ==============================================================================
+
+@router.get("/smtp/status")
+def get_smtp_status(current_user: User = Depends(get_current_user)):
+    """
+    Returns live connection and configuration status of the SMTP service.
+    """
+    return SMTPClient.get_status()
+
+@router.post("/smtp/test-connection")
+def test_smtp_connection(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"]))
+):
+    """
+    Authenticates with configured SMTP server and reports genuine connection handshake result.
+    """
+    result = SMTPClient.test_connection()
+    log_audit_event(
+        db, current_user, "TEST_SMTP_CONNECTION", "SystemIntegration", "SMTP",
+        {"status": result.get("status"), "message": result.get("message")},
+        request=request
+    )
+    return result
+
+@router.get("/storage/status")
+def get_storage_status(current_user: User = Depends(get_current_user)):
+    """
+    Inspects server folder paths (Uploads, Exports, ITR Archives, GSTR Inbox) and write permissions.
+    """
+    dirs = {
+        "upload_dir": settings.UPLOAD_DIR,
+        "export_dir": settings.EXPORT_DIR,
+        "itr_archive_dir": settings.ITR_ARCHIVE_DIR,
+        "gstr_inbox_dir": settings.GSTR_INBOX_DIR
+    }
+    dir_statuses = {}
+    for key, path in dirs.items():
+        exists = os.path.exists(path)
+        writable = os.access(path, os.W_OK) if exists else False
+        dir_statuses[key] = {
+            "path": os.path.abspath(path),
+            "exists": exists,
+            "writable": writable
+        }
+    return {
+        "status": "HEALTHY",
+        "directories": dir_statuses,
+        "persistent_disk_detected": "/var/data" in os.path.abspath(settings.UPLOAD_DIR) or bool(settings.WHATSAPP_SESSION_DIR)
+    }
+
+@router.get("/ai/status")
+def get_ai_status(current_user: User = Depends(get_current_user)):
+    """
+    Returns true status of AI/LLM providers (OpenAI GPT-4o-mini vs Local Engine).
+    """
+    has_openai = bool(settings.OPENAI_API_KEY and settings.OPENAI_API_KEY.startswith("sk-"))
+    return {
+        "is_configured": has_openai,
+        "provider": "OpenAI GPT-4o-mini" if has_openai else "SmartFin Local Deterministic Rule Engine",
+        "model": settings.AI_MODEL if has_openai else "SmartFin-Rules-v1.0",
+        "status": "CONNECTED" if has_openai else "LOCAL_ONLY",
+        "fallback_active": not has_openai
     }

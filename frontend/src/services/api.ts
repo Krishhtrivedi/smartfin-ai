@@ -126,6 +126,11 @@ export const api = {
   getCustomerInvoices: (customerId: number) => request<any[]>(`/customers/${customerId}/invoices`),
   createCustomerInvoice: (customerId: number, data: any) =>
     request<any>(`/customers/${customerId}/invoices`, { method: 'POST', body: JSON.stringify(data) }),
+  getCustomerReceipts: (customerId: number) => request<any[]>(`/customers/${customerId}/receipts`),
+  createCustomerReceipt: (customerId: number, data: any) =>
+    request<any>(`/customers/${customerId}/receipts`, { method: 'POST', body: JSON.stringify(data) }),
+  uploadCustomerStatement: (customerId: number, formData: FormData) =>
+    request<any>(`/customers/${customerId}/upload-statement`, { method: 'POST', body: formData }),
 
   // TDS / TCS
   getTDSRules: () => request<any>('/tds/rules'),

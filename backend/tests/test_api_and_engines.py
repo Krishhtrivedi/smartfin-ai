@@ -9,7 +9,7 @@ from app.core.database import SessionLocal, Base, engine
 from app.seed.seed_data import seed_database
 from app.models.all_models import (
     User, Vendor, Customer, BankAccount, Invoice, Purchase, Sale,
-    BankTransaction, GSTRecord, TDSRecord, Expense, Task, Attendance
+    BankTransaction, GSTRecord, TDSRecord, Expense, Task, Attendance, Payment
 )
 from app.services.reconciliation.gst_engine import GSTReconciliationEngine
 from app.services.reconciliation.bank_engine import BankReconciliationEngine
@@ -132,6 +132,16 @@ def test_add_customer_and_sales_invoice_updates_dashboard():
     })
     headers = {"Authorization": f"Bearer {login_res.json()['access_token']}"}
 
+    # Pre-clean any leftover test records
+    db_pre = SessionLocal()
+    existing_c = db_pre.query(Customer).filter(Customer.gstin == "24AABCG1122D1Z9").first()
+    if existing_c:
+        db_pre.query(Payment).filter(Payment.entity_type == "CUSTOMER", Payment.entity_id == existing_c.id).delete()
+        db_pre.query(Invoice).filter(Invoice.customer_id == existing_c.id).delete()
+        db_pre.query(Customer).filter(Customer.id == existing_c.id).delete()
+        db_pre.commit()
+    db_pre.close()
+
     # 1. Register a real customer
     c_res = client.post("/api/v1/customers/create", headers=headers, json={
         "name": "Global Retail Partners LLP",
@@ -169,10 +179,29 @@ def test_add_customer_and_sales_invoice_updates_dashboard():
     assert dash["kpis"]["total_sales"] == 100000.0
     assert dash["kpis"]["customer_outstanding"] == 118000.0
 
-    # 4. Cleanup so DB remains clean at 0
+    # 4. Record a customer payment receipt
+    rec_res = client.post(f"/api/v1/customers/{customer_id}/receipts", headers=headers, json={
+        "payment_date": "2026-11-19",
+        "amount": 118000.0,
+        "payment_mode": "NEFT",
+        "reference_number": "UTR-TEST-2026-001",
+        "invoice_id": inv_res.json()["id"]
+    })
+    assert rec_res.status_code == 200
+    assert rec_res.json()["status"] == "SUCCESS"
+
+    # 5. Verify customer reconciliation shows 0 outstanding and invoice PAID
+    recon = client.get(f"/api/v1/customers/{customer_id}/reconcile", headers=headers).json()
+    assert recon["outstanding_balance"] == 0.0
+    assert recon["total_received"] == 118000.0
+    assert len(recon["receipts"]) == 1
+
+    # 6. Cleanup so DB remains clean at 0
     db = SessionLocal()
+    db.query(Payment).filter(Payment.entity_type == "CUSTOMER", Payment.entity_id == customer_id).delete()
     db.query(Invoice).filter(Invoice.invoice_number == "SF-SLS-2026-99").delete()
     db.query(Customer).filter(Customer.id == customer_id).delete()
+    db.commit()
     db.commit()
     db.close()
 
