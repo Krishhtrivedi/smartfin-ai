@@ -15,7 +15,8 @@ from app.services.email.smtp_client import SMTPClient
 from app.models.all_models import (
     User, StatutoryNotice, GSTRDispatchLog, GSTFilingReview,
     ITRCollectionCase, ITRArchivePackage, CapitalGainRecord,
-    DailyOfficeSummary, AIUsageMetric, Customer, Vendor, Invoice
+    DailyOfficeSummary, AIUsageMetric, Customer, Vendor, Invoice,
+    WhatsAppIncomingMessage
 )
 
 router = APIRouter(prefix="/compliance", tags=["Compliance & Gap Completion Pack"])
@@ -964,6 +965,182 @@ def update_whatsapp_schedule(
         "schedule": {"enabled": enabled, "time_ist": time_ist, "timezone": "Asia/Kolkata (IST)"}
     }
 
+# ==============================================================================
+# WHATSAPP UNREAD MESSAGES TRACKING & WEBHOOK
+# ==============================================================================
+
+@router.post("/whatsapp/incoming-webhook")
+def receive_whatsapp_incoming_webhook(
+    payload: Dict[str, Any],
+    db: Session = Depends(get_db)
+):
+    """
+    Internal webhook called by Baileys micro-bridge whenever a new incoming
+    WhatsApp message arrives. Stores message without duplication.
+    """
+    mid = payload.get("message_id")
+    if not mid:
+        raise HTTPException(status_code=400, detail="message_id is required")
+
+    existing = db.query(WhatsAppIncomingMessage).filter(WhatsAppIncomingMessage.message_id == mid).first()
+    if existing:
+        return {"status": "ALREADY_EXISTS", "message_id": mid}
+
+    ts = datetime.utcnow()
+    if payload.get("timestamp"):
+        try:
+            ts = datetime.fromisoformat(payload["timestamp"].replace("Z", "+00:00")).replace(tzinfo=None)
+        except Exception:
+            pass
+
+    msg = WhatsAppIncomingMessage(
+        message_id=mid,
+        chat_jid=payload.get("chat_jid", ""),
+        chat_name=payload.get("chat_name", ""),
+        sender_jid=payload.get("sender_jid", ""),
+        sender_name=payload.get("sender_name", ""),
+        message_text=payload.get("message_text", ""),
+        message_timestamp=ts,
+        is_group=bool(payload.get("is_group", False)),
+        is_read=False
+    )
+    db.add(msg)
+    db.commit()
+    db.refresh(msg)
+    return {"status": "STORED", "id": msg.id, "message_id": mid}
+
+@router.get("/whatsapp/unread-messages")
+def get_unread_whatsapp_messages(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Returns all active unread messages captured from WhatsApp,
+    syncing latest buffer from bridge.
+    """
+    status = WhatsAppClient.get_live_status()
+    is_connected = status.get("connected", False)
+
+    # Sync latest messages from bridge if running
+    try:
+        bridge_res = WhatsAppClient.get_unread_messages()
+        if bridge_res.get("messages"):
+            for bm in bridge_res["messages"]:
+                mid = bm.get("message_id")
+                if not mid:
+                    continue
+                exists = db.query(WhatsAppIncomingMessage).filter(WhatsAppIncomingMessage.message_id == mid).first()
+                if not exists:
+                    ts = datetime.utcnow()
+                    if bm.get("timestamp"):
+                        try:
+                            ts = datetime.fromisoformat(bm["timestamp"].replace("Z", "+00:00")).replace(tzinfo=None)
+                        except Exception:
+                            pass
+                    db.add(WhatsAppIncomingMessage(
+                        message_id=mid,
+                        chat_jid=bm.get("chat_jid", ""),
+                        chat_name=bm.get("chat_name", ""),
+                        sender_jid=bm.get("sender_jid", ""),
+                        sender_name=bm.get("sender_name", ""),
+                        message_text=bm.get("message_text", ""),
+                        message_timestamp=ts,
+                        is_group=bool(bm.get("is_group", False)),
+                        is_read=False
+                    ))
+            db.commit()
+    except Exception as sync_err:
+        print(f"[WhatsApp Unread API] Bridge sync notice: {sync_err}")
+
+    unread_msgs = db.query(WhatsAppIncomingMessage).filter(
+        WhatsAppIncomingMessage.is_read == False
+    ).order_by(WhatsAppIncomingMessage.message_timestamp.desc()).all()
+
+    items = [
+        {
+            "id": m.id,
+            "message_id": m.message_id,
+            "chat_jid": m.chat_jid,
+            "chat_name": m.chat_name or (m.chat_jid.split("@")[0] if m.chat_jid else "Unknown"),
+            "sender_jid": m.sender_jid,
+            "sender_name": m.sender_name or (m.sender_jid.split("@")[0] if m.sender_jid else "Client"),
+            "message_text": m.message_text,
+            "timestamp": m.message_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+            "formatted_time": m.message_timestamp.strftime("%I:%M %p"),
+            "is_group": m.is_group,
+            "is_read": m.is_read
+        }
+        for m in unread_msgs
+    ]
+
+    return {
+        "connected": is_connected,
+        "count": len(items),
+        "messages": items
+    }
+
+class MarkReadPayload(BaseModel):
+    message_ids: Optional[List[int]] = None
+    mark_all: Optional[bool] = False
+
+@router.post("/whatsapp/messages/mark-read")
+def mark_whatsapp_messages_read(
+    payload: MarkReadPayload,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Marks selected unread messages (or all) as read/reviewed in database and bridge.
+    """
+    marked_count = 0
+    now = datetime.utcnow()
+    mids_for_bridge = []
+
+    if payload.mark_all:
+        unreads = db.query(WhatsAppIncomingMessage).filter(WhatsAppIncomingMessage.is_read == False).all()
+        for u in unreads:
+            u.is_read = True
+            u.reviewed_at = now
+            mids_for_bridge.append(u.message_id)
+        marked_count = len(unreads)
+    elif payload.message_ids:
+        unreads = db.query(WhatsAppIncomingMessage).filter(
+            WhatsAppIncomingMessage.id.in_(payload.message_ids),
+            WhatsAppIncomingMessage.is_read == False
+        ).all()
+        for u in unreads:
+            u.is_read = True
+            u.reviewed_at = now
+            mids_for_bridge.append(u.message_id)
+        marked_count = len(unreads)
+
+    db.commit()
+
+    # Sync with bridge memory store
+    try:
+        WhatsAppClient.mark_messages_read(
+            message_ids=mids_for_bridge if not payload.mark_all else None,
+            mark_all=bool(payload.mark_all)
+        )
+    except Exception:
+        pass
+
+    log_audit_event(
+        db, current_user, "MARK_WHATSAPP_MESSAGES_READ", "WhatsAppIncomingMessage", "Batch",
+        {"marked_count": marked_count, "mark_all": payload.mark_all},
+        request=request
+    )
+
+    remaining_count = db.query(WhatsAppIncomingMessage).filter(WhatsAppIncomingMessage.is_read == False).count()
+
+    return {
+        "success": True,
+        "marked_count": marked_count,
+        "remaining_count": remaining_count,
+        "message": f"Successfully marked {marked_count} message(s) as read."
+    }
+
 @router.get("/office-summary/history")
 def get_office_summary_history(
     limit: int = 15,
@@ -976,6 +1153,7 @@ def get_office_summary_history(
     summaries = db.query(DailyOfficeSummary).order_by(DailyOfficeSummary.summary_date.desc(), DailyOfficeSummary.id.desc()).limit(limit).all()
     results = []
     for s in summaries:
+        unread_list = json.loads(s.unread_messages_json) if s.unread_messages_json else []
         results.append({
             "id": s.id,
             "summary_date": str(s.summary_date),
@@ -984,6 +1162,8 @@ def get_office_summary_history(
             "posted_at": str(s.posted_at) if s.posted_at else None,
             "created_by": s.created_by_user_email,
             "formatted_text": s.formatted_whatsapp_text,
+            "unread_messages": unread_list,
+            "unread_count": len(unread_list),
             "created_at": str(s.created_at)
         })
     return results
@@ -996,7 +1176,8 @@ def generate_daily_office_summary(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Aggregates office activity (notices, receivables, invoices) into a structured executive briefing.
+    Aggregates office activity (notices, receivables, invoices, and unread WhatsApp client messages)
+    into a structured executive briefing with Part 1 (Summary) and Part 2 (Unread Messages List).
     """
     summary_date = payload.get("summary_date", str(date.today()))
     scheduler = PMSCWhatsAppScheduler.get_instance()
@@ -1015,6 +1196,7 @@ def generate_daily_office_summary(
         request=request
     )
     
+    unread_list = json.loads(summary.unread_messages_json) if summary.unread_messages_json else []
     return {
         "summary_id": summary.id,
         "date": summary_date,
@@ -1022,6 +1204,8 @@ def generate_daily_office_summary(
         "key_decisions": json.loads(summary.key_decisions_json),
         "action_items": json.loads(summary.action_items_json),
         "blockers": json.loads(summary.blockers_json),
+        "unread_messages": unread_list,
+        "unread_count": len(unread_list),
         "dispatch_status": summary.dispatch_status
     }
 

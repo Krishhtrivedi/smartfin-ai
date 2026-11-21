@@ -25,8 +25,30 @@ let currentPairingCode = null;
 let connectionState = 'DISCONNECTED'; // DISCONNECTED, QR_READY, PAIRING_CODE_READY, CONNECTING, CONNECTED
 let connectedUser = null;
 let lastError = null;
+let unreadMessagesStore = []; // In-memory store of incoming unread WhatsApp messages
 
 const logger = pino({ level: 'silent' });
+
+function forwardToFastAPI(msgRecord) {
+    try {
+        const postData = JSON.stringify(msgRecord);
+        const options = {
+            hostname: '127.0.0.1',
+            port: 8000,
+            path: '/api/v1/compliance/whatsapp/incoming-webhook',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(postData)
+            },
+            timeout: 2000
+        };
+        const req = http.request(options, (res) => {});
+        req.on('error', () => {});
+        req.write(postData);
+        req.end();
+    } catch (e) {}
+}
 
 async function initBaileysSocket(forceNew = false) {
     try {
@@ -119,6 +141,60 @@ async function initBaileysSocket(forceNew = false) {
                     connectionState = 'DISCONNECTED';
                     connectedUser = null;
                 }
+            }
+        });
+
+        // 3. Listen to incoming messages throughout the day
+        sock.ev.on('messages.upsert', async ({ messages, type }) => {
+            try {
+                for (const msg of messages) {
+                    if (!msg.message) continue;
+                    if (msg.key.fromMe) continue; // Skip messages sent by ourselves
+
+                    const remoteJid = msg.key.remoteJid;
+                    if (!remoteJid || remoteJid === 'status@broadcast') continue;
+
+                    const text = msg.message?.conversation
+                        || msg.message?.extendedTextMessage?.text
+                        || msg.message?.imageMessage?.caption
+                        || msg.message?.videoMessage?.caption
+                        || msg.message?.documentMessage?.caption
+                        || (msg.message?.buttonsResponseMessage?.selectedDisplayText)
+                        || (msg.message?.templateButtonReplyMessage?.selectedDisplayText)
+                        || (msg.message?.imageMessage ? '[Photo / Image Attachment]' : null)
+                        || (msg.message?.documentMessage ? `[Document: ${msg.message.documentMessage.fileName || 'PDF/Doc'}]` : null)
+                        || (msg.message?.audioMessage ? '[Voice Note]' : null)
+                        || '';
+
+                    if (!text.trim()) continue;
+
+                    const isGroup = remoteJid.endsWith('@g.us');
+                    const senderJid = msg.key.participant || remoteJid;
+                    const senderName = msg.pushName || (isGroup ? 'Group Member' : remoteJid.split('@')[0]);
+                    const timestampSeconds = msg.messageTimestamp ? Number(msg.messageTimestamp) : Math.floor(Date.now() / 1000);
+                    const msgId = msg.key.id || `wa_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+                    const msgRecord = {
+                        message_id: msgId,
+                        chat_jid: remoteJid,
+                        chat_name: isGroup ? 'WhatsApp Group' : senderName,
+                        sender_jid: senderJid,
+                        sender_name: senderName,
+                        message_text: text.trim(),
+                        timestamp: new Date(timestampSeconds * 1000).toISOString(),
+                        is_group: isGroup,
+                        is_read: false
+                    };
+
+                    if (!unreadMessagesStore.some(m => m.message_id === msgRecord.message_id)) {
+                        unreadMessagesStore.unshift(msgRecord);
+                        if (unreadMessagesStore.length > 500) unreadMessagesStore.pop();
+                        console.log(`[Baileys] Captured incoming message from ${senderName}: "${text.substring(0, 50)}"`);
+                        forwardToFastAPI(msgRecord);
+                    }
+                }
+            } catch (err) {
+                console.error('[Baileys] Error processing incoming messages.upsert:', err);
             }
         });
     } catch (e) {
@@ -360,6 +436,44 @@ const server = http.createServer(async (req, res) => {
                     success: false,
                     error: `Message dispatch failed: ${sendErr.message}`
                 });
+            }
+        });
+        return;
+    }
+
+    // 7. Get Tracked Unread Messages
+    if (pathname === '/unread-messages' && method === 'GET') {
+        const unread = unreadMessagesStore.filter(m => !m.is_read);
+        return sendJson(200, {
+            success: true,
+            connected: connectionState === 'CONNECTED',
+            count: unread.length,
+            messages: unread
+        });
+    }
+
+    // 8. Mark Messages as Read
+    if (pathname === '/mark-read' && method === 'POST') {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body || '{}');
+                const { message_ids, mark_all } = data;
+                let count = 0;
+                unreadMessagesStore.forEach(m => {
+                    if (mark_all || (message_ids && message_ids.includes(m.message_id))) {
+                        if (!m.is_read) count++;
+                        m.is_read = true;
+                    }
+                });
+                return sendJson(200, {
+                    success: true,
+                    marked_count: count,
+                    remaining_unread: unreadMessagesStore.filter(m => !m.is_read).length
+                });
+            } catch (err) {
+                return sendJson(400, { success: false, error: err.message });
             }
         });
         return;

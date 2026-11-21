@@ -294,3 +294,41 @@ class WhatsAppClient:
             "status": "NOT_CONNECTED",
             "error": "WhatsApp is not connected. Scan QR code to link your office phone or configure gateway credentials."
         }
+
+    @classmethod
+    def get_unread_messages(cls) -> Dict[str, Any]:
+        """
+        Queries live unread messages from the Baileys bridge.
+        """
+        cls.ensure_bridge_running()
+        try:
+            req = urllib.request.Request(f"{BRIDGE_BASE_URL}/unread-messages")
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except Exception as e:
+            return {
+                "success": False,
+                "connected": False,
+                "count": 0,
+                "messages": [],
+                "error": str(e)
+            }
+
+    @classmethod
+    def mark_messages_read(cls, message_ids: Optional[List[str]] = None, mark_all: bool = False) -> Dict[str, Any]:
+        """
+        Marks messages as read in the bridge memory store.
+        """
+        cls.ensure_bridge_running()
+        try:
+            payload = json.dumps({"message_ids": message_ids or [], "mark_all": mark_all}).encode("utf-8")
+            req = urllib.request.Request(
+                f"{BRIDGE_BASE_URL}/mark-read",
+                data=payload,
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except Exception as e:
+            return {"success": False, "error": str(e)}

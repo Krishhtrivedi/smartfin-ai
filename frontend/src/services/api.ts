@@ -287,6 +287,9 @@ export const api = {
   selectWhatsAppGroup: (data: { group_id: string; group_name: string }) =>
     request<any>('/compliance/whatsapp/select-group', { method: 'POST', body: JSON.stringify(data) }),
   updateWhatsAppSchedule: (data: any) => request<any>('/compliance/whatsapp/schedule', { method: 'POST', body: JSON.stringify(data) }),
+  getWhatsAppUnreadMessages: () => request<any>('/compliance/whatsapp/unread-messages'),
+  markWhatsAppMessagesRead: (data: { message_ids?: number[]; mark_all?: boolean }) =>
+    request<any>('/compliance/whatsapp/messages/mark-read', { method: 'POST', body: JSON.stringify(data) }),
   getOfficeSummaryHistory: () => request<any[]>('/compliance/office-summary/history'),
   generateOfficeSummary: (data?: any) => request<any>('/compliance/office-summary/generate', { method: 'POST', body: JSON.stringify(data || {}) }),
   postOfficeSummaryToPmsc: (summaryId: number) => request<any>(`/compliance/office-summary/${summaryId}/post-to-pmsc`, { method: 'POST' }),

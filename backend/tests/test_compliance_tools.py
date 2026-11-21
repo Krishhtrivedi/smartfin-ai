@@ -1,5 +1,6 @@
 import uuid
 import pytest
+from datetime import datetime
 from fastapi.testclient import TestClient
 from app.main import app
 
@@ -213,3 +214,59 @@ def test_whatsapp_integration_and_pmsc_summary():
     hist = history_res.json()
     assert len(hist) > 0
     assert any(h["id"] == summary_id for h in hist)
+
+def test_whatsapp_unread_tracking_and_digest():
+    token = get_admin_token()
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # 1. Simulate incoming message webhook
+    msg_payload = {
+        "message_id": f"msg_test_{datetime.utcnow().timestamp()}",
+        "chat_jid": "919825012345@s.whatsapp.net",
+        "chat_name": "Adani Green Accounts",
+        "sender_jid": "919825012345@s.whatsapp.net",
+        "sender_name": "Karan Singhal",
+        "message_text": "Urgent: Please share Form 16 and GSTR-3B filed copy before 4 PM.",
+        "timestamp": datetime.utcnow().isoformat(),
+        "is_group": False
+    }
+    hook_res = client.post("/api/v1/compliance/whatsapp/incoming-webhook", json=msg_payload)
+    assert hook_res.status_code == 200
+    assert hook_res.json()["status"] == "STORED"
+
+    # 2. Query unread messages
+    unread_res = client.get("/api/v1/compliance/whatsapp/unread-messages", headers=headers)
+    assert unread_res.status_code == 200
+    unreads = unread_res.json()
+    assert unreads["count"] >= 1
+    found = [m for m in unreads["messages"] if m["message_id"] == msg_payload["message_id"]]
+    assert len(found) == 1
+    msg_db_id = found[0]["id"]
+    assert found[0]["sender_name"] == "Karan Singhal"
+
+    # 3. Generate Daily Summary - verifies Part 1 and Part 2 both present
+    gen_res = client.post(
+        "/api/v1/compliance/office-summary/generate",
+        json={"summary_date": "2026-11-21"},
+        headers=headers
+    )
+    assert gen_res.status_code == 200
+    data = gen_res.json()
+    assert "PART 1: EXECUTIVE BRIEFING & UNREAD SUMMARY" in data["formatted_text"]
+    assert "PART 2: UNREAD MESSAGES LOG" in data["formatted_text"]
+    assert "Karan Singhal" in data["formatted_text"]
+    assert data["unread_count"] >= 1
+
+    # 4. Mark Message as Read
+    mark_res = client.post(
+        "/api/v1/compliance/whatsapp/messages/mark-read",
+        json={"message_ids": [msg_db_id]},
+        headers=headers
+    )
+    assert mark_res.status_code == 200
+    assert mark_res.json()["success"] is True
+    assert mark_res.json()["marked_count"] == 1
+
+    # 5. Verify it is no longer unread
+    unread_after = client.get("/api/v1/compliance/whatsapp/unread-messages", headers=headers)
+    assert not any(m["id"] == msg_db_id for m in unread_after.json()["messages"])

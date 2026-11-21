@@ -70,7 +70,14 @@ def on_startup():
                 conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255);"))
                 conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires_at TIMESTAMP;"))
                 conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMP;"))
+                conn.execute(text("ALTER TABLE daily_office_summaries ADD COLUMN IF NOT EXISTS unread_messages_json TEXT;"))
                 conn.commit()
+            else:
+                try:
+                    conn.execute(text("ALTER TABLE daily_office_summaries ADD COLUMN unread_messages_json TEXT;"))
+                    conn.commit()
+                except Exception:
+                    pass
     except Exception as e:
         print(f"Startup migration notice: {e}")
 

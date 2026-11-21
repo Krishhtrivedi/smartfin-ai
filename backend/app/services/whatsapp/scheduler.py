@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
 from app.models.all_models import (
-    DailyOfficeSummary, StatutoryNotice, Invoice, AuditLog, User
+    DailyOfficeSummary, StatutoryNotice, Invoice, AuditLog, User, WhatsAppIncomingMessage
 )
 from app.services.whatsapp.client import WhatsAppClient
 
@@ -109,11 +109,48 @@ class PMSCWhatsAppScheduler:
 
         recent_audits = db.query(AuditLog).order_by(AuditLog.created_at.desc()).limit(15).all()
 
-        # Build clean Key Decisions
+        # 1b. Sync unread messages from WhatsApp bridge if available
+        try:
+            bridge_res = WhatsAppClient.get_unread_messages()
+            if bridge_res.get("messages"):
+                for bm in bridge_res["messages"]:
+                    mid = bm.get("message_id")
+                    if not mid:
+                        continue
+                    exists = db.query(WhatsAppIncomingMessage).filter(WhatsAppIncomingMessage.message_id == mid).first()
+                    if not exists:
+                        ts = datetime.utcnow()
+                        if bm.get("timestamp"):
+                            try:
+                                ts = datetime.fromisoformat(bm["timestamp"].replace("Z", "+00:00")).replace(tzinfo=None)
+                            except Exception:
+                                pass
+                        db.add(WhatsAppIncomingMessage(
+                            message_id=mid,
+                            chat_jid=bm.get("chat_jid", ""),
+                            chat_name=bm.get("chat_name", ""),
+                            sender_jid=bm.get("sender_jid", ""),
+                            sender_name=bm.get("sender_name", ""),
+                            message_text=bm.get("message_text", ""),
+                            message_timestamp=ts,
+                            is_group=bm.get("is_group", False),
+                            is_read=False
+                        ))
+                db.commit()
+        except Exception as sync_err:
+            print(f"[PMSC WhatsApp Scheduler] Bridge sync notice: {sync_err}")
+
+        # Fetch active unread messages
+        unread_msgs = db.query(WhatsAppIncomingMessage).filter(WhatsAppIncomingMessage.is_read == False).order_by(WhatsAppIncomingMessage.message_timestamp.asc()).all()
+
+        # Build clean Key Decisions & Client Updates
         key_decisions = []
         if custom_input and custom_input.get("key_decisions"):
             key_decisions = custom_input["key_decisions"]
         else:
+            if unread_msgs:
+                senders = list(dict.fromkeys(m.sender_name for m in unread_msgs if m.sender_name))
+                key_decisions.append(f"Tracked {len(unread_msgs)} unread client message(s) today across WhatsApp channels from {', '.join(senders[:3])}{' and others' if len(senders) > 3 else ''}.")
             if open_notices:
                 key_decisions.append(f"Reviewed {len(open_notices)} active statutory notices across Income Tax & GST.")
             key_decisions.append("Verified customer receivable ledger balances and aged receivables.")
@@ -124,6 +161,19 @@ class PMSCWhatsAppScheduler:
         if custom_input and custom_input.get("action_items"):
             action_items = custom_input["action_items"]
         else:
+            # Check for urgent items in unread messages
+            urgent_keywords = ("urgent", "immediately", "form 16", "gstr", "payment", "notice", "reconcile", "bill", "invoice", "refund")
+            for m in unread_msgs:
+                txt_lower = m.message_text.lower()
+                if any(kw in txt_lower for kw in urgent_keywords):
+                    action_items.append({
+                        "task": f"Reply to {m.sender_name}: '{m.message_text[:60]}...' ({m.chat_name})",
+                        "owner": "Operations Desk",
+                        "deadline": "Today"
+                    })
+                    if len(action_items) >= 2:
+                        break
+
             if critical_notices:
                 for n in critical_notices[:2]:
                     action_items.append({
@@ -131,17 +181,17 @@ class PMSCWhatsAppScheduler:
                         "owner": n.assigned_owner or "Biraju Bhai",
                         "deadline": str(n.due_date)
                     })
-            else:
+            if not action_items:
                 action_items.append({
                     "task": "Review and approve pending GSTR-1/3B filings for current period",
                     "owner": "Priya",
                     "deadline": "Today 5:00 PM"
                 })
-            action_items.append({
-                "task": "Follow up with client accounts team for Form 16 / TDS receipts",
-                "owner": "Operations Desk",
-                "deadline": "Tomorrow"
-            })
+                action_items.append({
+                    "task": "Follow up with client accounts team for Form 16 / TDS receipts",
+                    "owner": "Operations Desk",
+                    "deadline": "Tomorrow"
+                })
 
         # Build clean Blockers
         blockers = []
@@ -152,7 +202,7 @@ class PMSCWhatsAppScheduler:
                 blockers.append("Awaiting client ledger confirmation for high-risk statutory notice response.")
             blockers.append("Client bank statement pending for monthly reconciliation completion.")
 
-        # 2. Format with clean WhatsApp Typography
+        # 2. Format with clean WhatsApp Typography (Part 1 + Part 2)
         dt_obj = datetime.strptime(summary_date_str, "%Y-%m-%d")
         formatted_date = dt_obj.strftime("%d %b %Y")
 
@@ -160,13 +210,33 @@ class PMSCWhatsAppScheduler:
         actions_block = "\n".join([f"• *{a['task']}* ➔ @{a.get('owner', 'Team')} (Due: _{a.get('deadline', 'Pending')}_)" for a in action_items])
         blockers_block = "\n".join([f"• {b}" for b in blockers])
 
+        # Part 2: Unread Messages Item-by-Item Listing
+        if unread_msgs:
+            msg_lines = []
+            for idx, m in enumerate(unread_msgs, 1):
+                time_str = m.message_timestamp.strftime("%I:%M %p")
+                chat_info = f" ({m.chat_name})" if m.is_group and m.chat_name else ""
+                clean_preview = m.message_text.replace("\n", " ").strip()
+                if len(clean_preview) > 130:
+                    clean_preview = clean_preview[:127] + "..."
+                msg_lines.append(f"{idx}. *{m.sender_name}*{chat_info} [{time_str}]:\n   \"{clean_preview}\"")
+            unread_list_block = "\n".join(msg_lines)
+        else:
+            unread_list_block = "✅ No unread WhatsApp messages pending review. All client chats caught up."
+
         wa_text = (
-            f"📊 *SMARTFIN.AI — DAILY EXECUTIVE BRIEFING*\n"
+            f"📊 *SMARTFIN.AI — DAILY EXECUTIVE BRIEFING & UNREAD DIGEST*\n"
             f"📅 Date: *{formatted_date}* | Group: *Team PMSC*\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            f"📌 *KEY DECISIONS & CLIENT UPDATES:*\n{decisions_block}\n\n"
-            f"⚡ *ACTION ITEMS & OWNERS:*\n{actions_block}\n\n"
-            f"⚠️ *BLOCKERS & PENDING FOLLOW-UPS:*\n{blockers_block}\n\n"
+            f"📋 *PART 1: EXECUTIVE BRIEFING & UNREAD SUMMARY*\n"
+            f"────────────────────────────\n"
+            f"📌 *Key Decisions & Client Updates:*\n{decisions_block}\n\n"
+            f"⚡ *Action Items & Assigned Owners:*\n{actions_block}\n\n"
+            f"⚠️ *Urgent Matters & Blockers:*\n{blockers_block}\n\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"📬 *PART 2: UNREAD MESSAGES LOG ({len(unread_msgs)} Pending)*\n"
+            f"────────────────────────────\n"
+            f"{unread_list_block}\n\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
             f"_Automated by SMARTFIN.AI Executive Desk_"
         )
@@ -184,14 +254,29 @@ class PMSCWhatsAppScheduler:
             else:
                 dispatch_status = "FAILED"
 
+        unread_snapshot = [
+            {
+                "id": m.id,
+                "message_id": m.message_id,
+                "sender_name": m.sender_name,
+                "chat_name": m.chat_name,
+                "message_text": m.message_text,
+                "timestamp": m.message_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+                "formatted_time": m.message_timestamp.strftime("%I:%M %p"),
+                "is_group": m.is_group
+            }
+            for m in unread_msgs
+        ]
+
         summary = DailyOfficeSummary(
             summary_date=dt_obj.date(),
             team_name="Team PMSC",
-            raw_update_count=len(key_decisions) + len(action_items) + len(blockers) + 10,
-            filtered_noise_count=10,
+            raw_update_count=len(key_decisions) + len(action_items) + len(blockers) + len(unread_msgs),
+            filtered_noise_count=len(unread_msgs),
             key_decisions_json=json.dumps(key_decisions),
             action_items_json=json.dumps(action_items),
             blockers_json=json.dumps(blockers),
+            unread_messages_json=json.dumps(unread_snapshot),
             formatted_whatsapp_text=wa_text,
             dispatch_status=dispatch_status,
             posted_at=posted_at,

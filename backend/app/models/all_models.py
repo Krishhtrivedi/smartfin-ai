@@ -557,6 +557,23 @@ class DailyOfficeSummary(Base):
     dispatch_status = Column(String(30), default="GENERATED") # GENERATED, POSTED_TO_PMSC, FAILED
     posted_at = Column(DateTime, nullable=True)
     created_by_user_email = Column(String(255), default="admin@smartfin.ai")
+    unread_messages_json = Column(Text, nullable=True) # JSON snapshot of unread messages included in digest
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class WhatsAppIncomingMessage(Base):
+    __tablename__ = "whatsapp_incoming_messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    message_id = Column(String(100), unique=True, index=True, nullable=False)
+    chat_jid = Column(String(100), index=True, nullable=False)
+    chat_name = Column(String(255), nullable=True)
+    sender_jid = Column(String(100), nullable=True)
+    sender_name = Column(String(255), nullable=True)
+    message_text = Column(Text, nullable=False)
+    message_timestamp = Column(DateTime, nullable=False, default=datetime.utcnow)
+    is_group = Column(Boolean, default=False)
+    is_read = Column(Boolean, default=False, index=True)
+    reviewed_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class AIUsageMetric(Base):

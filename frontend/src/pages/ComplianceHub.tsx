@@ -31,7 +31,10 @@ import {
   Lock,
   QrCode,
   LogOut,
-  Smartphone
+  Smartphone,
+  Inbox,
+  ListChecks,
+  Eye
 } from 'lucide-react';
 import { api } from '../services/api';
 import { Modal } from '../components/common/Modal';
@@ -120,6 +123,11 @@ export const ComplianceHub: React.FC = () => {
   const [requestingPairingCode, setRequestingPairingCode] = useState(false);
   const [pairingCodeDisplay, setPairingCodeDisplay] = useState<string | null>(null);
   const [isPairingActive, setIsPairingActive] = useState(false);
+  const [unreadMessages, setUnreadMessages] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [loadingUnreads, setLoadingUnreads] = useState<boolean>(false);
+  const [markingRead, setMarkingRead] = useState<boolean>(false);
+  const [summaryViewTab, setSummaryViewTab] = useState<'FULL' | 'PARTS' | 'UNREAD_LIST'>('FULL');
 
   // ==========================================
   // 7. Skill-Set Tools State
@@ -152,6 +160,7 @@ export const ComplianceHub: React.FC = () => {
   useEffect(() => {
     if (activeTab === 'whatsapp_pmsc') {
       fetchWaStatus();
+      fetchUnreadMessages();
     }
   }, [activeTab]);
 
@@ -413,10 +422,42 @@ export const ComplianceHub: React.FC = () => {
       const res = await api.generateOfficeSummary(payload);
       setSummaryData(res);
       await fetchSummaryHistory();
+      await fetchUnreadMessages();
     } catch (err: any) {
       alert(`Failed to synthesize office summary: ${err.message}`);
     } finally {
       setGeneratingSummary(false);
+    }
+  };
+
+  const fetchUnreadMessages = async () => {
+    setLoadingUnreads(true);
+    try {
+      const res = await api.getWhatsAppUnreadMessages();
+      setUnreadMessages(res?.messages || []);
+      setUnreadCount(res?.count || 0);
+    } catch (e) {
+      console.error('Failed to fetch unread WhatsApp messages:', e);
+    } finally {
+      setLoadingUnreads(false);
+    }
+  };
+
+  const handleMarkAsRead = async (messageIds?: number[], markAll?: boolean) => {
+    setMarkingRead(true);
+    try {
+      await api.markWhatsAppMessagesRead({
+        message_ids: messageIds,
+        mark_all: markAll
+      });
+      await fetchUnreadMessages();
+      if (summaryData) {
+        handleGenerateOfficeSummary();
+      }
+    } catch (e: any) {
+      alert(`Failed to mark read: ${e.message}`);
+    } finally {
+      setMarkingRead(false);
     }
   };
 
@@ -1567,6 +1608,109 @@ export const ComplianceHub: React.FC = () => {
             </div>
           </div>
 
+          {/* ========================================================= */}
+          {/* LIVE INCOMING WHATSAPP CLIENT MESSAGES & UNREAD TRACKER  */}
+          {/* ========================================================= */}
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3">
+              <div className="space-y-0.5">
+                <div className="flex items-center space-x-2">
+                  <span className="p-1 rounded-md bg-emerald-100 text-emerald-800">
+                    <Inbox className="w-3.5 h-3.5" />
+                  </span>
+                  <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
+                    Incoming Client Messages & Unread Tracker
+                  </h4>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                    unreadCount > 0 ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-emerald-100 text-emerald-800'
+                  }`}>
+                    {unreadCount} Unread
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  Tracks incoming WhatsApp client chats throughout the day. Automatically synthesizes key updates and includes full unread details in the daily briefing.
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={fetchUnreadMessages}
+                  disabled={loadingUnreads}
+                  className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${loadingUnreads ? 'animate-spin text-emerald-600' : ''}`} />
+                  <span>Refresh</span>
+                </button>
+
+                {unreadCount > 0 && (
+                  <button
+                    onClick={() => handleMarkAsRead(undefined, true)}
+                    disabled={markingRead}
+                    className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-colors disabled:opacity-50"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>{markingRead ? 'Updating...' : 'Mark All as Read'}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Display state based on connection and unread count */}
+            {!waStatus?.is_connected ? (
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 text-xs flex items-center space-x-3">
+                <WifiOff className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                <div>
+                  <span className="font-semibold text-slate-700">WhatsApp Not Connected: </span>
+                  <span>Link your office WhatsApp above to capture live incoming client messages and unread digests. No dummy messages are simulated.</span>
+                </div>
+              </div>
+            ) : unreadMessages.length === 0 ? (
+              <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200 text-emerald-800 text-xs flex items-center space-x-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                <div>
+                  <span className="font-bold">All Caught Up! </span>
+                  <span>No unread WhatsApp messages pending review. New messages will automatically appear here as clients text the office.</span>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                {unreadMessages.map((m) => (
+                  <div
+                    key={m.id}
+                    className="p-3 bg-slate-50/80 hover:bg-slate-100/70 rounded-lg border border-slate-200 flex items-start justify-between gap-3 transition-colors text-xs"
+                  >
+                    <div className="space-y-1 flex-1 min-w-0">
+                      <div className="flex items-center space-x-2">
+                        <span className="font-bold text-navy-950 truncate">{m.sender_name}</span>
+                        {m.is_group && (
+                          <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-600 font-mono text-[9px]">
+                            Group: {m.chat_name}
+                          </span>
+                        )}
+                        <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+                          <Clock className="w-2.5 h-2.5" />
+                          {m.formatted_time || m.timestamp}
+                        </span>
+                      </div>
+                      <p className="text-slate-700 font-sans leading-relaxed break-words bg-white p-2 rounded border border-slate-200/80">
+                        "{m.message_text}"
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => handleMarkAsRead([m.id], false)}
+                      disabled={markingRead}
+                      title="Mark this message as reviewed"
+                      className="p-1.5 hover:bg-emerald-100 text-slate-400 hover:text-emerald-700 rounded-md transition-colors flex-shrink-0"
+                    >
+                      <Check className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Generator Input & Action Box */}
           <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
@@ -1606,27 +1750,141 @@ export const ComplianceHub: React.FC = () => {
           {/* Active Summary Live Preview & Dispatch Card */}
           {summaryData && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* WhatsApp Live Typography Preview */}
+              {/* WhatsApp Live Typography Preview & Detailed Sub-Tabs */}
               <div className="lg:col-span-7 bg-[#EFEAE2] p-5 rounded-xl border border-slate-300 space-y-3 font-mono text-xs text-slate-900 shadow-inner">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-300">
-                  <span className="text-[11px] font-bold text-emerald-800 font-sans flex items-center gap-1.5">
-                    <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>WhatsApp Live Bubble (Target: {selectedGroupName})</span>
-                  </span>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(summaryData.formatted_text);
-                      alert('Formatted summary copied to clipboard.');
-                    }}
-                    className="text-[10px] bg-white px-2 py-0.5 rounded text-slate-600 hover:bg-slate-50 border border-slate-200 flex items-center gap-1 font-sans font-semibold"
-                  >
-                    <Copy className="w-3 h-3" />
-                    <span>Copy Text</span>
-                  </button>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-300 gap-2">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-[11px] font-bold text-emerald-800 font-sans flex items-center gap-1.5">
+                      <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>WhatsApp Preview ({selectedGroupName})</span>
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-sans font-bold">
+                      {summaryData.unread_count || 0} Unread Included
+                    </span>
+                  </div>
+
+                  <div className="flex items-center space-x-1 font-sans">
+                    <button
+                      type="button"
+                      onClick={() => setSummaryViewTab('FULL')}
+                      className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors ${
+                        summaryViewTab === 'FULL' ? 'bg-white text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Complete Bubble (Part 1 & 2)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSummaryViewTab('PARTS')}
+                      className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors ${
+                        summaryViewTab === 'PARTS' ? 'bg-white text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Part 1: Summary
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSummaryViewTab('UNREAD_LIST')}
+                      className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors ${
+                        summaryViewTab === 'UNREAD_LIST' ? 'bg-white text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Part 2: Unread List ({summaryData.unread_count || 0})
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(summaryData.formatted_text);
+                        alert('Formatted summary copied to clipboard.');
+                      }}
+                      className="text-[10px] bg-white px-2 py-1 rounded text-slate-600 hover:bg-slate-50 border border-slate-200 flex items-center gap-1 font-semibold ml-1"
+                    >
+                      <Copy className="w-3 h-3" />
+                      <span>Copy</span>
+                    </button>
+                  </div>
                 </div>
-                <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-slate-800 bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
-                  {summaryData.formatted_text}
-                </pre>
+
+                {/* Sub-Tab 1: Complete WhatsApp Preformatted Bubble */}
+                {summaryViewTab === 'FULL' && (
+                  <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-slate-800 bg-white p-4 rounded-lg border border-slate-200 shadow-xs max-h-[460px] overflow-y-auto">
+                    {summaryData.formatted_text}
+                  </pre>
+                )}
+
+                {/* Sub-Tab 2: Part 1 Executive Briefing Breakdown */}
+                {summaryViewTab === 'PARTS' && (
+                  <div className="space-y-3 font-sans max-h-[460px] overflow-y-auto pr-1">
+                    <div className="p-3.5 bg-white rounded-lg border border-slate-200 space-y-2">
+                      <h5 className="text-[11px] font-bold text-navy-950 uppercase tracking-wider flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-brand-600" />
+                        <span>Key Decisions & Client Updates</span>
+                      </h5>
+                      <ul className="space-y-1 text-xs text-slate-700 pl-4 list-disc">
+                        {summaryData.key_decisions?.map((kd: string, idx: number) => (
+                          <li key={idx}>{kd}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="p-3.5 bg-white rounded-lg border border-slate-200 space-y-2">
+                      <h5 className="text-[11px] font-bold text-navy-950 uppercase tracking-wider flex items-center gap-1.5">
+                        <ListChecks className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Action Items & Assigned Owners</span>
+                      </h5>
+                      <div className="space-y-1.5">
+                        {summaryData.action_items?.map((ai: any, idx: number) => (
+                          <div key={idx} className="p-2 bg-slate-50 rounded border border-slate-100 flex items-center justify-between text-xs">
+                            <span className="font-semibold text-slate-800">{ai.task}</span>
+                            <span className="text-[11px] font-mono text-slate-500">
+                              @{ai.owner} • {ai.deadline}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 bg-white rounded-lg border border-slate-200 space-y-2">
+                      <h5 className="text-[11px] font-bold text-navy-950 uppercase tracking-wider flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+                        <span>Blockers & Pending Follow-Ups</span>
+                      </h5>
+                      <ul className="space-y-1 text-xs text-slate-700 pl-4 list-disc">
+                        {summaryData.blockers?.map((b: string, idx: number) => (
+                          <li key={idx}>{b}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
+                {/* Sub-Tab 3: Part 2 Unread Messages Itemized Detail */}
+                {summaryViewTab === 'UNREAD_LIST' && (
+                  <div className="space-y-2 font-sans max-h-[460px] overflow-y-auto pr-1">
+                    {!summaryData.unread_messages || summaryData.unread_messages.length === 0 ? (
+                      <div className="p-6 bg-white rounded-lg border border-slate-200 text-center space-y-1 text-slate-500">
+                        <CheckCircle2 className="w-6 h-6 text-emerald-600 mx-auto" />
+                        <p className="font-semibold text-xs text-navy-950">No Unread Messages Included</p>
+                        <p className="text-[11px]">All client chats were caught up prior to summary generation.</p>
+                      </div>
+                    ) : (
+                      summaryData.unread_messages.map((m: any, idx: number) => (
+                        <div key={m.id || idx} className="p-3 bg-white rounded-lg border border-slate-200 space-y-1 text-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-navy-950">
+                              {idx + 1}. {m.sender_name} {m.chat_name && m.is_group ? `(${m.chat_name})` : ''}
+                            </span>
+                            <span className="text-[10px] font-mono text-slate-400">
+                              {m.formatted_time || m.timestamp}
+                            </span>
+                          </div>
+                          <p className="text-slate-700 bg-slate-50 p-2 rounded border border-slate-100 italic">
+                            "{m.message_text}"
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Action Sidebar */}
@@ -1646,6 +1904,10 @@ export const ComplianceHub: React.FC = () => {
                   <div className="flex justify-between">
                     <span className="text-slate-500">Target Channel:</span>
                     <span className="font-bold text-emerald-700">{selectedGroupName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Unread Included:</span>
+                    <span className="font-bold text-slate-900">{summaryData.unread_count || 0} Messages</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Dispatch Status:</span>
@@ -1746,6 +2008,7 @@ export const ComplianceHub: React.FC = () => {
                   <tr>
                     <th className="py-2.5 px-3">Date</th>
                     <th className="py-2.5 px-3">Target Group</th>
+                    <th className="py-2.5 px-3">Unread Included</th>
                     <th className="py-2.5 px-3">Dispatch Status</th>
                     <th className="py-2.5 px-3">Sent / Logged At</th>
                     <th className="py-2.5 px-3">Triggered By</th>
@@ -1754,7 +2017,7 @@ export const ComplianceHub: React.FC = () => {
                 <tbody className="divide-y divide-slate-100">
                   {summaryHistory.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="py-8 text-center text-slate-400 font-sans">
+                      <td colSpan={6} className="py-8 text-center text-slate-400 font-sans">
                         No delivery logs recorded yet. Click "Generate Today's Summary" to start.
                       </td>
                     </tr>
@@ -1763,6 +2026,11 @@ export const ComplianceHub: React.FC = () => {
                       <tr key={item.id} className="hover:bg-slate-50">
                         <td className="py-2.5 px-3 font-bold text-slate-900">{item.summary_date}</td>
                         <td className="py-2.5 px-3 text-emerald-800 font-bold">{item.team_name}</td>
+                        <td className="py-2.5 px-3">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-100 text-slate-700 font-bold">
+                            {item.unread_count || 0} msgs
+                          </span>
+                        </td>
                         <td className="py-2.5 px-3">
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                             item.dispatch_status === 'POSTED_TO_PMSC'
