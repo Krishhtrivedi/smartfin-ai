@@ -272,9 +272,13 @@ export const api = {
   saveCapitalGains: (data: any) => request<any>('/compliance/capital-gains/save', { method: 'POST', body: JSON.stringify(data) }),
   getCapitalGains: () => request<any[]>('/compliance/capital-gains/records'),
 
-  // 7. Daily Office WhatsApp Summary (Team PMSC) & Gateway
-  getWhatsAppConfig: () => request<any>('/compliance/whatsapp/config'),
-  testWhatsAppConnection: () => request<any>('/compliance/whatsapp/test-connection', { method: 'POST' }),
+  // 7. Daily Office WhatsApp Summary (Team PMSC) & Real Baileys / Gateway
+  getWhatsAppStatus: () => request<any>('/compliance/whatsapp/status'),
+  startWhatsAppQRSession: () => request<any>('/compliance/whatsapp/session/start', { method: 'POST' }),
+  logoutWhatsAppSession: () => request<any>('/compliance/whatsapp/session/logout', { method: 'POST' }),
+  getWhatsAppGroups: () => request<any>('/compliance/whatsapp/groups'),
+  selectWhatsAppGroup: (data: { group_id: string; group_name: string }) =>
+    request<any>('/compliance/whatsapp/select-group', { method: 'POST', body: JSON.stringify(data) }),
   updateWhatsAppSchedule: (data: any) => request<any>('/compliance/whatsapp/schedule', { method: 'POST', body: JSON.stringify(data) }),
   getOfficeSummaryHistory: () => request<any[]>('/compliance/office-summary/history'),
   generateOfficeSummary: (data?: any) => request<any>('/compliance/office-summary/generate', { method: 'POST', body: JSON.stringify(data || {}) }),

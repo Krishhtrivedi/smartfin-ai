@@ -19,10 +19,17 @@ ENV PORT=8000
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \
+    curl \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
 
 COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Baileys WhatsApp Bridge dependencies
+COPY backend/whatsapp_bridge/package*.json ./backend/whatsapp_bridge/
+RUN cd backend/whatsapp_bridge && npm install --omit=dev
 
 COPY backend/ ./backend/
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist

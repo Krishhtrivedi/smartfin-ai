@@ -749,34 +749,122 @@ def get_capital_gain_records(db: Session = Depends(get_db), current_user: User =
 
 
 # ==============================================================================
-# 7. DAILY OFFICE WHATSAPP SUMMARY TO TEAM PMSC GROUP & SCHEDULER
+# 7. DAILY OFFICE WHATSAPP SUMMARY TO TEAM PMSC GROUP & DIRECT BAILEYS SESSION
 # ==============================================================================
 
-@router.get("/whatsapp/config")
-def get_whatsapp_configuration(
+@router.get("/whatsapp/status")
+def get_whatsapp_live_status(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Returns current WhatsApp connection and schedule configuration (secrets masked).
+    Returns true live WhatsApp session and gateway status (Connected phone, QR code if scanning, selected group).
+    Never fakes connected status.
     """
-    return WhatsAppClient.get_env_config()
+    return WhatsAppClient.get_live_status()
+
+@router.get("/whatsapp/config")
+def get_whatsapp_config(
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Returns current WhatsApp configuration & live status for dashboard compatibility.
+    """
+    status = WhatsAppClient.get_live_status()
+    scheduler = PMSCWhatsAppScheduler.get_instance()
+    sched_cfg = scheduler.get_config()
+    return {
+        "status": status.get("state", "DISCONNECTED"),
+        "is_configured": status.get("can_send", False),
+        "details": status,
+        "schedule": sched_cfg
+    }
 
 @router.post("/whatsapp/test-connection")
-def test_whatsapp_gateway_connection(
+def test_whatsapp_connection(
     request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_role(["admin"]))
 ):
     """
-    Tests live HTTP reachability and authorization of configured WhatsApp API gateway.
+    Tests live WhatsApp connection. Returns true success only if phone or gateway is connected.
     """
-    result = WhatsAppClient.test_connection()
+    status = WhatsAppClient.get_live_status()
+    can_send = status.get("can_send", False)
+    return {
+        "success": can_send,
+        "status": status.get("state", "DISCONNECTED"),
+        "message": "Office WhatsApp connected" if can_send else "WhatsApp not connected. Scan QR code to link device.",
+        "details": status
+    }
+
+@router.post("/whatsapp/session/start")
+def start_whatsapp_qr_session(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"]))
+):
+    """
+    Initializes Baileys WhatsApp Web socket and generates real QR code to scan with office phone.
+    """
+    result = WhatsAppClient.start_qr_session()
     log_audit_event(
-        db, current_user, "TEST_WHATSAPP_GATEWAY", "SystemIntegration", "WhatsAppGateway",
-        {"status": result.get("status"), "latency_ms": result.get("latency_ms")},
+        db, current_user, "START_WHATSAPP_QR_SESSION", "SystemIntegration", "WhatsAppBridge",
+        {"status": result.get("status")},
         request=request
     )
     return result
+
+@router.post("/whatsapp/session/logout")
+def logout_whatsapp_session(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"]))
+):
+    """
+    Disconnects and unlinks office WhatsApp device.
+    """
+    result = WhatsAppClient.logout_session()
+    log_audit_event(
+        db, current_user, "LOGOUT_WHATSAPP_SESSION", "SystemIntegration", "WhatsAppBridge",
+        {"success": result.get("success")},
+        request=request
+    )
+    return result
+
+@router.get("/whatsapp/groups")
+def get_whatsapp_joined_groups(
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Queries real joined WhatsApp groups from user's linked WhatsApp account.
+    """
+    result = WhatsAppClient.fetch_groups()
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result.get("error", "Failed to fetch groups"))
+    return result
+
+@router.post("/whatsapp/select-group")
+def select_whatsapp_pmsc_group(
+    payload: Dict[str, Any],
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"]))
+):
+    """
+    Sets the target 'Team PMSC' group ID and name for broadcasts and daily auto-scheduler.
+    """
+    group_id = str(payload.get("group_id", "")).strip()
+    group_name = str(payload.get("group_name", "Team PMSC")).strip()
+    if not group_id:
+        raise HTTPException(status_code=400, detail="Group ID is required")
+        
+    saved = WhatsAppClient.set_selected_group(group_id, group_name)
+    log_audit_event(
+        db, current_user, "SELECT_PMSC_WHATSAPP_GROUP", "DailyOfficeSummary", group_id,
+        {"name": group_name, "id": group_id},
+        request=request
+    )
+    return {"message": f"Target group set to '{group_name}' ({group_id})", "selected_group": saved}
 
 @router.post("/whatsapp/schedule")
 def update_whatsapp_schedule(
@@ -873,40 +961,57 @@ def post_summary_to_pmsc(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Dispatches the generated summary directly to the Team PMSC WhatsApp group via WhatsApp Gateway.
+    STRICT REAL-SEND ENFORCEMENT:
+    Dispatches directly through verified WhatsApp session or gateway to real Team PMSC group.
+    Fails explicitly if disconnected. Never simulates delivery.
     """
     summary = db.query(DailyOfficeSummary).filter(DailyOfficeSummary.id == summary_id).first()
     if not summary:
         raise HTTPException(status_code=404, detail="Summary not found")
         
-    # Dispatch via WhatsApp integration layer
-    send_result = WhatsAppClient.send_message_to_pmsc(summary.formatted_whatsapp_text)
+    status = WhatsAppClient.get_live_status()
+    if not status.get("can_send"):
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot send message: WhatsApp is not connected. Please scan QR code to link your office phone or configure gateway credentials."
+        )
+
+    # Dispatch strictly via real connection
+    send_result = WhatsAppClient.send_real_message(summary.formatted_whatsapp_text)
     
     if send_result.get("success"):
         summary.dispatch_status = "POSTED_TO_PMSC"
         summary.posted_at = datetime.utcnow()
-    elif send_result.get("status") == "NOT_CONFIGURED":
-        summary.dispatch_status = "NOT_CONFIGURED_STORED"
+        db.commit()
+        
+        log_audit_event(
+            db, current_user, "DISPATCH_PMSC_WHATSAPP_UPDATE", "DailyOfficeSummary", str(summary.id),
+            {
+                "target_group": send_result.get("target_group"),
+                "delivery_mode": send_result.get("delivery_mode"),
+                "message_id": send_result.get("message_id"),
+                "status": "SUCCESS"
+            },
+            request=request
+        )
+        return {
+            "message": "Executive briefing successfully delivered to Team PMSC WhatsApp Group.",
+            "status": summary.dispatch_status,
+            "message_id": send_result.get("message_id"),
+            "target_group": send_result.get("target_group"),
+            "send_result": send_result
+        }
     else:
         summary.dispatch_status = "FAILED"
+        db.commit()
         
-    db.commit()
-    
-    log_audit_event(
-        db, current_user, "DISPATCH_PMSC_WHATSAPP_UPDATE", "DailyOfficeSummary", str(summary.id),
-        {
-            "target_group": "Team PMSC",
-            "dispatch_status": summary.dispatch_status,
-            "send_result": send_result
-        },
-        request=request
-    )
-    
-    return {
-        "message": "Briefing dispatched to Team PMSC WhatsApp Group" if send_result.get("success") else send_result.get("message", "Dispatch attempt recorded"),
-        "status": summary.dispatch_status,
-        "send_result": send_result
-    }
+        err_msg = send_result.get("error", "Transmission failed on WhatsApp Gateway")
+        log_audit_event(
+            db, current_user, "DISPATCH_PMSC_WHATSAPP_FAILED", "DailyOfficeSummary", str(summary.id),
+            {"error": err_msg, "status": "FAILED"},
+            request=request
+        )
+        raise HTTPException(status_code=502, detail=f"WhatsApp delivery failed: {err_msg}")
 
 
 # ==============================================================================

@@ -27,7 +27,11 @@ import {
   Copy,
   Check,
   Settings,
-  Radio
+  Radio,
+  Lock,
+  QrCode,
+  LogOut,
+  Smartphone
 } from 'lucide-react';
 import { api } from '../services/api';
 import { Modal } from '../components/common/Modal';
@@ -89,15 +93,19 @@ export const ComplianceHub: React.FC = () => {
   const [cgRecords, setCgRecords] = useState<any[]>([]);
 
   // ==========================================
-  // 6. Daily Office WhatsApp Summary State
+  // 6. Daily Office WhatsApp Summary State & Direct Baileys
   // ==========================================
   const [summaryData, setSummaryData] = useState<any | null>(null);
   const [generatingSummary, setGeneratingSummary] = useState(false);
   const [postingToPmsc, setPostingToPmsc] = useState(false);
-  const [waConfig, setWaConfig] = useState<any | null>(null);
-  const [loadingWaConfig, setLoadingWaConfig] = useState(false);
-  const [testingConnection, setTestingConnection] = useState(false);
-  const [testResult, setTestResult] = useState<any | null>(null);
+  const [waStatus, setWaStatus] = useState<any | null>(null);
+  const [loadingWaStatus, setLoadingWaStatus] = useState(false);
+  const [startingQRSession, setStartingQRSession] = useState(false);
+  const [loggingOutSession, setLoggingOutSession] = useState(false);
+  const [waGroups, setWaGroups] = useState<any[]>([]);
+  const [loadingGroups, setLoadingGroups] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState('');
+  const [selectedGroupName, setSelectedGroupName] = useState('Team PMSC');
   const [scheduleEnabled, setScheduleEnabled] = useState(true);
   const [scheduleTime, setScheduleTime] = useState('18:30');
   const [savingSchedule, setSavingSchedule] = useState(false);
@@ -105,6 +113,8 @@ export const ComplianceHub: React.FC = () => {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [rawNotesInput, setRawNotesInput] = useState('');
   const [copiedEnv, setCopiedEnv] = useState(false);
+  const [realSendError, setRealSendError] = useState<string | null>(null);
+  const [realSendSuccess, setRealSendSuccess] = useState<any | null>(null);
 
   // ==========================================
   // 7. Skill-Set Tools State
@@ -130,23 +140,46 @@ export const ComplianceHub: React.FC = () => {
     fetchItrCases();
     fetchArchivePackages();
     fetchCgRecords();
-    fetchWaConfig();
+    fetchWaStatus();
     fetchSummaryHistory();
   }, []);
 
-  const fetchWaConfig = async () => {
-    setLoadingWaConfig(true);
+  useEffect(() => {
+    if (activeTab === 'whatsapp_pmsc') {
+      fetchWaStatus();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    let interval: any = null;
+    if (activeTab === 'whatsapp_pmsc' && waStatus?.state === 'AWAITING_QR') {
+      interval = setInterval(async () => {
+        const s = await fetchWaStatus();
+        if (s?.is_connected) {
+          clearInterval(interval);
+          handleFetchGroups();
+        }
+      }, 3000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [activeTab, waStatus?.state]);
+
+  const fetchWaStatus = async () => {
+    setLoadingWaStatus(true);
     try {
-      const cfg = await api.getWhatsAppConfig();
-      setWaConfig(cfg);
-      if (cfg?.schedule) {
-        setScheduleEnabled(cfg.schedule.enabled);
-        setScheduleTime(cfg.schedule.time_ist);
+      const status = await api.getWhatsAppStatus();
+      setWaStatus(status);
+      if (status?.selected_group?.id) {
+        setSelectedGroupId(status.selected_group.id);
+        setSelectedGroupName(status.selected_group.name || 'Team PMSC');
       }
+      return status;
     } catch (e) {
-      console.error(e);
+      console.error('Failed to get WhatsApp status:', e);
     } finally {
-      setLoadingWaConfig(false);
+      setLoadingWaStatus(false);
     }
   };
 
@@ -346,26 +379,12 @@ export const ComplianceHub: React.FC = () => {
   };
 
   // 6. WhatsApp Daily Summary Action
-  const handleTestConnection = async () => {
-    setTestingConnection(true);
-    setTestResult(null);
-    try {
-      const res = await api.testWhatsAppConnection();
-      setTestResult(res);
-      await fetchWaConfig();
-    } catch (err: any) {
-      setTestResult({ success: false, status: 'ERROR', message: err.message });
-    } finally {
-      setTestingConnection(false);
-    }
-  };
-
   const handleSaveSchedule = async () => {
     setSavingSchedule(true);
     try {
       const res = await api.updateWhatsAppSchedule({ enabled: scheduleEnabled, time_ist: scheduleTime });
       alert(res.message || 'Auto-scheduler updated successfully.');
-      await fetchWaConfig();
+      await fetchWaStatus();
     } catch (err: any) {
       alert(`Failed to save schedule: ${err.message}`);
     } finally {
@@ -390,16 +409,82 @@ export const ComplianceHub: React.FC = () => {
     }
   };
 
+  const handleStartQRScan = async () => {
+    setStartingQRSession(true);
+    setRealSendError(null);
+    try {
+      await api.startWhatsAppQRSession();
+      await fetchWaStatus();
+    } catch (err: any) {
+      alert(`Failed to start WhatsApp pairing session: ${err.message}`);
+    } finally {
+      setStartingQRSession(false);
+    }
+  };
+
+  const handleLogoutSession = async () => {
+    if (!window.confirm('Are you sure you want to unlink and log out this WhatsApp device?')) return;
+    setLoggingOutSession(true);
+    try {
+      await api.logoutWhatsAppSession();
+      await fetchWaStatus();
+      setWaGroups([]);
+      alert('WhatsApp device unlinked successfully.');
+    } catch (err: any) {
+      alert(`Failed to unlink session: ${err.message}`);
+    } finally {
+      setLoggingOutSession(false);
+    }
+  };
+
+  const handleFetchGroups = async () => {
+    setLoadingGroups(true);
+    try {
+      const res = await api.getWhatsAppGroups();
+      if (res?.groups) {
+        setWaGroups(res.groups);
+        const pmsc = res.groups.find((g: any) => g.is_pmsc || g.name.toLowerCase().includes('pmsc'));
+        if (pmsc && (!selectedGroupId || selectedGroupId === 'DEFAULT_PMSC_GROUP')) {
+          await handleSelectGroup(pmsc.id, pmsc.name);
+        }
+      }
+    } catch (err: any) {
+      console.warn(`Could not fetch WhatsApp groups: ${err.message}`);
+    } finally {
+      setLoadingGroups(false);
+    }
+  };
+
+  const handleSelectGroup = async (groupId: string, groupName: string) => {
+    try {
+      await api.selectWhatsAppGroup({ group_id: groupId, group_name: groupName });
+      setSelectedGroupId(groupId);
+      setSelectedGroupName(groupName);
+      await fetchWaStatus();
+    } catch (err: any) {
+      alert(`Failed to save target group: ${err.message}`);
+    }
+  };
+
   const handlePostToPmsc = async () => {
     if (!summaryData) return;
+    if (!waStatus?.can_send) {
+      alert('Cannot send message: Real WhatsApp session is disconnected. Please scan the QR code to link your office phone or configure gateway credentials.');
+      return;
+    }
     setPostingToPmsc(true);
+    setRealSendError(null);
+    setRealSendSuccess(null);
     try {
       const res = await api.postOfficeSummaryToPmsc(summaryData.summary_id);
       setSummaryData({ ...summaryData, posted: true, dispatch_status: res.status });
+      setRealSendSuccess(res);
       await fetchSummaryHistory();
-      alert(res.message || 'Executive briefing dispatched to Team PMSC WhatsApp Group.');
+      alert(`Real WhatsApp message dispatched successfully to "${selectedGroupName}"!\nMessage ID: ${res.message_id || 'Delivered'}`);
     } catch (err: any) {
-      alert(`Failed to post: ${err.message}`);
+      const errMsg = err.message || 'Transmission failed';
+      setRealSendError(errMsg);
+      alert(`WhatsApp Delivery Failed: ${errMsg}`);
     } finally {
       setPostingToPmsc(false);
     }
@@ -1081,7 +1166,7 @@ export const ComplianceHub: React.FC = () => {
       {/* ============================================================== */}
       {activeTab === 'whatsapp_pmsc' && (
         <div className="space-y-6">
-          {/* Top Status & Gateway Control Card */}
+          {/* Top Live Connection & Device Pairing Card */}
           <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
               <div>
@@ -1089,100 +1174,170 @@ export const ComplianceHub: React.FC = () => {
                   <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold uppercase tracking-wider">
                     Automated WhatsApp Pipeline
                   </span>
-                  <span className="text-xs font-mono text-slate-400">| Target: Team PMSC Group</span>
+                  <span className="text-xs font-mono text-slate-400">| Strict Real-Transmission Mode</span>
                 </div>
                 <h3 className="text-sm font-bold text-navy-950 mt-1 flex items-center gap-1.5">
                   <MessageSquare className="w-4 h-4 text-emerald-600" />
-                  <span>Daily Office Executive Summary & Auto-Scheduler</span>
+                  <span>Office WhatsApp Connection & Executive Dispatch</span>
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Synthesizes daily office decisions, statutory deadlines & blockers and delivers directly to the "Team PMSC" WhatsApp group.
+                  Links directly with office WhatsApp to dispatch daily executive briefings to the "Team PMSC" group without simulations or third-party markups.
                 </p>
               </div>
 
-              {/* Live Connection Badge & Test Button */}
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono">
-                  {waConfig?.is_configured ? (
+              {/* Real Connection Status Badge & Actions */}
+              <div className="flex items-center space-x-2.5">
+                <div className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono ${
+                  waStatus?.is_connected
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : waStatus?.state === 'AWAITING_QR'
+                    ? 'bg-amber-50 border-amber-200 text-amber-800 animate-pulse'
+                    : 'bg-slate-50 border-slate-200 text-slate-600'
+                }`}>
+                  {waStatus?.is_connected ? (
                     <>
-                      <Wifi className="w-3.5 h-3.5 text-emerald-600" />
-                      <span className="font-bold text-emerald-700">GATEWAY CONNECTED</span>
+                      <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="font-bold">LINKED: {waStatus.connected_user?.id || 'Office Phone'}</span>
+                    </>
+                  ) : waStatus?.state === 'AWAITING_QR' ? (
+                    <>
+                      <QrCode className="w-3.5 h-3.5 text-amber-600" />
+                      <span className="font-bold">AWAITING QR SCAN</span>
                     </>
                   ) : (
                     <>
-                      <WifiOff className="w-3.5 h-3.5 text-amber-600" />
-                      <span className="font-bold text-amber-700">NOT CONFIGURED</span>
+                      <WifiOff className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="font-bold">DISCONNECTED</span>
                     </>
                   )}
                 </div>
 
                 <button
-                  onClick={handleTestConnection}
-                  disabled={testingConnection}
-                  className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-colors disabled:opacity-50"
+                  onClick={fetchWaStatus}
+                  disabled={loadingWaStatus}
+                  title="Refresh Connection Status"
+                  className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded-lg transition-colors disabled:opacity-50"
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 ${testingConnection ? 'animate-spin' : ''}`} />
-                  <span>{testingConnection ? 'Testing...' : 'Test Connection'}</span>
+                  <RefreshCw className={`w-4 h-4 ${loadingWaStatus ? 'animate-spin' : ''}`} />
                 </button>
+
+                {waStatus?.is_connected && (
+                  <button
+                    onClick={handleLogoutSession}
+                    disabled={loggingOutSession}
+                    className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-colors disabled:opacity-50"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>{loggingOutSession ? 'Unlinking...' : 'Unlink Device'}</span>
+                  </button>
+                )}
               </div>
             </div>
 
-            {/* Test Connection Result Alert */}
-            {testResult && (
-              <div className={`p-3 rounded-lg border text-xs flex items-center justify-between ${
-                testResult.success
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                  : testResult.status === 'NOT_CONFIGURED'
-                  ? 'bg-amber-50 border-amber-200 text-amber-800'
-                  : 'bg-rose-50 border-rose-200 text-rose-800'
-              }`}>
-                <div className="flex items-center space-x-2">
-                  {testResult.success ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                  ) : (
-                    <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                  )}
-                  <span>{testResult.message}</span>
+            {/* AWAITING QR CODE SCAN BOX */}
+            {waStatus?.state === 'AWAITING_QR' && waStatus?.qr_code && (
+              <div className="p-6 bg-gradient-to-b from-amber-50/80 to-white rounded-xl border border-amber-200 space-y-4 text-center">
+                <div className="max-w-md mx-auto space-y-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold tracking-wide">
+                    <QrCode className="w-3.5 h-3.5 text-amber-700" />
+                    <span>Scan with Office WhatsApp Phone</span>
+                  </span>
+                  <h4 className="text-sm font-bold text-navy-950">
+                    Pairing SmartFin.AI with your WhatsApp Account
+                  </h4>
+                  <p className="text-xs text-slate-600">
+                    1. Open WhatsApp on your phone &nbsp;•&nbsp; 2. Tap <strong>Linked Devices</strong> &nbsp;•&nbsp; 3. Tap <strong>Link a Device</strong> &nbsp;•&nbsp; 4. Point camera at the QR code below
+                  </p>
                 </div>
-                {testResult.latency_ms && (
-                  <span className="font-mono text-[11px] font-bold">Latency: {testResult.latency_ms}ms</span>
-                )}
+
+                <div className="inline-block p-4 bg-white rounded-2xl border-2 border-slate-900 shadow-xl">
+                  <img
+                    src={waStatus.qr_code}
+                    alt="WhatsApp Pairing QR Code"
+                    className="w-56 h-56 mx-auto object-contain"
+                  />
+                  <div className="mt-2 text-[11px] font-mono font-semibold text-slate-600 flex items-center justify-center gap-1.5">
+                    <RefreshCw className="w-3 h-3 animate-spin text-amber-600" />
+                    <span>Auto-checking for pairing...</span>
+                  </div>
+                </div>
+
+                <div>
+                  <button
+                    onClick={handleLogoutSession}
+                    className="text-xs text-slate-500 hover:text-slate-800 underline font-medium"
+                  >
+                    Cancel pairing session
+                  </button>
+                </div>
               </div>
             )}
 
-            {/* If Not Configured, show instructions box */}
-            {waConfig && !waConfig.is_configured && (
-              <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-200 space-y-2 text-xs text-amber-900">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold uppercase tracking-wider flex items-center gap-1.5">
-                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                    <span>WhatsApp Gateway Setup Required (Render Environment)</span>
-                  </span>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        'WHATSAPP_API_URL=https://api.yourgateway.com/send\nWHATSAPP_API_TOKEN=your_secure_token_here\nWHATSAPP_PMSC_GROUP_ID=1203630283920192@g.us\nWHATSAPP_GATEWAY_PROVIDER=GENERIC_WEBHOOK\nWHATSAPP_AUTO_SCHEDULE_TIME=18:30\nWHATSAPP_AUTO_SCHEDULE_ENABLED=true'
-                      );
-                      setCopiedEnv(true);
-                      setTimeout(() => setCopiedEnv(false), 2500);
-                    }}
-                    className="px-2.5 py-1 bg-white hover:bg-amber-100 rounded border border-amber-300 font-mono text-[11px] font-semibold text-amber-800 flex items-center gap-1"
-                  >
-                    {copiedEnv ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                    <span>{copiedEnv ? 'Copied .env Template!' : 'Copy .env Template'}</span>
-                  </button>
+            {/* DISCONNECTED CALL-TO-ACTION (When not connected and not awaiting QR) */}
+            {!waStatus?.is_connected && waStatus?.state !== 'AWAITING_QR' && (
+              <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h4 className="text-xs font-bold text-navy-950 flex items-center gap-1.5">
+                    <Smartphone className="w-4 h-4 text-brand-600" />
+                    <span>Connect Office WhatsApp (Direct QR Scan)</span>
+                  </h4>
+                  <p className="text-xs text-slate-500 max-w-xl">
+                    Scan a pairing QR code using the office WhatsApp phone. Once linked, you can select the "Team PMSC" group from your real joined groups list and dispatch live summaries.
+                  </p>
                 </div>
-                <p className="text-[11px] leading-relaxed text-amber-800">
-                  To automatically deliver summaries directly into your WhatsApp group without manual copying, add the following variables under <strong>Render Dashboard ➔ Environment</strong>. Safe simulation is currently active so generation and drafting remain 100% functional.
-                </p>
-                <div className="bg-white/80 p-2.5 rounded border border-amber-200 font-mono text-[11px] text-amber-950 space-y-0.5">
-                  <div>WHATSAPP_API_URL=https://api.yourgateway.com/send</div>
-                  <div>WHATSAPP_API_TOKEN=your_api_token</div>
-                  <div>WHATSAPP_PMSC_GROUP_ID=1203630283920192@g.us (or target phone number)</div>
-                  <div>WHATSAPP_AUTO_SCHEDULE_TIME=18:30</div>
-                </div>
+
+                <button
+                  onClick={handleStartQRScan}
+                  disabled={startingQRSession}
+                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg flex items-center justify-center space-x-2 transition-colors disabled:opacity-50 shadow-xs flex-shrink-0"
+                >
+                  <QrCode className="w-4 h-4" />
+                  <span>{startingQRSession ? 'Generating QR...' : 'Link Office Phone (Scan QR)'}</span>
+                </button>
               </div>
             )}
+
+            {/* TARGET GROUP DISCOVERY & SELECTION BAR */}
+            <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="space-y-0.5">
+                <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Target Broadcast Group:</span>
+                </span>
+                <span className="font-mono text-slate-500 text-[11px]">
+                  {selectedGroupName} {selectedGroupId ? `(${selectedGroupId})` : '(Not selected)'}
+                </span>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                {waGroups.length > 0 ? (
+                  <select
+                    value={selectedGroupId}
+                    onChange={(e) => {
+                      const grp = waGroups.find(g => g.id === e.target.value);
+                      if (grp) handleSelectGroup(grp.id, grp.name);
+                    }}
+                    className="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-medium bg-white"
+                  >
+                    <option value="">-- Choose WhatsApp Group --</option>
+                    {waGroups.map(g => (
+                      <option key={g.id} value={g.id}>
+                        {g.name} {g.is_pmsc ? '★ (PMSC)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                ) : null}
+
+                <button
+                  onClick={handleFetchGroups}
+                  disabled={loadingGroups || !waStatus?.is_connected}
+                  className="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition-colors disabled:opacity-50 flex items-center gap-1"
+                >
+                  <RefreshCw className={`w-3 h-3 ${loadingGroups ? 'animate-spin' : ''}`} />
+                  <span>{loadingGroups ? 'Loading...' : 'Select from Joined Groups'}</span>
+                </button>
+              </div>
+            </div>
 
             {/* Daily Auto-Scheduler Bar */}
             <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
@@ -1263,7 +1418,7 @@ export const ComplianceHub: React.FC = () => {
                 <div className="flex items-center justify-between pb-2 border-b border-slate-300">
                   <span className="text-[11px] font-bold text-emerald-800 font-sans flex items-center gap-1.5">
                     <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>WhatsApp Live Bubble (Target: Team PMSC Group)</span>
+                    <span>WhatsApp Live Bubble (Target: {selectedGroupName})</span>
                   </span>
                   <button
                     onClick={() => {
@@ -1287,7 +1442,7 @@ export const ComplianceHub: React.FC = () => {
                   Dispatch Control
                 </h4>
                 <p className="text-xs text-slate-500">
-                  Sends directly through the configured WhatsApp integration gateway to the "Team PMSC" WhatsApp group.
+                  Transmits directly to the genuine "{selectedGroupName}" group via connected WhatsApp session. Fake delivery simulation is strictly prevented.
                 </p>
 
                 <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-1.5 text-xs font-mono">
@@ -1297,7 +1452,7 @@ export const ComplianceHub: React.FC = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Target Channel:</span>
-                    <span className="font-bold text-emerald-700">Team PMSC Group</span>
+                    <span className="font-bold text-emerald-700">{selectedGroupName}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Dispatch Status:</span>
@@ -1305,21 +1460,66 @@ export const ComplianceHub: React.FC = () => {
                       {summaryData.dispatch_status || (summaryData.posted ? 'POSTED_TO_PMSC' : 'READY_TO_SEND')}
                     </span>
                   </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Gateway Link:</span>
+                    <span className={`font-bold ${waStatus?.can_send ? 'text-emerald-700' : 'text-rose-600'}`}>
+                      {waStatus?.can_send ? '🟢 GENUINE SESSION READY' : '🔴 DISCONNECTED (SEND BLOCKED)'}
+                    </span>
+                  </div>
                 </div>
 
+                {/* Error Banner if Send Failed */}
+                {realSendError && (
+                  <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-xs font-medium space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold">
+                      <AlertTriangle className="w-4 h-4 text-rose-600 flex-shrink-0" />
+                      <span>Dispatch Rejected / Failed</span>
+                    </div>
+                    <p className="text-[11px] font-mono leading-relaxed">{realSendError}</p>
+                  </div>
+                )}
+
+                {/* Success Banner with genuine Message ID */}
+                {realSendSuccess && (
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-xs font-medium space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                      <span>Verified Live Transmission</span>
+                    </div>
+                    <p className="text-[11px] font-mono">
+                      Message ID: <strong className="text-slate-900">{realSendSuccess.message_id || 'Delivered'}</strong>
+                    </p>
+                  </div>
+                )}
+
+                {/* Dispatch Button - Strictly Disabled if not can_send */}
                 {summaryData.posted ? (
                   <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-xs font-bold flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                    <span>Successfully Dispatched to Team PMSC WhatsApp Group</span>
+                    <span>Successfully Dispatched to {selectedGroupName}</span>
                   </div>
                 ) : (
                   <button
                     onClick={handlePostToPmsc}
-                    disabled={postingToPmsc}
-                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg flex items-center justify-center space-x-2 transition-colors disabled:opacity-50 shadow-xs"
+                    disabled={postingToPmsc || !waStatus?.can_send}
+                    className={`w-full py-2.5 text-xs font-semibold rounded-lg flex items-center justify-center space-x-2 transition-colors shadow-xs ${
+                      waStatus?.can_send
+                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                        : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    }`}
+                    title={!waStatus?.can_send ? 'Link WhatsApp Phone to Send (Real Transmission Required)' : ''}
                   >
-                    <Send className={`w-3.5 h-3.5 ${postingToPmsc ? 'animate-bounce' : ''}`} />
-                    <span>{postingToPmsc ? 'Broadcasting to Team PMSC...' : 'Send Now to Team PMSC WhatsApp Group'}</span>
+                    {!waStatus?.can_send ? (
+                      <>
+                        <Lock className="w-3.5 h-3.5" />
+                        <span>Link WhatsApp to Enable Broadcast</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className={`w-3.5 h-3.5 ${postingToPmsc ? 'animate-bounce' : ''}`} />
+                        <span>{postingToPmsc ? 'Transmitting to WhatsApp...' : `Send Now to ${selectedGroupName}`}</span>
+                      </>
+                    )}
                   </button>
                 )}
               </div>

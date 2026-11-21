@@ -185,15 +185,27 @@ def test_whatsapp_integration_and_pmsc_summary():
     assert "Team PMSC" in summary["formatted_text"]
     summary_id = summary["summary_id"]
 
-    # 5. Dispatch Summary to Team PMSC
-    post_res = client.post(
+    # 5. Dispatch Summary to Team PMSC - verify strict refusal when disconnected
+    post_res_disconnected = client.post(
         f"/api/v1/compliance/office-summary/{summary_id}/post-to-pmsc",
         headers=headers
     )
-    assert post_res.status_code == 200
-    post_data = post_res.json()
-    assert "status" in post_data
-    assert "send_result" in post_data
+    # Strictly blocked with 400 because WhatsApp is not fake-connected
+    assert post_res_disconnected.status_code == 400
+    assert "not connected" in post_res_disconnected.json()["detail"].lower()
+
+    # Dispatch Summary with connected session (verified genuine send)
+    from unittest.mock import patch
+    with patch("app.services.whatsapp.client.WhatsAppClient.get_live_status", return_value={"can_send": True, "state": "CONNECTED"}), \
+         patch("app.services.whatsapp.client.WhatsAppClient.send_real_message", return_value={"success": True, "message_id": "WAMSG_TEST_99812", "timestamp": "2026-11-21T12:00:00Z", "group_id": "1203630283920192@g.us"}):
+        post_res = client.post(
+            f"/api/v1/compliance/office-summary/{summary_id}/post-to-pmsc",
+            headers=headers
+        )
+        assert post_res.status_code == 200
+        post_data = post_res.json()
+        assert post_data["status"] == "POSTED_TO_PMSC"
+        assert post_data["send_result"]["message_id"] == "WAMSG_TEST_99812"
 
     # 6. Check Delivery History
     history_res = client.get("/api/v1/compliance/office-summary/history", headers=headers)

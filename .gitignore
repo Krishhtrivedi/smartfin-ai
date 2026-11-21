@@ -34,3 +34,7 @@ uploads/*
 !uploads/.gitkeep
 exports/*
 !exports/.gitkeep
+backend/whatsapp_bridge/node_modules/
+backend/whatsapp_bridge/session_auth/
+backend/whatsapp_bridge/selected_group.json
+smartfin.db

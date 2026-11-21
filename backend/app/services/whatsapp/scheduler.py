@@ -49,6 +49,14 @@ class PMSCWhatsAppScheduler:
         self.custom_time_ist = time_ist
         print(f"[PMSC WhatsApp Scheduler] Updated configuration (Time: {self.custom_time_ist} IST, Enabled: {self.enabled})")
 
+    def get_config(self) -> Dict[str, Any]:
+        return {
+            "enabled": self.enabled,
+            "time_ist": self.custom_time_ist,
+            "last_run_date": self.last_run_date,
+            "running": self.running
+        }
+
     def _get_current_ist(self) -> datetime:
         utc_now = datetime.now(timezone.utc)
         return (utc_now + IST_OFFSET).replace(tzinfo=None)
@@ -167,12 +175,12 @@ class PMSCWhatsAppScheduler:
         posted_at = None
 
         if force_send:
-            send_result = WhatsAppClient.send_message_to_pmsc(wa_text)
+            send_result = WhatsAppClient.send_real_message(wa_text)
             if send_result.get("success"):
                 dispatch_status = "POSTED_TO_PMSC"
                 posted_at = datetime.utcnow()
-            elif send_result.get("status") == "NOT_CONFIGURED":
-                dispatch_status = "NOT_CONFIGURED_STORED"
+            elif send_result.get("status") == "NOT_CONNECTED":
+                dispatch_status = "SKIPPED_NOT_CONNECTED"
             else:
                 dispatch_status = "FAILED"
 
