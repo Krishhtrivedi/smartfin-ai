@@ -40,6 +40,26 @@ export interface FinancialKPIs {
   active_users_count?: number;
   total_organisational_records?: number;
   completed_activities_count?: number;
+  clients_count?: number;
+  active_projects_count?: number;
+  inquiries_and_leads_count?: number;
+  meetings_scheduled_count?: number;
+  pending_tasks_count?: number;
+  overdue_tasks_count?: number;
+  completed_tasks_count?: number;
+  business_scans_count?: number;
+  notices_summary?: {
+    total: number;
+    last_7_days: number;
+    last_15_days: number;
+    last_30_days: number;
+    due_within_15_days: number;
+    total_demand: number;
+  };
+  gst_dispatch_summary?: {
+    sent: number;
+    failed: number;
+  };
 }
 
 export interface MonthlyTrend {
@@ -103,6 +123,47 @@ export interface DashboardData {
   };
   pending_approvals: PendingApproval[];
   recent_activities: RecentActivity[];
+  clients_count?: number;
+  active_projects_count?: number;
+  inquiries_and_leads_count?: number;
+  meetings_scheduled_count?: number;
+  pending_tasks_count?: number;
+  overdue_tasks_count?: number;
+  completed_tasks_count?: number;
+  business_scans_count?: number;
+  upcoming_meetings?: Array<{
+    id: number;
+    title: string;
+    client_name: string;
+    meeting_type: string;
+    scheduled_time: string;
+    status: string;
+    agenda?: string;
+    has_ai_summary?: boolean;
+  }>;
+  active_projects?: Array<{
+    id: number;
+    name: string;
+    code?: string;
+    client_name: string;
+    status: string;
+    priority?: string;
+    completion_percentage: number;
+    due_date?: string;
+  }>;
+  pipeline_counts?: Record<string, number>;
+  notices_summary?: {
+    total: number;
+    last_7_days: number;
+    last_15_days: number;
+    last_30_days: number;
+    due_within_15_days: number;
+    total_demand: number;
+  };
+  gst_dispatch_summary?: {
+    sent: number;
+    failed: number;
+  };
 }
 
 export interface GSTRecord {

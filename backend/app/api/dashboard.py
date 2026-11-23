@@ -213,6 +213,45 @@ def get_dashboard_summary(
         db.query(TDSRecord).count()
     )
 
+    # 15. Upcoming Consultations / Meetings
+    meetings_rows = db.query(Meeting).order_by(Meeting.scheduled_time.asc()).limit(4).all()
+    upcoming_meetings = []
+    for m in meetings_rows:
+        c_name = m.customer.name if m.customer else (m.lead.company_name if m.lead else "Advisory Assessee")
+        upcoming_meetings.append({
+            "id": m.id,
+            "title": m.title,
+            "client_name": c_name,
+            "meeting_type": m.meeting_type or "CONSULTATION",
+            "scheduled_time": m.scheduled_time.strftime("%d %b, %I:%M %p") if m.scheduled_time else "Scheduled",
+            "status": m.status,
+            "agenda": m.agenda or "",
+            "has_ai_summary": bool(m.ai_summary)
+        })
+
+    # 16. Active Engagements / Projects
+    projects_rows = db.query(Project).order_by(Project.created_at.desc()).limit(4).all()
+    active_projects = []
+    for p in projects_rows:
+        c_name = p.customer.name if p.customer else "Corporate Client"
+        active_projects.append({
+            "id": p.id,
+            "name": p.name,
+            "code": p.code,
+            "client_name": c_name,
+            "status": p.status,
+            "priority": p.priority,
+            "completion_percentage": p.completion_percentage or 0,
+            "due_date": str(p.due_date) if p.due_date else None
+        })
+
+    # 17. Leads Pipeline Summary
+    lead_stages = ["NEW", "CONTACTED", "MEETING_SCHEDULED", "PROPOSAL_SENT", "NEGOTIATION", "CONVERTED", "LOST"]
+    pipeline_counts = {
+        st: db.query(Lead).filter(Lead.stage == st).count()
+        for st in lead_stages
+    }
+
     return {
         "kpis": {
             "total_sales": round(total_sales_taxable, 2),
@@ -264,7 +303,10 @@ def get_dashboard_summary(
         "vendor_payment_status": vendor_payment_status,
         "customer_collection_status": customer_collection_status,
         "pending_approvals": pending_approvals,
-        "recent_activities": recent_activities
+        "recent_activities": recent_activities,
+        "upcoming_meetings": upcoming_meetings,
+        "active_projects": active_projects,
+        "pipeline_counts": pipeline_counts
     }
 
 @router.get("/employee")
