@@ -92,6 +92,11 @@ export const CustomerReconciliation: React.FC = () => {
     email: '',
     phone: '',
     folder_name: '',
+    aliases: '',
+    contact_person: '',
+    custom_folder_override: '',
+    auto_email_dispatch: true,
+    auto_whatsapp_dispatch: true,
     compliance_status: 'ACTIVE',
     credit_limit: 100000,
     gst_username: '',
@@ -269,6 +274,11 @@ export const CustomerReconciliation: React.FC = () => {
       email: c.email || '',
       phone: c.phone || '',
       folder_name: c.folder_name || c.name || '',
+      aliases: c.aliases || '',
+      contact_person: c.contact_person || '',
+      custom_folder_override: c.custom_folder_override || '',
+      auto_email_dispatch: c.auto_email_dispatch ?? true,
+      auto_whatsapp_dispatch: c.auto_whatsapp_dispatch ?? true,
       compliance_status: c.compliance_status || 'ACTIVE',
       credit_limit: c.credit_limit || 100000,
       gst_username: c.gst_username || '',
@@ -295,6 +305,11 @@ export const CustomerReconciliation: React.FC = () => {
         email: editForm.email.trim() || null,
         phone: editForm.phone.trim() || null,
         folder_name: editForm.folder_name.trim() || editForm.name.trim(),
+        aliases: editForm.aliases.trim() || null,
+        contact_person: editForm.contact_person.trim() || null,
+        custom_folder_override: editForm.custom_folder_override.trim() || null,
+        auto_email_dispatch: editForm.auto_email_dispatch,
+        auto_whatsapp_dispatch: editForm.auto_whatsapp_dispatch,
         compliance_status: editForm.compliance_status,
         credit_limit: parseFloat(String(editForm.credit_limit)) || 100000,
         gst_username: editForm.gst_username.trim() || null,
@@ -1783,6 +1798,35 @@ export const CustomerReconciliation: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+                Primary Contact Person
+              </label>
+              <input
+                type="text"
+                value={editForm.contact_person}
+                onChange={(e) => setEditForm(prev => ({ ...prev, contact_person: e.target.value }))}
+                placeholder="e.g. Hiren Patel (Managing Director)"
+                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+                Search Aliases & Folder Keywords
+              </label>
+              <input
+                type="text"
+                value={editForm.aliases}
+                onChange={(e) => setEditForm(prev => ({ ...prev, aliases: e.target.value }))}
+                placeholder="e.g. Swastik, Swastik Insecticides"
+                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              />
+              <span className="text-[10px] text-[#8B97A3]">Comma-separated aliases for fuzzy routing</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
                 Local Desktop Folder Name
               </label>
               <div className="relative">
@@ -1797,6 +1841,50 @@ export const CustomerReconciliation: React.FC = () => {
               <span className="text-[10px] text-[#8B97A3]">Sync directory on Mac: ~/Desktop/&lt;Folder&gt;</span>
             </div>
 
+            <div>
+              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+                Custom Folder Path Override (Optional)
+              </label>
+              <input
+                type="text"
+                value={editForm.custom_folder_override}
+                onChange={(e) => setEditForm(prev => ({ ...prev, custom_folder_override: e.target.value }))}
+                placeholder="e.g. ~/Desktop/Clients/CustomName"
+                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+              />
+              <span className="text-[10px] text-[#8B97A3]">Direct override path for FolderResolver</span>
+            </div>
+          </div>
+
+          {/* Automation Dispatch Toggles */}
+          <div className="p-2.5 bg-[#F6F3EE] rounded-[3px] border border-[#C5CBD2] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <span className="text-xs font-bold text-[#1A2F46] uppercase font-mono tracking-wider">
+              Automated Dispatches:
+            </span>
+            <div className="flex items-center space-x-6 text-xs text-[#1A2F46]">
+              <label className="flex items-center space-x-2 cursor-pointer font-medium">
+                <input
+                  type="checkbox"
+                  checked={editForm.auto_email_dispatch}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, auto_email_dispatch: e.target.checked }))}
+                  className="rounded border-[#C5CBD2] text-[#E65909] focus:ring-[#E65909]"
+                />
+                <span>Auto-Email GSTR & Notices</span>
+              </label>
+
+              <label className="flex items-center space-x-2 cursor-pointer font-medium">
+                <input
+                  type="checkbox"
+                  checked={editForm.auto_whatsapp_dispatch}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, auto_whatsapp_dispatch: e.target.checked }))}
+                  className="rounded border-[#C5CBD2] text-[#E65909] focus:ring-[#E65909]"
+                />
+                <span>Auto-WhatsApp Reminders</span>
+              </label>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Compliance Status</label>
               <select

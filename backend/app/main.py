@@ -25,6 +25,11 @@ from app.api.audit import router as audit_router
 from app.api.compliance_tools import router as compliance_router
 from app.api.incubator import router as incubator_router
 from app.api.automation import router as automation_router
+from app.api.crm_leads import router as crm_router
+from app.api.projects_meetings import router as projects_meetings_router
+from app.api.business_scan import router as business_scan_router
+from app.api.document_analyzer import router as doc_analyzer_router
+from app.api.settings_manager import router as settings_router
 
 # Initialize Database Schema
 Base.metadata.create_all(bind=engine)
@@ -69,6 +74,11 @@ app.include_router(audit_router, prefix=settings.API_V1_STR)
 app.include_router(compliance_router, prefix=settings.API_V1_STR)
 app.include_router(incubator_router, prefix=settings.API_V1_STR)
 app.include_router(automation_router, prefix=settings.API_V1_STR)
+app.include_router(crm_router, prefix=settings.API_V1_STR)
+app.include_router(projects_meetings_router, prefix=settings.API_V1_STR)
+app.include_router(business_scan_router, prefix=settings.API_V1_STR)
+app.include_router(doc_analyzer_router, prefix=settings.API_V1_STR)
+app.include_router(settings_router, prefix=settings.API_V1_STR)
 
 @app.on_event("startup")
 def on_startup():

@@ -352,6 +352,59 @@ export const api = {
     request<any>('/portals/career-ai/roadmap', { method: 'POST', body: JSON.stringify(data) }),
   draftCollectionSequence: (data: any) =>
     request<any>('/portals/collection-ai/draft', { method: 'POST', body: JSON.stringify(data) }),
+
+  // 11. CRM Leads & Pipeline
+  getLeads: (params?: { stage?: string; q?: string }) => {
+    const sp = new URLSearchParams();
+    if (params?.stage) sp.append('stage', params.stage);
+    if (params?.q) sp.append('q', params.q);
+    return request<any[]>(`/crm/leads?${sp.toString()}`);
+  },
+  getPipelineSummary: () => request<any>('/crm/pipeline-summary'),
+  getLead: (id: number) => request<any>(`/crm/leads/${id}`),
+  createLead: (data: any) => request<any>('/crm/leads', { method: 'POST', body: JSON.stringify(data) }),
+  updateLead: (id: number, data: any) => request<any>(`/crm/leads/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  addLeadActivity: (id: number, data: any) => request<any>(`/crm/leads/${id}/activities`, { method: 'POST', body: JSON.stringify(data) }),
+  convertLead: (id: number) => request<any>(`/crm/leads/${id}/convert`, { method: 'POST' }),
+
+  // 12. Projects & Meetings
+  getProjects: (params?: { status?: string; customer_id?: number }) => {
+    const sp = new URLSearchParams();
+    if (params?.status) sp.append('status', params.status);
+    if (params?.customer_id) sp.append('customer_id', String(params.customer_id));
+    return request<any[]>(`/projects?${sp.toString()}`);
+  },
+  getProject: (id: number) => request<any>(`/projects/${id}`),
+  createProject: (data: any) => request<any>('/projects', { method: 'POST', body: JSON.stringify(data) }),
+  updateProject: (id: number, data: any) => request<any>(`/projects/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  getProjectTasks: (id: number) => request<any[]>(`/projects/${id}/tasks`),
+  createProjectTask: (projectId: number, data: any) => request<any>(`/projects/${projectId}/tasks`, { method: 'POST', body: JSON.stringify(data) }),
+  updateProjectTaskStatus: (taskId: number, status: string) => request<any>(`/tasks/${taskId}/status?status_in=${encodeURIComponent(status)}`, { method: 'PUT' }),
+  getMeetings: (upcomingOnly: boolean = false) => request<any[]>(`/meetings?upcoming_only=${upcomingOnly}`),
+  createMeeting: (data: any) => request<any>('/meetings', { method: 'POST', body: JSON.stringify(data) }),
+  updateMeeting: (id: number, data: any) => request<any>(`/meetings/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  generateMeetingSummary: (id: number) => request<any>(`/meetings/${id}/generate-summary`, { method: 'POST' }),
+
+  // 13. Business Scan Diagnostic Hub
+  getBusinessScans: () => request<any[]>('/business-scan/list'),
+  createBusinessScan: (data: any) => request<any>('/business-scan/create', { method: 'POST', body: JSON.stringify(data) }),
+  getBusinessScanDetails: (idOrToken: string) => request<any>(`/business-scan/details/${idOrToken}`),
+  submitBusinessScanAnswer: (scanId: number, data: any) => request<any>(`/business-scan/details/${scanId}/answer`, { method: 'POST', body: JSON.stringify(data) }),
+  calculateBusinessScanScores: (scanId: number) => request<any>(`/business-scan/details/${scanId}/calculate-scores`, { method: 'POST' }),
+  submitBusinessScanReview: (scanId: number, data: any) => request<any>(`/business-scan/details/${scanId}/review`, { method: 'POST', body: JSON.stringify(data) }),
+
+  // 14. AI Document Analyzer
+  uploadAndAnalyzeDoc: (formData: FormData) => request<any>('/doc-analyzer/upload-and-analyze', { method: 'POST', body: formData }),
+  listDocAnalyses: () => request<any[]>('/doc-analyzer/analyses'),
+  getDocAnalysis: (id: number) => request<any>(`/doc-analyzer/${id}`),
+  chatWithDoc: (id: number, message: string) => request<any>(`/doc-analyzer/${id}/chat`, { method: 'POST', body: JSON.stringify({ message }) }),
+  compareDocs: (docId1: number, docId2: number) => request<any>('/doc-analyzer/compare', { method: 'POST', body: JSON.stringify({ doc_id_1: docId1, doc_id_2: docId2 }) }),
+
+  // 15. System Settings & Diagnostics
+  getSystemSettings: () => request<any>('/settings'),
+  updateSystemSettings: (settingsMap: Record<string, string>) => request<any>('/settings', { method: 'PUT', body: JSON.stringify({ settings: settingsMap }) }),
+  testSmtpConnection: (testEmail?: string) => request<any>('/settings/test-smtp', { method: 'POST', body: JSON.stringify({ test_email: testEmail }) }),
+  testWhatsappConnection: () => request<any>('/settings/test-whatsapp', { method: 'POST' }),
 };
 
 function downloadBlob(blob: Blob, filename: string) {

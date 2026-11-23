@@ -8,7 +8,8 @@ from app.core.dependencies import get_current_user, require_role
 from app.models.all_models import (
     User, Employee, Invoice, Payment, BankAccount, BankTransaction,
     GSTRecord, TDSRecord, Vendor, Customer, Expense, Task, Attendance,
-    AuditLog, Notification
+    AuditLog, Notification, Project, Meeting, Lead, StatutoryNotice,
+    PortalNotice, GSTRDispatchLog, BusinessScan
 )
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
@@ -178,9 +179,32 @@ def get_dashboard_summary(
         for log in recent_logs
     ]
 
-    # 14. Organisational Totals
+    # 14. Organisational Totals & Management KPIs
     employee_count = db.query(Employee).filter(Employee.is_active == True).count()
     active_users_count = db.query(User).filter(User.is_active == True).count()
+    total_clients_count = len(customers)
+
+    active_projects_count = db.query(Project).filter(Project.status == "ACTIVE").count()
+    active_leads_count = db.query(Lead).filter(~Lead.stage.in_(["CONVERTED", "LOST"])).count()
+    scheduled_meetings_count = db.query(Meeting).filter(Meeting.status == "SCHEDULED").count()
+    pending_tasks_count = db.query(Task).filter(Task.status != "COMPLETED").count()
+    overdue_tasks_count = db.query(Task).filter(Task.due_date < date.today(), Task.status != "COMPLETED").count()
+    completed_tasks_count = db.query(Task).filter(Task.status == "COMPLETED").count()
+    business_scans_count = db.query(BusinessScan).count()
+
+    # Statutory Notices Countdown & Breakdown
+    all_notices = db.query(StatutoryNotice).all()
+    today_dt = date.today()
+    notices_7d = sum(1 for n in all_notices if n.issue_date and (today_dt - n.issue_date).days <= 7)
+    notices_15d = sum(1 for n in all_notices if n.issue_date and (today_dt - n.issue_date).days <= 15)
+    notices_30d = sum(1 for n in all_notices if n.issue_date and (today_dt - n.issue_date).days <= 30)
+    notices_due_soon = sum(1 for n in all_notices if n.due_date and 0 <= (n.due_date - today_dt).days <= 15)
+    total_demand = sum(n.demand_amount or 0.0 for n in all_notices)
+
+    # GSTR Dispatches
+    gstr_sent_count = db.query(GSTRDispatchLog).filter(GSTRDispatchLog.status == "SENT").count()
+    gstr_failed_count = db.query(GSTRDispatchLog).filter(GSTRDispatchLog.status != "SENT").count()
+
     total_organisational_records = (
         db.query(Invoice).count() +
         db.query(Payment).count() +
@@ -208,6 +232,26 @@ def get_dashboard_summary(
             "monthly_expenses": round(total_expenses, 2),
             "net_profit": round(net_profit, 2),
             "invoices_pending_count": sum(1 for i in purchase_invoices if i.status == "UNPAID"),
+            "clients_count": total_clients_count,
+            "active_projects_count": active_projects_count,
+            "inquiries_and_leads_count": active_leads_count,
+            "meetings_scheduled_count": scheduled_meetings_count,
+            "pending_tasks_count": pending_tasks_count,
+            "overdue_tasks_count": overdue_tasks_count,
+            "completed_tasks_count": completed_tasks_count,
+            "business_scans_count": business_scans_count,
+            "notices_summary": {
+                "total": len(all_notices),
+                "last_7_days": notices_7d,
+                "last_15_days": notices_15d,
+                "last_30_days": notices_30d,
+                "due_within_15_days": notices_due_soon,
+                "total_demand": round(total_demand, 2)
+            },
+            "gst_dispatch_summary": {
+                "sent": gstr_sent_count,
+                "failed": gstr_failed_count
+            },
             "employee_count": employee_count,
             "active_users_count": active_users_count,
             "total_organisational_records": total_organisational_records,

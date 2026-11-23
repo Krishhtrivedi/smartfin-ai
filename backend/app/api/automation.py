@@ -295,7 +295,9 @@ def dispatch_gstr1(db: Session, j: AutomationJob, email: bool, whatsapp: bool, a
     results = []
     now = datetime.utcnow().isoformat()
     if email:
-        if not c.email:
+        if not getattr(c, "auto_email_dispatch", True):
+            results.append({"channel": "email", "status": "SKIPPED_TOGGLE_OFF", "error": "Auto-email dispatch toggle is disabled in Client Master.", "at": now})
+        elif not c.email:
             results.append({"channel": "email", "status": "SKIPPED", "error": "No email in Client Master.", "at": now})
         else:
             r = SMTPClient.send_email(
@@ -311,15 +313,18 @@ def dispatch_gstr1(db: Session, j: AutomationJob, email: bool, whatsapp: bool, a
                                    error_message=None if r.get("success") else r.get("error"),
                                    dispatched_by_user_email=actor_email))
     if whatsapp:
-        phone, perr = normalize_phone(c.phone)
-        if not phone:
-            results.append({"channel": "whatsapp", "status": "SKIPPED",
-                            "error": perr or "No WhatsApp number in Client Master.", "at": now})
+        if not getattr(c, "auto_whatsapp_dispatch", True):
+            results.append({"channel": "whatsapp", "status": "SKIPPED_TOGGLE_OFF", "error": "Auto-WhatsApp dispatch toggle is disabled in Client Master.", "at": now})
         else:
-            r = WhatsAppClient.send_document(whatsapp_jid(phone), j.file_path, fname,
-                                             caption=f"GSTR-1 for {label} - {c.trade_name or c.name}")
-            results.append({"channel": "whatsapp", "to": phone, "status": r.get("status"),
-                            "message_id": r.get("message_id"), "error": r.get("error"), "at": now})
+            phone, perr = normalize_phone(c.phone)
+            if not phone:
+                results.append({"channel": "whatsapp", "status": "SKIPPED",
+                                "error": perr or "No WhatsApp number in Client Master.", "at": now})
+            else:
+                r = WhatsAppClient.send_document(whatsapp_jid(phone), j.file_path, fname,
+                                                 caption=f"GSTR-1 for {label} - {c.trade_name or c.name}")
+                results.append({"channel": "whatsapp", "to": phone, "status": r.get("status"),
+                                "message_id": r.get("message_id"), "error": r.get("error"), "at": now})
     j.dispatch_json = json.dumps((_j(j.dispatch_json) or []) + results)
     db.commit()
     return results

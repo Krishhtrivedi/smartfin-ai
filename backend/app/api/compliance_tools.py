@@ -31,9 +31,42 @@ router = APIRouter(prefix="/compliance", tags=["Compliance & Gap Completion Pack
 # ==============================================================================
 
 @router.get("/notices")
-def list_notices(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    notices = db.query(StatutoryNotice).order_by(StatutoryNotice.due_date.asc()).all()
+def list_notices(
+    time_filter: Optional[str] = None, # ALL, LAST_7_DAYS, LAST_15_DAYS, LAST_1_MONTH, DUE_SOON, OVERDUE
+    notice_type: Optional[str] = None,
+    status_filter: Optional[str] = None,
+    q: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    query = db.query(StatutoryNotice)
     today = date.today()
+
+    if time_filter == "LAST_7_DAYS":
+        query = query.filter(StatutoryNotice.issue_date >= today - timedelta(days=7))
+    elif time_filter == "LAST_15_DAYS":
+        query = query.filter(StatutoryNotice.issue_date >= today - timedelta(days=15))
+    elif time_filter == "LAST_1_MONTH":
+        query = query.filter(StatutoryNotice.issue_date >= today - timedelta(days=30))
+    elif time_filter == "DUE_SOON":
+        query = query.filter(StatutoryNotice.due_date >= today, StatutoryNotice.due_date <= today + timedelta(days=15))
+    elif time_filter == "OVERDUE":
+        query = query.filter(StatutoryNotice.due_date < today)
+
+    if notice_type:
+        query = query.filter(StatutoryNotice.notice_type == notice_type.upper())
+    if status_filter:
+        query = query.filter(StatutoryNotice.status == status_filter.upper())
+    if q and q.strip():
+        term = f"%{q.strip()}%"
+        query = query.filter(
+            (StatutoryNotice.client_name.ilike(term)) |
+            (StatutoryNotice.client_pan_gstin.ilike(term)) |
+            (StatutoryNotice.notice_number.ilike(term)) |
+            (StatutoryNotice.section.ilike(term))
+        )
+
+    notices = query.order_by(StatutoryNotice.due_date.asc()).all()
     result = []
     for n in notices:
         days_remaining = (n.due_date - today).days
@@ -184,7 +217,10 @@ def scan_and_dispatch_gstr_pdfs(
         
         status_val = "SENT"
         error_msg = None
-        if not client_email or "@" not in client_email:
+        if customer and not getattr(customer, "auto_email_dispatch", True):
+            status_val = "SKIPPED_TOGGLE_OFF"
+            error_msg = f"Auto-Email dispatch toggle is disabled for {client_name}."
+        elif not client_email or "@" not in client_email:
             status_val = "MISSING_EMAIL"
             error_msg = f"No registered email found for GSTIN {gstin}. Please add email in Customer Directory."
         elif not SMTPClient.is_configured():
@@ -194,7 +230,7 @@ def scan_and_dispatch_gstr_pdfs(
             send_res = SMTPClient.send_email(
                 to_email=client_email,
                 subject=f"Statutory Filing Copy: {ret_type} for Period {period} - {client_name}",
-                html_body=f"<p>Dear {client_name},</p><p>Please find attached the official statutory copy of your filed <strong>{ret_type}</strong> for tax period <strong>{period}</strong>.</p><p>Best regards,<br>SMARTFIN.AI Compliance Desk</p>"
+                html_body=f"<p>Dear {client_name},</p><p>Please find attached the official statutory copy of your filed <strong>{ret_type}</strong> for tax period <strong>{period}</strong>.</p><p>Best regards,<br>Vichar Vimarsh Compliance Desk</p>"
             )
             if not send_res.get("success"):
                 status_val = "FAILED"

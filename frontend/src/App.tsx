@@ -23,9 +23,15 @@ import { PMSCPublicWebsite } from './pages/PMSCPublicWebsite';
 import { FamilyKnowledgeAI } from './pages/portals/FamilyKnowledgeAI';
 import { CareerPathwayAI } from './pages/portals/CareerPathwayAI';
 import { CollectionAI } from './pages/portals/CollectionAI';
+import { CrmPipeline } from './pages/CrmPipeline';
+import { ProjectsKanban } from './pages/ProjectsKanban';
+import { MeetingsDesk } from './pages/MeetingsDesk';
+import { BusinessScanHub } from './pages/BusinessScanHub';
+import { DocumentAnalyzer } from './pages/DocumentAnalyzer';
+import { SystemSettingsPage } from './pages/SystemSettingsPage';
 import { ShieldAlert, KeyRound, AlertCircle, CheckCircle2, Lock, X } from 'lucide-react';
 
-const ADMIN_ONLY_TABS: NavigationTab[] = ['gst', 'tds', 'bank', 'excel', 'mis', 'audit', 'ai_analytics'];
+const ADMIN_ONLY_TABS: NavigationTab[] = ['gst', 'tds', 'bank', 'excel', 'mis', 'audit', 'ai_analytics', 'settings'];
 
 const AppContent: React.FC = () => {
   const { user, isAuthenticated, isLoading, changePassword, logout } = useAuth();
@@ -135,6 +141,18 @@ const AppContent: React.FC = () => {
     switch (currentTab) {
       case 'dashboard':
         return <Dashboard onNavigateTab={(tab) => setCurrentTab(tab)} />;
+      case 'crm_pipeline':
+        return <CrmPipeline />;
+      case 'projects_kanban':
+        return <ProjectsKanban />;
+      case 'meetings_desk':
+        return <MeetingsDesk />;
+      case 'business_scan':
+        return <BusinessScanHub />;
+      case 'doc_analyzer':
+        return <DocumentAnalyzer />;
+      case 'settings':
+        return <SystemSettingsPage />;
       case 'gst':
         return <GSTReconciliation />;
       case 'vendor':

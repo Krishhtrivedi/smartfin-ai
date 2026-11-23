@@ -79,6 +79,11 @@ def get_customer(
         "state": customer.state,
         "state_code": customer.state_code,
         "folder_name": customer.folder_name,
+        "custom_folder_override": customer.custom_folder_override,
+        "aliases": customer.aliases,
+        "contact_person": customer.contact_person,
+        "auto_email_dispatch": customer.auto_email_dispatch if customer.auto_email_dispatch is not None else True,
+        "auto_whatsapp_dispatch": customer.auto_whatsapp_dispatch if customer.auto_whatsapp_dispatch is not None else True,
         "compliance_status": customer.compliance_status or "ACTIVE",
         "gst_username": customer.gst_username,
         "it_username": customer.it_username,
@@ -130,6 +135,11 @@ def create_customer(
         state=customer_in.state.strip() if customer_in.state else None,
         state_code=customer_in.state_code.strip() if customer_in.state_code else (gstin[:2] if gstin else None),
         folder_name=folder_name,
+        custom_folder_override=customer_in.custom_folder_override.strip() if customer_in.custom_folder_override else None,
+        aliases=customer_in.aliases.strip() if customer_in.aliases else None,
+        contact_person=customer_in.contact_person.strip() if customer_in.contact_person else None,
+        auto_email_dispatch=customer_in.auto_email_dispatch if customer_in.auto_email_dispatch is not None else True,
+        auto_whatsapp_dispatch=customer_in.auto_whatsapp_dispatch if customer_in.auto_whatsapp_dispatch is not None else True,
         gst_username=customer_in.gst_username.strip() if customer_in.gst_username else None,
         gst_password_enc=encrypt_credential(customer_in.gst_password) if customer_in.gst_password else None,
         it_username=customer_in.it_username.strip() if customer_in.it_username else (pan or None),
@@ -160,6 +170,11 @@ def create_customer(
         "email": customer.email,
         "phone": customer.phone,
         "folder_name": customer.folder_name,
+        "custom_folder_override": customer.custom_folder_override,
+        "aliases": customer.aliases,
+        "contact_person": customer.contact_person,
+        "auto_email_dispatch": customer.auto_email_dispatch,
+        "auto_whatsapp_dispatch": customer.auto_whatsapp_dispatch,
         "compliance_status": customer.compliance_status,
         "gst_username": customer.gst_username,
         "it_username": customer.it_username,
@@ -224,6 +239,26 @@ def update_customer(
         customer.folder_name = customer_in.folder_name.strip() if customer_in.folder_name and customer_in.folder_name.strip() else None
         updated_fields.append("folder_name")
 
+    if customer_in.custom_folder_override is not None:
+        customer.custom_folder_override = customer_in.custom_folder_override.strip() if customer_in.custom_folder_override and customer_in.custom_folder_override.strip() else None
+        updated_fields.append("custom_folder_override")
+
+    if customer_in.aliases is not None:
+        customer.aliases = customer_in.aliases.strip() if customer_in.aliases and customer_in.aliases.strip() else None
+        updated_fields.append("aliases")
+
+    if customer_in.contact_person is not None:
+        customer.contact_person = customer_in.contact_person.strip() if customer_in.contact_person and customer_in.contact_person.strip() else None
+        updated_fields.append("contact_person")
+
+    if customer_in.auto_email_dispatch is not None:
+        customer.auto_email_dispatch = customer_in.auto_email_dispatch
+        updated_fields.append("auto_email_dispatch")
+
+    if customer_in.auto_whatsapp_dispatch is not None:
+        customer.auto_whatsapp_dispatch = customer_in.auto_whatsapp_dispatch
+        updated_fields.append("auto_whatsapp_dispatch")
+
     if customer_in.compliance_status is not None:
         customer.compliance_status = customer_in.compliance_status
         updated_fields.append("compliance_status")
@@ -277,6 +312,11 @@ def update_customer(
         "email": customer.email,
         "phone": customer.phone,
         "folder_name": customer.folder_name,
+        "custom_folder_override": customer.custom_folder_override,
+        "aliases": customer.aliases,
+        "contact_person": customer.contact_person,
+        "auto_email_dispatch": customer.auto_email_dispatch,
+        "auto_whatsapp_dispatch": customer.auto_whatsapp_dispatch,
         "compliance_status": customer.compliance_status,
         "gst_username": customer.gst_username,
         "it_username": customer.it_username,

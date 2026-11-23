@@ -86,6 +86,11 @@ class Customer(Base):
     credit_limit = Column(Float, default=100000.0)
     outstanding_balance = Column(Float, default=0.0)
     folder_name = Column(String(255), nullable=True)
+    custom_folder_override = Column(String(500), nullable=True)
+    aliases = Column(Text, nullable=True) # Matching aliases / keywords e.g. "Swastik Insecticides, Swastik"
+    contact_person = Column(String(255), nullable=True)
+    auto_email_dispatch = Column(Boolean, default=True)
+    auto_whatsapp_dispatch = Column(Boolean, default=True)
     gst_username = Column(String(100), nullable=True)
     gst_password_enc = Column(Text, nullable=True)
     it_username = Column(String(100), nullable=True)
@@ -359,6 +364,7 @@ class Task(Base):
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     assigned_to_employee_id = Column(Integer, ForeignKey("employees.id"), nullable=False)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
     created_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     priority = Column(String(20), default="MEDIUM") # LOW, MEDIUM, HIGH, URGENT
     status = Column(String(30), default="TODO") # TODO, IN_PROGRESS, REVIEW, COMPLETED
@@ -709,3 +715,229 @@ class PortalNotice(Base):
     last_job_id = Column(Integer, nullable=True)
 
     customer = relationship("Customer")
+
+
+# ==============================================================================
+# VICHAR VIMARSH ENTERPRISE EXTENSIONS: CRM LEADS, PROJECTS, MEETINGS,
+# BUSINESS SCAN DIAGNOSTICS & MULTI-FORMAT AI DOCUMENT ANALYZER
+# ==============================================================================
+
+class Lead(Base):
+    """CRM Lead Pipeline (New -> Contacted -> Meeting Scheduled -> Proposal Sent -> Negotiation -> Converted / Lost)"""
+    __tablename__ = "leads"
+
+    id = Column(Integer, primary_key=True, index=True)
+    company_name = Column(String(255), nullable=False, index=True)
+    contact_person = Column(String(255), nullable=True)
+    email = Column(String(255), nullable=True, index=True)
+    phone = Column(String(50), nullable=True, index=True)
+    pan = Column(String(20), nullable=True)
+    gstin = Column(String(20), nullable=True)
+    stage = Column(String(50), default="NEW", nullable=False, index=True)
+    # Stages: NEW | CONTACTED | MEETING_SCHEDULED | PROPOSAL_SENT | NEGOTIATION | CONVERTED | LOST
+    service_interest = Column(String(100), default="TAX_AUDIT_ADVISORY") # TAX_AUDIT_ADVISORY, BUSINESS_SCAN, VIRTUAL_CFO, GST_AUTOMATION
+    expected_value = Column(Float, default=0.0)
+    probability = Column(Integer, default=20) # 0 to 100%
+    source = Column(String(100), default="DIRECT_INQUIRY") # WEBSITE, REFERRAL, EVENT, COLD_OUTREACH
+    assigned_to_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    next_follow_up_date = Column(Date, nullable=True)
+    notes = Column(Text, nullable=True)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True) # Set when converted to active client
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    customer = relationship("Customer")
+    activities = relationship("LeadActivity", back_populates="lead", cascade="all, delete-orphan")
+
+
+class LeadActivity(Base):
+    """Communication history and log for leads"""
+    __tablename__ = "lead_activities"
+
+    id = Column(Integer, primary_key=True, index=True)
+    lead_id = Column(Integer, ForeignKey("leads.id"), nullable=False, index=True)
+    activity_type = Column(String(50), nullable=False) # CALL, EMAIL, WHATSAPP, MEETING, PROPOSAL, NOTE
+    title = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    performed_by_email = Column(String(255), default="pinal@quickhrsolution.com")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    lead = relationship("Lead", back_populates="activities")
+
+
+class Project(Base):
+    """Consulting & Automation Projects"""
+    __tablename__ = "projects"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False, index=True)
+    code = Column(String(50), unique=True, index=True, nullable=False)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True)
+    manager_employee_id = Column(Integer, ForeignKey("employees.id"), nullable=True)
+    status = Column(String(50), default="ACTIVE", nullable=False, index=True)
+    # Status: PLANNING | ACTIVE | ON_HOLD | COMPLETED | CANCELLED
+    priority = Column(String(20), default="MEDIUM") # LOW, MEDIUM, HIGH, URGENT
+    start_date = Column(Date, nullable=False, default=date.today)
+    due_date = Column(Date, nullable=True)
+    budget = Column(Float, default=0.0)
+    spent_amount = Column(Float, default=0.0)
+    completion_percentage = Column(Float, default=0.0)
+    description = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    customer = relationship("Customer")
+    tasks = relationship("Task", foreign_keys="Task.project_id")
+
+
+class Meeting(Base):
+    """Executive Consultations, Client Reviews & Internal Meetings"""
+    __tablename__ = "meetings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(255), nullable=False)
+    meeting_type = Column(String(50), default="CLIENT_CONSULTATION")
+    # Types: CLIENT_CONSULTATION | INTERNAL_REVIEW | TAX_AUDIT | BUSINESS_SCAN | STRATEGY_SESSION
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True)
+    lead_id = Column(Integer, ForeignKey("leads.id"), nullable=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    organizer_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    scheduled_time = Column(DateTime, nullable=False)
+    duration_minutes = Column(Integer, default=45)
+    location_or_link = Column(String(255), default="Vichar Vimarsh Boardroom / Google Meet")
+    status = Column(String(30), default="SCHEDULED") # SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED
+    agenda = Column(Text, nullable=True)
+    discussion_notes = Column(Text, nullable=True)
+    ai_summary = Column(Text, nullable=True)
+    action_items_json = Column(Text, nullable=True) # list of items with owners & deadlines
+    google_calendar_event_id = Column(String(255), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    customer = relationship("Customer")
+    lead = relationship("Lead")
+    project = relationship("Project")
+
+
+class BusinessScan(Base):
+    """Comprehensive 7-domain Business Diagnostic Assessment"""
+    __tablename__ = "business_scans"
+
+    id = Column(Integer, primary_key=True, index=True)
+    scan_number = Column(String(50), unique=True, index=True, nullable=False)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True)
+    company_name = Column(String(255), nullable=False, index=True)
+    contact_person = Column(String(255), nullable=True)
+    email = Column(String(255), nullable=True)
+    phone = Column(String(50), nullable=True)
+    industry = Column(String(100), default="Manufacturing / Services")
+    annual_turnover = Column(String(50), default="10Cr - 50Cr")
+    shareable_token = Column(String(100), unique=True, index=True, nullable=False)
+    status = Column(String(50), default="DRAFT", nullable=False, index=True)
+    # Status: DRAFT | SHARED | IN_PROGRESS | COMPLETED | REVIEWED
+    overall_health_score = Column(Float, default=0.0) # 0 - 100
+    finance_score = Column(Float, default=0.0)
+    hr_score = Column(Float, default=0.0)
+    sales_marketing_score = Column(Float, default=0.0)
+    operations_score = Column(Float, default=0.0)
+    strategy_score = Column(Float, default=0.0)
+    management_score = Column(Float, default=0.0)
+    technology_score = Column(Float, default=0.0)
+    ai_diagnostic_summary = Column(Text, nullable=True)
+    consultant_review_notes = Column(Text, nullable=True)
+    reviewed_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    customer = relationship("Customer")
+    answers = relationship("BusinessScanAnswer", back_populates="scan", cascade="all, delete-orphan")
+    documents = relationship("BusinessScanDocument", back_populates="scan", cascade="all, delete-orphan")
+
+
+class BusinessScanAnswer(Base):
+    """Individual question responses across the 7 business scan categories"""
+    __tablename__ = "business_scan_answers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    scan_id = Column(Integer, ForeignKey("business_scans.id"), nullable=False, index=True)
+    category = Column(String(50), nullable=False)
+    # FINANCE | HR | SALES_MARKETING | OPERATIONS | BUSINESS_STRATEGY | MANAGEMENT | TECHNOLOGY
+    question_key = Column(String(100), nullable=False)
+    question_text = Column(Text, nullable=False)
+    answer_text = Column(Text, nullable=True)
+    score_impact = Column(Float, default=5.0) # 0 to 10
+    notes = Column(Text, nullable=True)
+    attached_document_path = Column(String(500), nullable=True)
+    missing_document_flag = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    scan = relationship("BusinessScan", back_populates="answers")
+
+
+class BusinessScanDocument(Base):
+    """Supporting documentation uploaded during business scan"""
+    __tablename__ = "business_scan_documents"
+
+    id = Column(Integer, primary_key=True, index=True)
+    scan_id = Column(Integer, ForeignKey("business_scans.id"), nullable=False, index=True)
+    category = Column(String(50), nullable=False)
+    file_name = Column(String(255), nullable=False)
+    file_path = Column(String(500), nullable=False)
+    file_size = Column(Integer, default=0)
+    extracted_summary = Column(Text, nullable=True)
+    detected_anomalies_json = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    scan = relationship("BusinessScan", back_populates="documents")
+
+
+class DocumentAnalysis(Base):
+    """Multi-format AI Document Analysis Record (PDF, DOCX, XLSX, CSV, Images)"""
+    __tablename__ = "document_analyses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    file_name = Column(String(255), nullable=False, index=True)
+    file_path = Column(String(500), nullable=False)
+    mime_type = Column(String(100), default="application/pdf")
+    file_size = Column(Integer, default=0)
+    category = Column(String(50), default="FINANCIAL_REPORT")
+    # FINANCIAL_REPORT | BALANCE_SHEET | PROFIT_LOSS | GST_RETURN | AUDIT_REPORT | CONTRACT | INVOICE | MISC
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True)
+    extracted_text = Column(Text, nullable=True)
+    structured_figures_json = Column(Text, nullable=True) # Tables, revenue, PAT, EBITDA, liabilities
+    executive_summary = Column(Text, nullable=True)
+    missing_information_json = Column(Text, nullable=True) # Detected gaps or missing notes
+    comparative_metrics_json = Column(Text, nullable=True)
+    analyzed_by_email = Column(String(255), default="pinal@quickhrsolution.com")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    customer = relationship("Customer")
+    chat_messages = relationship("DocumentChatMessage", back_populates="analysis", cascade="all, delete-orphan")
+
+
+class DocumentChatMessage(Base):
+    """Context-grounded chat conversation regarding an analyzed document"""
+    __tablename__ = "document_chat_messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    analysis_id = Column(Integer, ForeignKey("document_analyses.id"), nullable=False, index=True)
+    user_email = Column(String(255), nullable=False)
+    role = Column(String(20), default="user") # user | assistant
+    message = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    analysis = relationship("DocumentAnalysis", back_populates="chat_messages")
+
+
+class SystemSetting(Base):
+    """System-wide configuration settings (SMTP, WhatsApp, AI, Storage, Security)"""
+    __tablename__ = "system_settings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    key = Column(String(100), unique=True, index=True, nullable=False)
+    value = Column(Text, nullable=True)
+    category = Column(String(50), default="GENERAL") # SMTP | WHATSAPP | AI | STORAGE | SECURITY | GENERAL
+    is_secret = Column(Boolean, default=False)
+    description = Column(String(255), nullable=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -25,6 +25,7 @@ export const StatutoryNotices: React.FC = () => {
   const [selectedNotice, setSelectedNotice] = useState<any | null>(null);
   const [filterType, setFilterType] = useState('ALL');
   const [filterRisk, setFilterRisk] = useState('ALL');
+  const [timeFilter, setTimeFilter] = useState<'ALL' | 'LAST_7_DAYS' | 'LAST_15_DAYS' | 'LAST_1_MONTH' | 'DUE_SOON' | 'OVERDUE'>('ALL');
   
   // Modals
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -140,6 +141,20 @@ export const StatutoryNotices: React.FC = () => {
   const filteredNotices = notices.filter((n) => {
     if (filterType !== 'ALL' && n.notice_type !== filterType) return false;
     if (filterRisk !== 'ALL' && n.risk_level !== filterRisk) return false;
+    if (timeFilter === 'LAST_7_DAYS') {
+      const d = (Date.now() - new Date(n.created_at || n.issue_date).getTime()) / (1000 * 3600 * 24);
+      if (d > 7) return false;
+    } else if (timeFilter === 'LAST_15_DAYS') {
+      const d = (Date.now() - new Date(n.created_at || n.issue_date).getTime()) / (1000 * 3600 * 24);
+      if (d > 15) return false;
+    } else if (timeFilter === 'LAST_1_MONTH') {
+      const d = (Date.now() - new Date(n.created_at || n.issue_date).getTime()) / (1000 * 3600 * 24);
+      if (d > 30) return false;
+    } else if (timeFilter === 'DUE_SOON') {
+      if (n.days_remaining < 0 || n.days_remaining > 7) return false;
+    } else if (timeFilter === 'OVERDUE') {
+      if (n.days_remaining >= 0) return false;
+    }
     return true;
   });
 
@@ -270,6 +285,32 @@ export const StatutoryNotices: React.FC = () => {
                 <option value="LOW">Low</option>
               </select>
             </div>
+          </div>
+
+          {/* Time Filter Chips */}
+          <div className="flex flex-wrap items-center gap-1.5 pb-2 border-b border-slate-100">
+            <span className="text-[10px] font-mono uppercase text-slate-400 font-bold mr-1">Time Horizon:</span>
+            {[
+              { key: 'ALL', label: 'All Notices' },
+              { key: 'LAST_7_DAYS', label: 'Last 7 Days' },
+              { key: 'LAST_15_DAYS', label: 'Last 15 Days' },
+              { key: 'LAST_1_MONTH', label: 'Last 1 Month' },
+              { key: 'DUE_SOON', label: 'Due Soon (≤7d)' },
+              { key: 'OVERDUE', label: 'Overdue' },
+            ].map(chip => (
+              <button
+                key={chip.key}
+                type="button"
+                onClick={() => setTimeFilter(chip.key as any)}
+                className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold transition-colors ${
+                  timeFilter === chip.key
+                    ? 'bg-[#1A2F46] text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {chip.label}
+              </button>
+            ))}
           </div>
 
           <div className="space-y-3 max-h-[640px] overflow-y-auto pr-1">

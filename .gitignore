@@ -30,6 +30,7 @@ yarn-error.log*
 *.swo
 
 # Local runtime data
+*.zip
 uploads/*
 !uploads/.gitkeep
 exports/*
@@ -44,3 +45,4 @@ desktop_agent/agent.env
 desktop_agent/.venv/
 uploads/whatsapp_inbox/
 uploads/automation/
+RENDER_SECRETS.txt

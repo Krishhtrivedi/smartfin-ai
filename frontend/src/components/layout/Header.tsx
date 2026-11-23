@@ -130,6 +130,36 @@ export const Header: React.FC<HeaderProps> = ({
       title: 'Collection AI Trade Receivables Recovery',
       subtitle: 'Automated B2B credit recovery sequences, aging tiers, and MSME Act statutory interest notices'
     },
+    crm_pipeline: {
+      spec: '02 / CRM PIPELINE',
+      title: 'Executive Client Lead Pipeline',
+      subtitle: 'Prospective advisory clients, inquiry stages, proposals, and 1-click conversion to Client Master'
+    },
+    projects_kanban: {
+      spec: '03 / ENGAGEMENTS',
+      title: 'Projects & Tasks Delivery Kanban',
+      subtitle: 'Statutory audits, turnaround advisory milestones, team assignments and live completion progress'
+    },
+    meetings_desk: {
+      spec: '04 / MEETINGS',
+      title: 'Executive Meetings & AI Minutes Desk',
+      subtitle: 'Consultation scheduling, live discussion notes, and grounded LLM action item synthesis'
+    },
+    business_scan: {
+      spec: '08 / DIAGNOSTIC',
+      title: 'Vichar Vimarsh 7-Domain Business Scan',
+      subtitle: '360° health assessment across Finance, HR, Sales, Ops, Strategy, Management, and Technology'
+    },
+    doc_analyzer: {
+      spec: '09 / DOC ANALYZER',
+      title: 'Multi-Format AI Document Analyzer',
+      subtitle: 'Automated figures extraction, statutory missing disclosure detection, and grounded document chat'
+    },
+    settings: {
+      spec: '18 / SETTINGS',
+      title: 'System Settings & Integration Diagnostics',
+      subtitle: 'Live SMTP email gateway, WhatsApp local bridge socket, storage hierarchy, and security audit'
+    },
   };
 
   useEffect(() => {

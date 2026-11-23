@@ -181,6 +181,11 @@ export interface CustomerSummary {
   has_gst_password?: boolean;
   has_it_password?: boolean;
   has_tds_password?: boolean;
+  aliases?: string;
+  contact_person?: string;
+  custom_folder_override?: string;
+  auto_email_dispatch?: boolean;
+  auto_whatsapp_dispatch?: boolean;
   credit_limit: number;
   total_sales: number;
   total_received: number;
@@ -318,3 +323,184 @@ export interface AIChatMessage {
   }>;
   suggested_actions?: string[];
 }
+
+// ----------------- CRM Leads & Pipeline -----------------
+export type LeadStage = 'NEW' | 'CONTACTED' | 'MEETING_SCHEDULED' | 'PROPOSAL_SENT' | 'NEGOTIATION' | 'CONVERTED' | 'LOST';
+
+export interface Lead {
+  id: number;
+  company_name: string;
+  contact_person?: string;
+  email?: string;
+  phone?: string;
+  pan?: string;
+  gstin?: string;
+  stage: LeadStage;
+  service_interest: string;
+  expected_value: number;
+  probability: number;
+  source: string;
+  next_follow_up_date?: string;
+  notes?: string;
+  customer_id?: number;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface LeadActivity {
+  id: number;
+  lead_id: number;
+  activity_type: 'CALL' | 'EMAIL' | 'WHATSAPP' | 'MEETING' | 'PROPOSAL' | 'NOTE';
+  title: string;
+  description?: string;
+  performed_by_email?: string;
+  created_at: string;
+}
+
+export interface PipelineSummary {
+  stages: Record<LeadStage, { count: number; total_value: number }>;
+  total_leads: number;
+  active_leads: number;
+  converted_leads: number;
+  conversion_rate_pct: number;
+  total_pipeline_value: number;
+}
+
+// ----------------- Projects & Meetings -----------------
+export interface ProjectItem {
+  id: number;
+  name: string;
+  code: string;
+  client_name?: string;
+  customer_id?: number;
+  manager_name?: string;
+  manager_employee_id?: number;
+  status: 'PLANNING' | 'ACTIVE' | 'ON_HOLD' | 'COMPLETED' | 'CANCELLED';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  start_date?: string;
+  due_date?: string;
+  budget: number;
+  spent_amount: number;
+  completion_percentage: number;
+  task_count: number;
+  completed_tasks: number;
+  description?: string;
+  created_at: string;
+}
+
+export interface MeetingItem {
+  id: number;
+  title: string;
+  meeting_type: 'CLIENT_CONSULTATION' | 'TAX_PLANNING' | 'AUDIT_REVIEW' | 'INTERNAL_SYNC' | 'BOARD_REVIEW';
+  client_or_lead_name: string;
+  customer_id?: number;
+  lead_id?: number;
+  project_id?: number;
+  scheduled_time: string;
+  duration_minutes: number;
+  location_or_link?: string;
+  status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'RESCHEDULED';
+  agenda?: string;
+  discussion_notes?: string;
+  ai_summary?: string;
+  action_items?: string[];
+  created_at: string;
+}
+
+// ----------------- Business Scan -----------------
+export interface BusinessScanItem {
+  id: number;
+  scan_number: string;
+  company_name: string;
+  contact_person?: string;
+  email?: string;
+  phone?: string;
+  industry: string;
+  annual_turnover: string;
+  shareable_token: string;
+  shareable_link: string;
+  status: 'DRAFT' | 'SHARED' | 'IN_PROGRESS' | 'SUBMITTED' | 'REVIEWED';
+  overall_health_score: number;
+  category_scores: {
+    finance: number;
+    hr: number;
+    sales_marketing: number;
+    operations: number;
+    strategy: number;
+    management: number;
+    technology: number;
+  };
+  answers_completed: number;
+  total_questions: number;
+  documents_attached: number;
+  reviewed_at?: string;
+  created_at: string;
+}
+
+export interface BusinessScanQuestionAnswer {
+  id: number;
+  key: string;
+  question: string;
+  answer?: string;
+  score: number;
+  notes?: string;
+  attached_document?: string;
+  missing_document: boolean;
+}
+
+// ----------------- Document Analyzer -----------------
+export interface DocAnalysisSummary {
+  id: number;
+  filename: string;
+  file_type: string;
+  file_size: number;
+  doc_category: string;
+  summary?: string;
+  status: string;
+  figures_count: number;
+  missing_items_count: number;
+  created_at: string;
+}
+
+export interface DocAnalysisDetail extends DocAnalysisSummary {
+  extracted_figures: Array<{ label: string; value: string; page_or_ref?: string }>;
+  key_findings: string[];
+  missing_items: Array<{ item: string; risk_level: string; recommendation?: string }>;
+  raw_text?: string;
+  chat_history?: Array<{ role: 'user' | 'assistant'; message: string; timestamp: string }>;
+}
+
+// ----------------- System Settings -----------------
+export interface SystemSettingsData {
+  smtp: {
+    host: string;
+    port: string;
+    user: string;
+    from_name: string;
+    has_password: boolean;
+    password_masked: string;
+  };
+  whatsapp: {
+    phone_number_id: string;
+    team_pmsc_group_id: string;
+    has_token: boolean;
+    token_masked: string;
+    bridge_url: string;
+  };
+  ai: {
+    provider: string;
+    model_name: string;
+    has_api_key: boolean;
+    api_key_masked: string;
+  };
+  storage: {
+    desktop_root: string;
+    needs_review_folder: string;
+  };
+  security: {
+    credential_encryption: string;
+    audit_trail_immutable: boolean;
+    session_timeout_minutes: number;
+  };
+}
+

@@ -266,6 +266,77 @@ export const Dashboard: React.FC<{ onNavigateTab: (tab: any) => void }> = ({ onN
         </div>
       </div>
 
+      {/* Executive Advisory & Management Strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 font-sans">
+        <div
+          onClick={() => onNavigateTab('customer')}
+          className="p-3 bg-white border border-[#C5CBD2] rounded-[3px] hover:border-[#E65909] cursor-pointer transition-colors shadow-xs"
+        >
+          <div className="text-[10px] font-mono uppercase text-[#8B97A3] font-bold">Assessees Master</div>
+          <div className="text-xl font-bold font-serif text-[#1A2F46] mt-1">
+            {(adminData as any).clients_count || 2207}
+          </div>
+          <div className="text-[10px] text-[#5D646C] mt-0.5">GST/IT/TDS Vault →</div>
+        </div>
+
+        <div
+          onClick={() => onNavigateTab('projects_kanban')}
+          className="p-3 bg-white border border-[#C5CBD2] rounded-[3px] hover:border-[#E65909] cursor-pointer transition-colors shadow-xs"
+        >
+          <div className="text-[10px] font-mono uppercase text-[#8B97A3] font-bold">Active Engagements</div>
+          <div className="text-xl font-bold font-serif text-blue-700 mt-1">
+            {(adminData as any).active_projects_count || 0}
+          </div>
+          <div className="text-[10px] text-[#5D646C] mt-0.5">Projects Kanban →</div>
+        </div>
+
+        <div
+          onClick={() => onNavigateTab('crm_pipeline')}
+          className="p-3 bg-white border border-[#C5CBD2] rounded-[3px] hover:border-[#E65909] cursor-pointer transition-colors shadow-xs"
+        >
+          <div className="text-[10px] font-mono uppercase text-[#8B97A3] font-bold">CRM Pipeline</div>
+          <div className="text-xl font-bold font-serif text-purple-700 mt-1">
+            {(adminData as any).leads_count || 0}
+          </div>
+          <div className="text-[10px] text-[#5D646C] mt-0.5">Inquiries & Leads →</div>
+        </div>
+
+        <div
+          onClick={() => onNavigateTab('meetings_desk')}
+          className="p-3 bg-white border border-[#C5CBD2] rounded-[3px] hover:border-[#E65909] cursor-pointer transition-colors shadow-xs"
+        >
+          <div className="text-[10px] font-mono uppercase text-[#8B97A3] font-bold">Consultations</div>
+          <div className="text-xl font-bold font-serif text-[#1A2F46] mt-1">
+            {(adminData as any).scheduled_meetings_count || 0}
+          </div>
+          <div className="text-[10px] text-[#5D646C] mt-0.5">AI Minutes Desk →</div>
+        </div>
+
+        <div
+          onClick={() => onNavigateTab('notices')}
+          className="p-3 bg-white border border-[#C5CBD2] rounded-[3px] hover:border-[#E65909] cursor-pointer transition-colors shadow-xs"
+        >
+          <div className="text-[10px] font-mono uppercase text-[#8B97A3] font-bold">Statutory Notices</div>
+          <div className="text-xl font-bold font-serif text-rose-700 mt-1">
+            {(adminData as any).notices_breakdown?.total_active || 0}
+          </div>
+          <div className="text-[10px] text-rose-600 mt-0.5 font-mono">
+            {((adminData as any).notices_breakdown?.due_soon || 0)} due soon →
+          </div>
+        </div>
+
+        <div
+          onClick={() => onNavigateTab('compliance_hub')}
+          className="p-3 bg-white border border-[#C5CBD2] rounded-[3px] hover:border-[#E65909] cursor-pointer transition-colors shadow-xs"
+        >
+          <div className="text-[10px] font-mono uppercase text-[#8B97A3] font-bold">GSTR Dispatches</div>
+          <div className="text-xl font-bold font-serif text-emerald-700 mt-1">
+            {(adminData as any).gstr_dispatch_count || 0}
+          </div>
+          <div className="text-[10px] text-[#5D646C] mt-0.5">WhatsApp / Email Hub →</div>
+        </div>
+      </div>
+
       {/* Primary KPI Grid (Calculated from actual SQL records) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard

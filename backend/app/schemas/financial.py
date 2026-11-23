@@ -29,6 +29,8 @@ class VendorOut(VendorBase):
 class CustomerBase(BaseModel):
     name: str
     trade_name: Optional[str] = None
+    aliases: Optional[str] = None
+    contact_person: Optional[str] = None
     gstin: Optional[str] = None
     pan: Optional[str] = None
     tan: Optional[str] = None
@@ -40,6 +42,9 @@ class CustomerBase(BaseModel):
     credit_limit: float = 100000.0
     outstanding_balance: float = 0.0
     folder_name: Optional[str] = None
+    custom_folder_override: Optional[str] = None
+    auto_email_dispatch: bool = True
+    auto_whatsapp_dispatch: bool = True
     gst_username: Optional[str] = None
     it_username: Optional[str] = None
     tds_username: Optional[str] = None
@@ -53,6 +58,8 @@ class CustomerCreate(CustomerBase):
 class CustomerUpdate(BaseModel):
     name: Optional[str] = None
     trade_name: Optional[str] = None
+    aliases: Optional[str] = None
+    contact_person: Optional[str] = None
     gstin: Optional[str] = None
     pan: Optional[str] = None
     tan: Optional[str] = None
@@ -64,6 +71,9 @@ class CustomerUpdate(BaseModel):
     credit_limit: Optional[float] = None
     outstanding_balance: Optional[float] = None
     folder_name: Optional[str] = None
+    custom_folder_override: Optional[str] = None
+    auto_email_dispatch: Optional[bool] = None
+    auto_whatsapp_dispatch: Optional[bool] = None
     gst_username: Optional[str] = None
     gst_password: Optional[str] = None
     it_username: Optional[str] = None
