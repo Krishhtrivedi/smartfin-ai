@@ -82,9 +82,9 @@ export const AIAssistantPage: React.FC<{ onNavigateTab: (tab: any) => void }> = 
   };
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+    <div className="h-[calc(100vh-8rem)] flex flex-col bg-white dark:bg-[#131C2E] rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
       {/* Header */}
-      <div className="p-4 border-b border-slate-200 bg-navy-900 text-white flex items-center justify-between">
+      <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-navy-900 text-white flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-500 to-blue-400 flex items-center justify-center text-white shadow-md">
             <Sparkles className="w-5 h-5" />
@@ -109,7 +109,7 @@ export const AIAssistantPage: React.FC<{ onNavigateTab: (tab: any) => void }> = 
       </div>
 
       {/* Messages Chat Area */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 bg-slate-50/50">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 bg-slate-50 dark:bg-[#1A253A]/50">
         {messages.map((m) => (
           <div
             key={m.id}
@@ -134,7 +134,7 @@ export const AIAssistantPage: React.FC<{ onNavigateTab: (tab: any) => void }> = 
               className={`p-4 rounded-2xl text-xs sm:text-sm leading-relaxed max-w-[85%] shadow-xs ${
                 m.role === 'user'
                   ? 'bg-navy-900 text-white rounded-tr-none'
-                  : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'
+                  : 'bg-white dark:bg-[#131C2E] border border-slate-200 dark:border-slate-800 text-slate-800 rounded-tl-none'
               }`}
             >
               <div className="whitespace-pre-wrap">{m.content}</div>
@@ -149,7 +149,7 @@ export const AIAssistantPage: React.FC<{ onNavigateTab: (tab: any) => void }> = 
                     {m.sources.map((s, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center space-x-2 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-700"
+                        className="flex items-center space-x-2 bg-slate-50 dark:bg-[#1A253A] px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs text-slate-700"
                       >
                         <FileText className="w-3.5 h-3.5 text-brand-600 flex-shrink-0" />
                         <span className="truncate font-medium">{s.title}</span>
@@ -179,7 +179,7 @@ export const AIAssistantPage: React.FC<{ onNavigateTab: (tab: any) => void }> = 
         ))}
 
         {isLoading && (
-          <div className="flex items-center space-x-2.5 text-xs text-slate-500 bg-white p-3 rounded-xl border border-slate-200 w-fit">
+          <div className="flex items-center space-x-2.5 text-xs text-slate-500 bg-white dark:bg-[#131C2E] p-3 rounded-xl border border-slate-200 dark:border-slate-800 w-fit">
             <Loader2 className="w-4 h-4 animate-spin text-brand-600" />
             <span>SmartFin AI is cross-referencing ledger tables & calculating discrepancies...</span>
           </div>
@@ -188,7 +188,7 @@ export const AIAssistantPage: React.FC<{ onNavigateTab: (tab: any) => void }> = 
       </div>
 
       {/* Input Bar */}
-      <div className="p-3 sm:p-4 bg-white border-t border-slate-200">
+      <div className="p-3 sm:p-4 bg-white dark:bg-[#131C2E] border-t border-slate-200 dark:border-slate-800">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -201,7 +201,7 @@ export const AIAssistantPage: React.FC<{ onNavigateTab: (tab: any) => void }> = 
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about pending vendor payments, bank BRS, GST ITC mismatch, or TDS deadlines..."
-            className="flex-1 text-xs sm:text-sm px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 bg-slate-50/70"
+            className="flex-1 text-xs sm:text-sm px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 bg-slate-50 dark:bg-[#1A253A]/70"
           />
           <button
             type="submit"

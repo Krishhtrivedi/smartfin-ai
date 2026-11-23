@@ -8,7 +8,7 @@ import {
 import { Modal } from '../components/common/Modal';
 
 const TASK_STATUSES = [
-  { key: 'TODO', label: 'To Do', color: 'text-slate-700', bg: 'bg-slate-50', border: 'border-slate-300' },
+  { key: 'TODO', label: 'To Do', color: 'text-slate-700', bg: 'bg-slate-50 dark:bg-[#1A253A]', border: 'border-slate-300' },
   { key: 'IN_PROGRESS', label: 'In Progress', color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-300' },
   { key: 'REVIEW', label: 'Review & QA', color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-300' },
   { key: 'COMPLETED', label: 'Completed', color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-300' },
@@ -146,21 +146,21 @@ export const ProjectsKanban: React.FC = () => {
   const activeProject = projects.find(p => p.id === selectedProjectId);
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 w-full max-w-none font-sans">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#ECE9E3]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#ECE9E3] dark:border-slate-800">
         <div>
           <div className="flex items-center space-x-2">
             <span className="text-[11px] font-mono uppercase tracking-widest text-[#E65909] font-bold">
               Operations & Engagements
             </span>
             <span className="text-[#8B97A3]">/</span>
-            <span className="text-xs text-[#5D646C]">Project Delivery & Task Board</span>
+            <span className="text-xs text-[#5D646C] dark:text-slate-400">Project Delivery & Task Board</span>
           </div>
-          <h1 className="text-2xl font-serif text-[#1A2F46] font-bold mt-1">
+          <h1 className="text-2xl font-serif text-[#1A2F46] dark:text-slate-100 font-bold mt-1">
             Projects & Tasks Kanban
           </h1>
-          <p className="text-xs text-[#5D646C] mt-0.5">
+          <p className="text-xs text-[#5D646C] dark:text-slate-400 mt-0.5">
             Deliver audits, business turnarounds, and tax filings on time with real-time status tracking.
           </p>
         </div>
@@ -168,7 +168,7 @@ export const ProjectsKanban: React.FC = () => {
         <div className="flex items-center space-x-3">
           <button
             onClick={() => loadData()}
-            className="px-3 py-2 border border-[#C5CBD2] text-[#1A2F46] text-xs font-semibold rounded-[2px] hover:bg-[#F6F3EE] flex items-center space-x-1.5 transition-colors"
+            className="px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 text-[#1A2F46] dark:text-slate-100 text-xs font-semibold rounded-[2px] hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120] flex items-center space-x-1.5 transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
@@ -186,10 +186,10 @@ export const ProjectsKanban: React.FC = () => {
       {/* Projects Horizontal Slider / Cards */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-xs font-bold font-mono uppercase tracking-wider text-[#1A2F46]">
+          <h2 className="text-xs font-bold font-mono uppercase tracking-wider text-[#1A2F46] dark:text-slate-100">
             Active Engagements ({projects.length})
           </h2>
-          <span className="text-[11px] text-[#5D646C]">Select an engagement to view its task workflow</span>
+          <span className="text-[11px] text-[#5D646C] dark:text-slate-400">Select an engagement to view its task workflow</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -199,12 +199,12 @@ export const ProjectsKanban: React.FC = () => {
               <div
                 key={p.id}
                 onClick={() => handleSelectProject(p.id)}
-                className={`p-3.5 bg-white border rounded-[3px] cursor-pointer transition-all ${
-                  isSelected ? 'border-[#E65909] ring-2 ring-[#E65909]/20 shadow-md' : 'border-[#C5CBD2] hover:border-[#8B97A3]'
+                className={`p-3.5 bg-white dark:bg-[#131C2E] border rounded-[3px] cursor-pointer transition-all ${
+                  isSelected ? 'border-[#E65909] ring-2 ring-[#E65909]/20 shadow-md' : 'border-[#C5CBD2] dark:border-slate-800 hover:border-[#8B97A3]'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#F6F3EE] text-[#5D646C] font-bold">
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#F6F3EE] dark:bg-[#0B1120] text-[#5D646C] dark:text-slate-400 font-bold">
                     {p.code}
                   </span>
                   <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${
@@ -214,18 +214,18 @@ export const ProjectsKanban: React.FC = () => {
                   </span>
                 </div>
 
-                <h3 className="text-xs font-bold text-[#1A2F46] mt-2 line-clamp-1">{p.name}</h3>
-                <div className="text-[11px] text-[#5D646C] mt-0.5 line-clamp-1">
+                <h3 className="text-xs font-bold text-[#1A2F46] dark:text-slate-100 mt-2 line-clamp-1">{p.name}</h3>
+                <div className="text-[11px] text-[#5D646C] dark:text-slate-400 mt-0.5 line-clamp-1">
                   Client: <strong>{p.client_name || 'Vichar Vimarsh Internal'}</strong>
                 </div>
 
                 {/* Progress Bar */}
                 <div className="mt-3">
-                  <div className="flex justify-between text-[10px] font-mono text-[#5D646C] mb-1">
+                  <div className="flex justify-between text-[10px] font-mono text-[#5D646C] dark:text-slate-400 mb-1">
                     <span>Progress</span>
                     <span>{p.completion_percentage}% ({p.completed_tasks}/{p.task_count} tasks)</span>
                   </div>
-                  <div className="w-full bg-[#ECE9E3] h-1.5 rounded-full overflow-hidden">
+                  <div className="w-full bg-[#ECE9E3] dark:bg-[#1A253A] h-1.5 rounded-full overflow-hidden">
                     <div
                       className="bg-emerald-600 h-full transition-all duration-300"
                       style={{ width: `${Math.min(100, p.completion_percentage)}%` }}
@@ -241,28 +241,28 @@ export const ProjectsKanban: React.FC = () => {
       {/* Active Project Details & Task Board */}
       {activeProject ? (
         <div className="space-y-4">
-          <div className="p-4 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="p-4 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center space-x-2">
                 <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[#E65909]/10 text-[#E65909]">
                   {activeProject.code}
                 </span>
                 <span className="text-xs text-[#8B97A3]">·</span>
-                <span className="text-xs text-[#5D646C]">Project Manager: <strong>{activeProject.manager_name || 'Unassigned'}</strong></span>
+                <span className="text-xs text-[#5D646C] dark:text-slate-400">Project Manager: <strong>{activeProject.manager_name || 'Unassigned'}</strong></span>
                 {activeProject.due_date && (
                   <>
                     <span className="text-xs text-[#8B97A3]">·</span>
-                    <span className="text-xs text-[#5D646C] flex items-center gap-1 font-mono">
+                    <span className="text-xs text-[#5D646C] dark:text-slate-400 flex items-center gap-1 font-mono">
                       <Calendar className="w-3 h-3 text-[#8B97A3]" /> Due: {activeProject.due_date}
                     </span>
                   </>
                 )}
               </div>
-              <h2 className="text-lg font-bold font-serif text-[#1A2F46] mt-1">
+              <h2 className="text-lg font-bold font-serif text-[#1A2F46] dark:text-slate-100 mt-1">
                 {activeProject.name}
               </h2>
               {activeProject.description && (
-                <p className="text-xs text-[#5D646C] mt-0.5">{activeProject.description}</p>
+                <p className="text-xs text-[#5D646C] dark:text-slate-400 mt-0.5">{activeProject.description}</p>
               )}
             </div>
 
@@ -278,34 +278,34 @@ export const ProjectsKanban: React.FC = () => {
           </div>
 
           {/* Kanban Columns */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div className="flex overflow-x-auto gap-3.5 pb-4 snap-x min-w-full">
             {TASK_STATUSES.map((col) => {
               const colTasks = tasks.filter(t => t.status === col.key);
 
               return (
-                <div key={col.key} className="bg-[#F6F3EE] rounded-[3px] border border-[#C5CBD2] flex flex-col min-h-[420px]">
+                <div key={col.key} className="bg-[#F6F3EE] dark:bg-[#1A253A] rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 flex flex-col min-h-[420px] min-w-[280px] sm:min-w-[300px] flex-shrink-0 snap-start">
                   <div className={`p-2.5 border-b ${col.border} ${col.bg} rounded-t-[3px] flex items-center justify-between`}>
                     <h3 className={`text-xs font-bold uppercase tracking-wider ${col.color}`}>
                       {col.label}
                     </h3>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white border border-[#C5CBD2] text-[#1A2F46] font-bold">
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 text-[#1A2F46] dark:text-slate-100 font-bold">
                       {colTasks.length}
                     </span>
                   </div>
 
                   <div className="p-2 space-y-2 flex-1 overflow-y-auto">
                     {colTasks.length === 0 ? (
-                      <div className="text-center py-8 text-xs text-[#8B97A3] border border-dashed border-[#C5CBD2] rounded-[2px]">
+                      <div className="text-center py-8 text-xs text-[#8B97A3] border border-dashed border-[#C5CBD2] dark:border-slate-800 rounded-[2px]">
                         No tasks in this lane
                       </div>
                     ) : (
                       colTasks.map((task) => (
                         <div
                           key={task.id}
-                          className="p-3 bg-white border border-[#C5CBD2] rounded-[2px] hover:shadow-sm transition-all"
+                          className="p-3 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] hover:shadow-sm transition-all"
                         >
                           <div className="flex items-start justify-between">
-                            <h4 className="text-xs font-bold text-[#1A2F46]">{task.title}</h4>
+                            <h4 className="text-xs font-bold text-[#1A2F46] dark:text-slate-100">{task.title}</h4>
                             <span className={`text-[9px] font-bold uppercase px-1 py-0.5 rounded ${
                               task.priority === 'HIGH' || task.priority === 'URGENT' ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-700'
                             }`}>
@@ -314,10 +314,10 @@ export const ProjectsKanban: React.FC = () => {
                           </div>
 
                           {task.description && (
-                            <p className="text-[11px] text-[#5D646C] mt-1 line-clamp-2">{task.description}</p>
+                            <p className="text-[11px] text-[#5D646C] dark:text-slate-400 mt-1 line-clamp-2">{task.description}</p>
                           )}
 
-                          <div className="mt-2 pt-2 border-t border-[#ECE9E3] flex items-center justify-between text-[10px]">
+                          <div className="mt-2 pt-2 border-t border-[#ECE9E3] dark:border-slate-800 flex items-center justify-between text-[10px]">
                             <span className="text-[#8B97A3] font-mono flex items-center gap-1">
                               <User className="w-2.5 h-2.5" />
                               {task.assigned_to_name || 'Staff'}
@@ -327,7 +327,7 @@ export const ProjectsKanban: React.FC = () => {
                             <select
                               value={task.status}
                               onChange={(e) => handleUpdateTaskStatus(task.id, e.target.value)}
-                              className="bg-white border border-[#C5CBD2] rounded px-1.5 py-0.5 text-[10px] text-[#1A2F46]"
+                              className="bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded px-1.5 py-0.5 text-[10px] text-[#1A2F46] dark:text-slate-100"
                             >
                               {TASK_STATUSES.map(s => (
                                 <option key={s.key} value={s.key}>{s.label}</option>
@@ -344,8 +344,8 @@ export const ProjectsKanban: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className="p-8 text-center bg-white border border-[#C5CBD2] rounded-[3px]">
-          <p className="text-xs text-[#5D646C]">No projects found. Click "New Project" to create your first engagement.</p>
+        <div className="p-8 text-center bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px]">
+          <p className="text-xs text-[#5D646C] dark:text-slate-400">No projects found. Click "New Project" to create your first engagement.</p>
         </div>
       )}
 
@@ -359,36 +359,36 @@ export const ProjectsKanban: React.FC = () => {
         <form onSubmit={handleCreateProject} className="space-y-3 font-sans">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Project Name *</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Project Name *</label>
               <input
                 type="text"
                 required
                 value={projName}
                 onChange={(e) => setProjName(e.target.value)}
                 placeholder="e.g. FY 2026-27 Statutory Audit"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Project Code *</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Project Code *</label>
               <input
                 type="text"
                 required
                 value={projCode}
                 onChange={(e) => setProjCode(e.target.value.toUpperCase())}
                 placeholder="PRJ-AUDIT-2026"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Client / Customer</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Client / Customer</label>
               <select
                 value={projCustomerId || ''}
                 onChange={(e) => setProjCustomerId(e.target.value ? Number(e.target.value) : undefined)}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               >
                 <option value="">-- Internal / General Project --</option>
                 {customers.map((c) => (
@@ -397,11 +397,11 @@ export const ProjectsKanban: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Engagement Manager</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Engagement Manager</label>
               <select
                 value={projManagerId || ''}
                 onChange={(e) => setProjManagerId(e.target.value ? Number(e.target.value) : undefined)}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               >
                 <option value="">-- Select Staff Manager --</option>
                 {employees.map((emp) => (
@@ -413,11 +413,11 @@ export const ProjectsKanban: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Priority</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Priority</label>
               <select
                 value={projPriority}
                 onChange={(e) => setProjPriority(e.target.value)}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               >
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
@@ -426,41 +426,41 @@ export const ProjectsKanban: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Budget (₹)</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Budget (₹)</label>
               <input
                 type="number"
                 value={projBudget}
                 onChange={(e) => setProjBudget(e.target.value)}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Target Due Date</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Target Due Date</label>
               <input
                 type="date"
                 value={projDueDate}
                 onChange={(e) => setProjDueDate(e.target.value)}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Scope & Objectives</label>
+            <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Scope & Objectives</label>
             <textarea
               rows={2}
               value={projDesc}
               onChange={(e) => setProjDesc(e.target.value)}
               placeholder="Scope of work, deliverables, and audit period..."
-              className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-3 border-t border-[#ECE9E3]">
+          <div className="flex justify-end space-x-2 pt-3 border-t border-[#ECE9E3] dark:border-slate-800">
             <button
               type="button"
               onClick={() => setProjectModalOpen(false)}
-              className="px-4 py-2 border border-[#C5CBD2] text-xs font-semibold rounded-[2px] text-[#5D646C] hover:bg-[#F6F3EE]"
+              className="px-4 py-2 border border-[#C5CBD2] dark:border-slate-800 text-xs font-semibold rounded-[2px] text-[#5D646C] dark:text-slate-400 hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120]"
             >
               Cancel
             </button>
@@ -484,24 +484,24 @@ export const ProjectsKanban: React.FC = () => {
       >
         <form onSubmit={handleCreateTask} className="space-y-3 font-sans">
           <div>
-            <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Task Title *</label>
+            <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Task Title *</label>
             <input
               type="text"
               required
               value={taskTitle}
               onChange={(e) => setTaskTitle(e.target.value)}
               placeholder="e.g. Verify GSTR-2B ITC vs Purchase Register"
-              className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Assignee</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Assignee</label>
               <select
                 value={taskAssigneeId || ''}
                 onChange={(e) => setTaskAssigneeId(e.target.value ? Number(e.target.value) : undefined)}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               >
                 {employees.map((emp) => (
                   <option key={emp.id} value={emp.id}>{emp.name}</option>
@@ -509,11 +509,11 @@ export const ProjectsKanban: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Priority</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Priority</label>
               <select
                 value={taskPriority}
                 onChange={(e) => setTaskPriority(e.target.value)}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               >
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
@@ -522,32 +522,32 @@ export const ProjectsKanban: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Target Due Date</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Target Due Date</label>
               <input
                 type="date"
                 value={taskDueDate}
                 onChange={(e) => setTaskDueDate(e.target.value)}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Task Instructions</label>
+            <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Task Instructions</label>
             <textarea
               rows={2}
               value={taskDesc}
               onChange={(e) => setTaskDesc(e.target.value)}
               placeholder="Clear instructions for the employee..."
-              className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-3 border-t border-[#ECE9E3]">
+          <div className="flex justify-end space-x-2 pt-3 border-t border-[#ECE9E3] dark:border-slate-800">
             <button
               type="button"
               onClick={() => setTaskModalOpen(false)}
-              className="px-4 py-2 border border-[#C5CBD2] text-xs font-semibold rounded-[2px] text-[#5D646C] hover:bg-[#F6F3EE]"
+              className="px-4 py-2 border border-[#C5CBD2] dark:border-slate-800 text-xs font-semibold rounded-[2px] text-[#5D646C] dark:text-slate-400 hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120]"
             >
               Cancel
             </button>

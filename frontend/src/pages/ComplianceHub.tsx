@@ -640,9 +640,9 @@ export const ComplianceHub: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-none">
       {/* Top Header */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
             <span className="px-2 py-0.5 rounded bg-brand-50 text-brand-700 text-[10px] font-mono font-bold uppercase tracking-wider">
@@ -661,7 +661,7 @@ export const ComplianceHub: React.FC = () => {
       </div>
 
       {/* Sub-Nav Tabs (Clean responsive wrap) */}
-      <div className="flex flex-wrap items-center gap-1.5 pb-2 border-b border-slate-200">
+      <div className="flex flex-wrap items-center gap-1.5 pb-2 border-b border-slate-200 dark:border-slate-800">
         {[
           { key: 'gstr_email', label: '1. GSTR PDF Auto-Email', icon: Mail },
           { key: 'gst_agent', label: '2. GSTR Auto-Filing Agent', icon: Bot },
@@ -680,7 +680,7 @@ export const ComplianceHub: React.FC = () => {
               className={`px-3.5 py-2 text-xs font-semibold rounded-lg flex items-center space-x-1.5 whitespace-nowrap transition-colors ${
                 isActive
                   ? 'bg-brand-600 text-white shadow-xs font-bold'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-100 hover:bg-slate-100'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -695,7 +695,7 @@ export const ComplianceHub: React.FC = () => {
       {/* ============================================================== */}
       {activeTab === 'gstr_email' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-5 bg-white p-5 rounded-xl border border-slate-200 space-y-4 shadow-xs">
+          <div className="lg:col-span-5 bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-xs">
             <div>
               <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider flex items-center gap-1.5">
                 <Mail className="w-3.5 h-3.5 text-brand-600" />
@@ -714,7 +714,7 @@ export const ComplianceHub: React.FC = () => {
                 rows={4}
                 value={gstrFilesInput}
                 onChange={(e) => setGstrFilesInput(e.target.value)}
-                className="w-full p-2.5 text-xs font-mono border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600"
+                className="w-full p-2.5 text-xs font-mono border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-600"
               />
               <span className="text-[10px] text-slate-400">
                 Pattern: TYPE_GSTIN_PERIOD.pdf (e.g. GSTR1_27AACCA9876C1Z1_102026.pdf)
@@ -731,7 +731,7 @@ export const ComplianceHub: React.FC = () => {
             </button>
           </div>
 
-          <div className="lg:col-span-7 bg-white p-5 rounded-xl border border-slate-200 space-y-3 shadow-xs">
+          <div className="lg:col-span-7 bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3 shadow-xs">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
                 Automated Dispatch Audit Logs ({gstrLogs.length})
@@ -741,7 +741,7 @@ export const ComplianceHub: React.FC = () => {
 
             <div className="overflow-x-auto max-h-[420px] overflow-y-auto">
               <table className="w-full text-left text-xs font-mono">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px]">
+                <thead className="bg-slate-50 dark:bg-[#1A253A] border-b border-slate-200 dark:border-slate-800 text-slate-500 text-[11px]">
                   <tr>
                     <th className="py-2 px-3">Return</th>
                     <th className="py-2 px-3">Client</th>
@@ -759,7 +759,7 @@ export const ComplianceHub: React.FC = () => {
                     </tr>
                   ) : (
                     gstrLogs.map((l) => (
-                      <tr key={l.id} className="hover:bg-slate-50">
+                      <tr key={l.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]">
                         <td className="py-2 px-3 font-bold text-brand-900">{l.return_type} ({l.tax_period})</td>
                         <td className="py-2 px-3 truncate max-w-[140px] text-slate-800">{l.client_name}</td>
                         <td className="py-2 px-3 text-slate-500">{l.recipient_email}</td>
@@ -785,7 +785,7 @@ export const ComplianceHub: React.FC = () => {
       {/* 2. GSTR-1 & 3B AUTO-FILING AI AGENT (Human-in-the-Loop)         */}
       {/* ============================================================== */}
       {activeTab === 'gst_agent' && (
-        <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-6 shadow-xs">
+        <div className="bg-white dark:bg-[#131C2E] p-6 rounded-xl border border-slate-200 dark:border-slate-800 space-y-6 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-800 text-[10px] font-mono font-bold uppercase tracking-wider">
@@ -815,49 +815,49 @@ export const ComplianceHub: React.FC = () => {
           {/* Configuration Form */}
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs font-mono">
             <div>
-              <label className="block text-slate-600 mb-1 font-sans font-semibold">Client Name</label>
+              <label className="block text-slate-600 dark:text-slate-400 mb-1 font-sans font-semibold">Client Name</label>
               <input
                 type="text"
                 value={clientInput}
                 onChange={(e) => setClientInput(e.target.value)}
-                className="w-full p-2 border border-slate-200 rounded-lg"
+                className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg"
               />
             </div>
             <div>
-              <label className="block text-slate-600 mb-1 font-sans font-semibold">GSTIN</label>
+              <label className="block text-slate-600 dark:text-slate-400 mb-1 font-sans font-semibold">GSTIN</label>
               <input
                 type="text"
                 value={gstinInput}
                 onChange={(e) => setGstinInput(e.target.value.toUpperCase())}
-                className="w-full p-2 border border-slate-200 rounded-lg"
+                className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg"
               />
             </div>
             <div>
-              <label className="block text-slate-600 mb-1 font-sans font-semibold">Return Type</label>
+              <label className="block text-slate-600 dark:text-slate-400 mb-1 font-sans font-semibold">Return Type</label>
               <select
                 value={returnTypeInput}
                 onChange={(e) => setReturnTypeInput(e.target.value)}
-                className="w-full p-2 border border-slate-200 rounded-lg bg-white"
+                className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[#131C2E]"
               >
                 <option value="GSTR1">GSTR-1 (Outward Supplies)</option>
                 <option value="GSTR3B">GSTR-3B (Monthly Summary & Payment)</option>
               </select>
             </div>
             <div>
-              <label className="block text-slate-600 mb-1 font-sans font-semibold">Tax Period</label>
+              <label className="block text-slate-600 dark:text-slate-400 mb-1 font-sans font-semibold">Tax Period</label>
               <input
                 type="text"
                 value={periodInput}
                 onChange={(e) => setPeriodInput(e.target.value)}
-                className="w-full p-2 border border-slate-200 rounded-lg"
+                className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg"
               />
             </div>
           </div>
 
           {/* Diagnostic Verification Results */}
           {agentReviewData ? (
-            <div className="p-5 rounded-xl border border-slate-200 bg-slate-50/50 space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+            <div className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1A253A]/50 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                 <div>
                   <span className="text-[10px] font-mono font-bold text-slate-500 uppercase">
                     Review ID #{agentReviewData.review_id}
@@ -877,7 +877,7 @@ export const ComplianceHub: React.FC = () => {
                 {agentReviewData.checks.map((c: any, idx: number) => (
                   <div
                     key={idx}
-                    className="p-3 rounded-lg bg-white border border-slate-200 flex items-start justify-between gap-3 text-xs"
+                    className="p-3 rounded-lg bg-white dark:bg-[#131C2E] border border-slate-200 dark:border-slate-800 flex items-start justify-between gap-3 text-xs"
                   >
                     <div className="flex items-start space-x-2">
                       {c.passed ? (
@@ -900,7 +900,7 @@ export const ComplianceHub: React.FC = () => {
               </div>
 
               {/* Human-in-the-Loop Approval Action */}
-              <div className="p-4 rounded-xl bg-white border border-brand-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-4 rounded-xl bg-white dark:bg-[#131C2E] border border-brand-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center space-x-2">
                     <ShieldCheck className="w-4 h-4 text-brand-600" />
@@ -940,7 +940,7 @@ export const ComplianceHub: React.FC = () => {
       {/* ============================================================== */}
       {activeTab === 'itr_bot' && (
         <div className="space-y-6">
-          <div className="bg-white p-5 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+          <div className="bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
             <div>
               <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider flex items-center gap-1.5">
                 <UserCheck className="w-4 h-4 text-brand-600" />
@@ -962,20 +962,20 @@ export const ComplianceHub: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {itrCases.length === 0 ? (
-              <div className="col-span-3 p-12 text-center text-xs font-mono text-slate-400 bg-white rounded-xl border border-slate-200">
+              <div className="col-span-3 p-12 text-center text-xs font-mono text-slate-400 bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800">
                 No active document collection cases. Click "+ Open New Intake Case" to begin collecting documents.
               </div>
             ) : (
               itrCases.map((c) => (
-                <div key={c.id} className="bg-white p-5 rounded-xl border border-slate-200 space-y-4 shadow-xs">
+                <div key={c.id} className="bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-xs">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-[10px] font-mono text-brand-600 font-bold uppercase">
                         {c.income_profile.replace('_', ' ')}
                       </span>
-                      <h4 className="text-xs font-bold text-slate-900 mt-0.5">{c.client_name}</h4>
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-0.5">{c.client_name}</h4>
                     </div>
-                    <span className="text-xs font-mono font-bold text-slate-600">{c.pan}</span>
+                    <span className="text-xs font-mono font-bold text-slate-600 dark:text-slate-400">{c.pan}</span>
                   </div>
 
                   {/* Progress Bar */}
@@ -998,7 +998,7 @@ export const ComplianceHub: React.FC = () => {
                       <div
                         key={item.id}
                         onClick={() => handleToggleDocItem(c.id, item.id, item.status)}
-                        className="flex items-center justify-between p-2 rounded bg-slate-50 hover:bg-slate-100/80 cursor-pointer border border-slate-200/80 text-[11px]"
+                        className="flex items-center justify-between p-2 rounded bg-slate-50 dark:bg-[#1A253A] hover:bg-slate-100/80 cursor-pointer border border-slate-200 dark:border-slate-800/80 text-[11px]"
                       >
                         <span className={`truncate max-w-[200px] ${item.status === 'RECEIVED' ? 'line-through text-slate-400' : 'text-slate-700'}`}>
                           {item.name}
@@ -1036,7 +1036,7 @@ export const ComplianceHub: React.FC = () => {
       {/* 4. LAST 3 YEARS ITR DATA COLLECTOR & AUTO-SENDER                */}
       {/* ============================================================== */}
       {activeTab === 'itr_archive' && (
-        <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-6 shadow-xs">
+        <div className="bg-white dark:bg-[#131C2E] p-6 rounded-xl border border-slate-200 dark:border-slate-800 space-y-6 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <h3 className="text-sm font-bold text-navy-950 flex items-center gap-1.5">
@@ -1060,7 +1060,7 @@ export const ComplianceHub: React.FC = () => {
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-mono">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px]">
+              <thead className="bg-slate-50 dark:bg-[#1A253A] border-b border-slate-200 dark:border-slate-800 text-slate-500 text-[11px]">
                 <tr>
                   <th className="py-2.5 px-3">Client</th>
                   <th className="py-2.5 px-3">PAN</th>
@@ -1080,12 +1080,12 @@ export const ComplianceHub: React.FC = () => {
                   </tr>
                 ) : (
                   archivePackages.map((p) => (
-                    <tr key={p.id} className="hover:bg-slate-50">
-                      <td className="py-2.5 px-3 font-bold text-slate-900">{p.client_name}</td>
-                      <td className="py-2.5 px-3 text-slate-600">{p.pan}</td>
+                    <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]">
+                      <td className="py-2.5 px-3 font-bold text-slate-900 dark:text-slate-100">{p.client_name}</td>
+                      <td className="py-2.5 px-3 text-slate-600 dark:text-slate-400">{p.pan}</td>
                       <td className="py-2.5 px-3 text-brand-900 font-bold">{p.covered_years.join(', ')}</td>
                       <td className="py-2.5 px-3 text-slate-500 truncate max-w-[220px]">{p.folder_path}</td>
-                      <td className="py-2.5 px-3 text-slate-600">{p.delivery_channel}</td>
+                      <td className="py-2.5 px-3 text-slate-600 dark:text-slate-400">{p.delivery_channel}</td>
                       <td className="py-2.5 px-3">
                         <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
                           {p.delivery_status}
@@ -1106,7 +1106,7 @@ export const ComplianceHub: React.FC = () => {
       {/* ============================================================== */}
       {activeTab === 'capital_gains' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-5 bg-white p-5 rounded-xl border border-slate-200 space-y-4 shadow-xs">
+          <div className="lg:col-span-5 bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-xs">
             <div>
               <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider flex items-center gap-1.5">
                 <Calculator className="w-3.5 h-3.5 text-brand-600" />
@@ -1120,34 +1120,34 @@ export const ComplianceHub: React.FC = () => {
             <div className="space-y-3 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-600 mb-1 font-semibold">Client / Assessee Name *</label>
+                  <label className="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Client / Assessee Name *</label>
                   <input
                     type="text"
                     value={cgClientName}
                     onChange={(e) => setCgClientName(e.target.value)}
                     placeholder="e.g. Apex Global Enterprises Ltd"
-                    className="w-full p-2 border border-slate-200 rounded-lg text-xs"
+                    className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-600 mb-1 font-semibold">Assessee PAN *</label>
+                  <label className="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Assessee PAN *</label>
                   <input
                     type="text"
                     value={cgPan}
                     onChange={(e) => setCgPan(e.target.value.toUpperCase())}
                     placeholder="AACCA9876C"
                     maxLength={10}
-                    className="w-full p-2 border border-slate-200 rounded-lg font-mono text-xs"
+                    className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg font-mono text-xs"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-600 mb-1 font-semibold">Asset Class</label>
+                <label className="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Asset Class</label>
                 <select
                   value={cgAssetType}
                   onChange={(e) => setCgAssetType(e.target.value)}
-                  className="w-full p-2 border border-slate-200 rounded-lg bg-white"
+                  className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[#131C2E]"
                 >
                   <option value="EQUITY_LISTED">Listed Equity Shares (12m threshold u/s 111A/112A)</option>
                   <option value="EQUITY_MUTUAL_FUNDS">Equity Oriented Mutual Funds (12m threshold)</option>
@@ -1159,63 +1159,63 @@ export const ComplianceHub: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-600 mb-1 font-semibold">Date of Purchase</label>
+                  <label className="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Date of Purchase</label>
                   <input
                     type="date"
                     value={cgBuyDate}
                     onChange={(e) => setCgBuyDate(e.target.value)}
-                    className="w-full p-2 border border-slate-200 rounded-lg font-mono"
+                    className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-600 mb-1 font-semibold">Date of Sale</label>
+                  <label className="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Date of Sale</label>
                   <input
                     type="date"
                     value={cgSaleDate}
                     onChange={(e) => setCgSaleDate(e.target.value)}
-                    className="w-full p-2 border border-slate-200 rounded-lg font-mono"
+                    className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg font-mono"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-600 mb-1 font-semibold">Sale Consideration (₹)</label>
+                  <label className="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Sale Consideration (₹)</label>
                   <input
                     type="number"
                     value={cgSaleVal}
                     onChange={(e) => setCgSaleVal(e.target.value)}
-                    className="w-full p-2 border border-slate-200 rounded-lg font-mono"
+                    className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-600 mb-1 font-semibold">Cost of Acquisition (₹)</label>
+                  <label className="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Cost of Acquisition (₹)</label>
                   <input
                     type="number"
                     value={cgCostVal}
                     onChange={(e) => setCgCostVal(e.target.value)}
-                    className="w-full p-2 border border-slate-200 rounded-lg font-mono"
+                    className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg font-mono"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-600 mb-1 font-semibold">Transfer Expenses (₹)</label>
+                  <label className="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Transfer Expenses (₹)</label>
                   <input
                     type="number"
                     value={cgExpenses}
                     onChange={(e) => setCgExpenses(e.target.value)}
-                    className="w-full p-2 border border-slate-200 rounded-lg font-mono"
+                    className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-600 mb-1 font-semibold">Exemptions u/s 54 (₹)</label>
+                  <label className="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Exemptions u/s 54 (₹)</label>
                   <input
                     type="number"
                     value={cgExemption}
                     onChange={(e) => setCgExemption(e.target.value)}
-                    className="w-full p-2 border border-slate-200 rounded-lg font-mono"
+                    className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg font-mono"
                   />
                 </div>
               </div>
@@ -1241,7 +1241,7 @@ export const ComplianceHub: React.FC = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-7 bg-white p-5 rounded-xl border border-slate-200 space-y-4 shadow-xs">
+          <div className="lg:col-span-7 bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-xs">
             <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
               Capital Gains & Tax Working Schedule
             </h3>
@@ -1249,12 +1249,12 @@ export const ComplianceHub: React.FC = () => {
             {cgResult ? (
               <div className="space-y-4 font-mono text-xs">
                 <div className="grid grid-cols-3 gap-3 text-center">
-                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                  <div className="p-3 bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 rounded-lg">
                     <span className="text-slate-500 font-sans block text-[10px]">Holding Period</span>
                     <strong className="text-navy-950 text-sm">{cgResult.holding_months} Months</strong>
                     <span className="block text-[10px] text-brand-600 font-bold">{cgResult.gain_type}</span>
                   </div>
-                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                  <div className="p-3 bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 rounded-lg">
                     <span className="text-slate-500 font-sans block text-[10px]">Net Capital Gain</span>
                     <strong className="text-emerald-700 text-sm">₹{cgResult.net_taxable_gain.toLocaleString('en-IN')}</strong>
                     <span className="block text-[10px] text-slate-400">After exemptions</span>
@@ -1266,7 +1266,7 @@ export const ComplianceHub: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-3.5 bg-slate-50 rounded-lg border border-slate-200 space-y-1.5">
+                <div className="p-3.5 bg-slate-50 dark:bg-[#1A253A] rounded-lg border border-slate-200 dark:border-slate-800 space-y-1.5">
                   <div className="flex justify-between">
                     <span className="text-slate-500">Gross Sale Consideration:</span>
                     <span>₹{cgResult.sale_consideration.toLocaleString('en-IN')}</span>
@@ -1283,7 +1283,7 @@ export const ComplianceHub: React.FC = () => {
                     <span>(-) Exemptions Claimed:</span>
                     <span>₹{cgResult.exemption_amount.toLocaleString('en-IN')}</span>
                   </div>
-                  <div className="flex justify-between border-t border-slate-200 pt-1 font-bold text-navy-950">
+                  <div className="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-1 font-bold text-navy-950">
                     <span>Net Taxable Capital Gains:</span>
                     <span>₹{cgResult.net_taxable_gain.toLocaleString('en-IN')}</span>
                   </div>
@@ -1308,11 +1308,11 @@ export const ComplianceHub: React.FC = () => {
       {activeTab === 'whatsapp_pmsc' && (
         <div className="space-y-6">
           {/* Top Live Connection & Device Pairing Card */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+          <div className="bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold uppercase tracking-wider">
+                  <span className="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 text-[10px] font-mono font-bold uppercase tracking-wider">
                     Automated WhatsApp Pipeline
                   </span>
                   <span className="text-xs font-mono text-slate-400">| Strict Real-Transmission Mode</span>
@@ -1402,7 +1402,7 @@ export const ComplianceHub: React.FC = () => {
                       type="button"
                       onClick={() => { setPairingMethod('QR'); handleStartQRScan(); }}
                       className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center space-x-1.5 transition-colors ${
-                        pairingMethod === 'QR' ? 'bg-white text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                        pairingMethod === 'QR' ? 'bg-white dark:bg-[#131C2E] text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900 dark:text-slate-100'
                       }`}
                     >
                       <QrCode className="w-3.5 h-3.5" />
@@ -1412,7 +1412,7 @@ export const ComplianceHub: React.FC = () => {
                       type="button"
                       onClick={() => setPairingMethod('CODE')}
                       className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center space-x-1.5 transition-colors ${
-                        pairingMethod === 'CODE' ? 'bg-white text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                        pairingMethod === 'CODE' ? 'bg-white dark:bg-[#131C2E] text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900 dark:text-slate-100'
                       }`}
                     >
                       <Smartphone className="w-3.5 h-3.5" />
@@ -1424,24 +1424,24 @@ export const ComplianceHub: React.FC = () => {
                 {/* Option 1: QR Code Scan */}
                 {pairingMethod === 'QR' && (
                   <div className="text-center space-y-3 py-2">
-                    <p className="text-xs text-slate-600 max-w-md mx-auto">
+                    <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md mx-auto">
                       1. Open WhatsApp on office phone &nbsp;•&nbsp; 2. Tap <strong>Linked Devices</strong> &nbsp;•&nbsp; 3. Tap <strong>Link a Device</strong> &nbsp;•&nbsp; 4. Scan the QR code below:
                     </p>
 
                     {waStatus?.qr_code ? (
-                      <div className="inline-block p-4 bg-white rounded-2xl border-2 border-slate-900 shadow-xl">
+                      <div className="inline-block p-4 bg-white dark:bg-[#131C2E] rounded-2xl border-2 border-slate-900 shadow-xl">
                         <img
                           src={waStatus.qr_code}
                           alt="WhatsApp Pairing QR Code"
                           className="w-56 h-56 mx-auto object-contain"
                         />
-                        <div className="mt-2 text-[11px] font-mono font-semibold text-slate-600 flex items-center justify-center gap-1.5">
+                        <div className="mt-2 text-[11px] font-mono font-semibold text-slate-600 dark:text-slate-400 flex items-center justify-center gap-1.5">
                           <RefreshCw className="w-3 h-3 animate-spin text-amber-600" />
                           <span>Waiting for phone scan (auto-detects)...</span>
                         </div>
                       </div>
                     ) : (
-                      <div className="p-10 max-w-sm mx-auto bg-white rounded-2xl border border-slate-200 text-center space-y-3 shadow-xs">
+                      <div className="p-10 max-w-sm mx-auto bg-white dark:bg-[#131C2E] rounded-2xl border border-slate-200 dark:border-slate-800 text-center space-y-3 shadow-xs">
                         <RefreshCw className="w-8 h-8 animate-spin text-emerald-600 mx-auto" />
                         <p className="text-xs font-semibold text-navy-950">
                           {startingQRSession ? 'Starting WhatsApp Web session...' : 'Generating fresh QR code...'}
@@ -1465,19 +1465,19 @@ export const ComplianceHub: React.FC = () => {
                 {/* Option 2: 8-Digit Pairing Code */}
                 {pairingMethod === 'CODE' && (
                   <div className="max-w-md mx-auto text-center space-y-4 py-2">
-                    <p className="text-xs text-slate-600">
+                    <p className="text-xs text-slate-600 dark:text-slate-400">
                       No camera needed! Enter your phone number with country code (e.g. <code>919876543210</code>) to generate an 8-character pairing code:
                     </p>
 
                     {pairingCodeDisplay || waStatus?.pairing_code ? (
-                      <div className="p-5 bg-white rounded-xl border-2 border-emerald-600 shadow-lg space-y-3">
+                      <div className="p-5 bg-white dark:bg-[#131C2E] rounded-xl border-2 border-emerald-600 shadow-lg space-y-3">
                         <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
                           Your Official WhatsApp Pairing Code
                         </span>
                         <div className="text-3xl font-mono font-extrabold tracking-widest text-navy-950 select-all">
                           {pairingCodeDisplay || waStatus?.pairing_code}
                         </div>
-                        <div className="text-left bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs text-slate-700 space-y-1">
+                        <div className="text-left bg-slate-50 dark:bg-[#1A253A] p-3 rounded-lg border border-slate-200 dark:border-slate-800 text-xs text-slate-700 space-y-1">
                           <p className="font-bold text-navy-950">How to enter on phone:</p>
                           <p>1. Open WhatsApp &gt; Settings (or ⋮) &gt; <strong>Linked Devices</strong></p>
                           <p>2. Tap <strong>Link a Device</strong></p>
@@ -1541,7 +1541,7 @@ export const ComplianceHub: React.FC = () => {
 
             {/* INITIAL DISCONNECTED CALL-TO-ACTION */}
             {!waStatus?.is_connected && !isPairingActive && waStatus?.state !== 'AWAITING_QR' && waStatus?.state !== 'QR_READY' && waStatus?.state !== 'CONNECTING' && waStatus?.state !== 'PAIRING_CODE_READY' && !waStatus?.qr_code && (
-              <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="p-5 rounded-xl bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <h4 className="text-xs font-bold text-navy-950 flex items-center gap-1.5">
                     <Smartphone className="w-4 h-4 text-brand-600" />
@@ -1566,7 +1566,7 @@ export const ComplianceHub: React.FC = () => {
             )}
 
             {/* TARGET GROUP DISCOVERY & SELECTION BAR */}
-            <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1A253A]/70 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
               <div className="space-y-0.5">
                 <span className="font-bold text-slate-800 flex items-center gap-1.5">
                   <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
@@ -1585,7 +1585,7 @@ export const ComplianceHub: React.FC = () => {
                       const grp = waGroups.find(g => g.id === e.target.value);
                       if (grp) handleSelectGroup(grp.id, grp.name);
                     }}
-                    className="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-medium bg-white"
+                    className="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-medium bg-white dark:bg-[#131C2E]"
                   >
                     <option value="">-- Choose WhatsApp Group --</option>
                     {waGroups.map(g => (
@@ -1599,7 +1599,7 @@ export const ComplianceHub: React.FC = () => {
                 <button
                   onClick={handleFetchGroups}
                   disabled={loadingGroups || !waStatus?.is_connected}
-                  className="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition-colors disabled:opacity-50 flex items-center gap-1"
+                  className="px-3 py-1.5 bg-white dark:bg-[#131C2E] hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition-colors disabled:opacity-50 flex items-center gap-1"
                 >
                   <RefreshCw className={`w-3 h-3 ${loadingGroups ? 'animate-spin' : ''}`} />
                   <span>{loadingGroups ? 'Loading...' : 'Select from Joined Groups'}</span>
@@ -1608,7 +1608,7 @@ export const ComplianceHub: React.FC = () => {
             </div>
 
             {/* Daily Auto-Scheduler Bar */}
-            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
               <div className="flex items-center space-x-2">
                 <Clock className="w-4 h-4 text-brand-600" />
                 <span className="font-semibold text-slate-700">Automated Daily Dispatch Schedule:</span>
@@ -1620,7 +1620,7 @@ export const ComplianceHub: React.FC = () => {
                   type="time"
                   value={scheduleTime}
                   onChange={(e) => setScheduleTime(e.target.value)}
-                  className="px-2.5 py-1 border border-slate-300 rounded text-xs font-mono bg-white"
+                  className="px-2.5 py-1 border border-slate-300 rounded text-xs font-mono bg-white dark:bg-[#131C2E]"
                 />
                 <label className="flex items-center space-x-1.5 cursor-pointer text-slate-700 font-medium select-none">
                   <input
@@ -1645,7 +1645,7 @@ export const ComplianceHub: React.FC = () => {
           {/* ========================================================= */}
           {/* LIVE INCOMING WHATSAPP CLIENT MESSAGES & UNREAD TRACKER  */}
           {/* ========================================================= */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+          <div className="bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3">
               <div className="space-y-0.5">
                 <div className="flex items-center space-x-2">
@@ -1691,7 +1691,7 @@ export const ComplianceHub: React.FC = () => {
 
             {/* Display state based on connection and unread count */}
             {!waStatus?.is_connected ? (
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 text-xs flex items-center space-x-3">
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 text-slate-500 text-xs flex items-center space-x-3">
                 <WifiOff className="w-5 h-5 text-slate-400 flex-shrink-0" />
                 <div>
                   <span className="font-semibold text-slate-700">WhatsApp Not Connected: </span>
@@ -1711,13 +1711,13 @@ export const ComplianceHub: React.FC = () => {
                 {unreadMessages.map((m) => (
                   <div
                     key={m.id}
-                    className="p-3 bg-slate-50/80 hover:bg-slate-100/70 rounded-lg border border-slate-200 flex items-start justify-between gap-3 transition-colors text-xs"
+                    className="p-3 bg-slate-50 dark:bg-[#1A253A]/80 hover:bg-slate-100/70 rounded-lg border border-slate-200 dark:border-slate-800 flex items-start justify-between gap-3 transition-colors text-xs"
                   >
                     <div className="space-y-1 flex-1 min-w-0">
                       <div className="flex items-center space-x-2">
                         <span className="font-bold text-navy-950 truncate">{m.sender_name}</span>
                         {m.is_group && (
-                          <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-600 font-mono text-[9px]">
+                          <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-600 dark:text-slate-400 font-mono text-[9px]">
                             Group: {m.chat_name}
                           </span>
                         )}
@@ -1726,7 +1726,7 @@ export const ComplianceHub: React.FC = () => {
                           {m.formatted_time || m.timestamp}
                         </span>
                       </div>
-                      <p className="text-slate-700 font-sans leading-relaxed break-words bg-white p-2 rounded border border-slate-200/80">
+                      <p className="text-slate-700 font-sans leading-relaxed break-words bg-white dark:bg-[#131C2E] p-2 rounded border border-slate-200 dark:border-slate-800/80">
                         "{m.message_text}"
                       </p>
                     </div>
@@ -1748,7 +1748,7 @@ export const ComplianceHub: React.FC = () => {
           {/* ============================================================== */}
           {/* MONTHLY CLIENT TDS & GST REPORT TRACKER & AUTO-REMINDER COCKPIT */}
           {/* ============================================================== */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+          <div className="bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3">
               <div className="space-y-0.5">
                 <div className="flex items-center space-x-2">
@@ -1792,7 +1792,7 @@ export const ComplianceHub: React.FC = () => {
             </div>
 
             {/* Metric Counters & Sub-Tab Switcher */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-2 rounded-lg border border-slate-200 text-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 dark:bg-[#1A253A] p-2 rounded-lg border border-slate-200 dark:border-slate-800 text-xs">
               <div className="flex items-center space-x-2 font-mono">
                 <span className="text-slate-500">Clients Status:</span>
                 <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">
@@ -1808,7 +1808,7 @@ export const ComplianceHub: React.FC = () => {
                   type="button"
                   onClick={() => setReportTrackerSubTab('PENDING')}
                   className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
-                    reportTrackerSubTab === 'PENDING' ? 'bg-white text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                    reportTrackerSubTab === 'PENDING' ? 'bg-white dark:bg-[#131C2E] text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900 dark:text-slate-100'
                   }`}
                 >
                   1. Pending / Not Received ({reportTracker?.pending_count || 0})
@@ -1817,7 +1817,7 @@ export const ComplianceHub: React.FC = () => {
                   type="button"
                   onClick={() => setReportTrackerSubTab('RECEIVED')}
                   className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
-                    reportTrackerSubTab === 'RECEIVED' ? 'bg-white text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                    reportTrackerSubTab === 'RECEIVED' ? 'bg-white dark:bg-[#131C2E] text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900 dark:text-slate-100'
                   }`}
                 >
                   2. Received & Auto-Saved ({reportTracker?.received_count || 0})
@@ -1826,7 +1826,7 @@ export const ComplianceHub: React.FC = () => {
             </div>
 
             {/* Search Bar & Pagination Controls for Clients in Tracker */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50/70 p-2 rounded-lg border border-slate-200 text-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 dark:bg-[#1A253A]/70 p-2 rounded-lg border border-slate-200 dark:border-slate-800 text-xs">
               <div className="relative flex-1 max-w-xs">
                 <Search className="w-3 h-3 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                 <input
@@ -1834,7 +1834,7 @@ export const ComplianceHub: React.FC = () => {
                   placeholder="Search client, GSTIN or phone..."
                   value={trackerSearch}
                   onChange={(e) => { setTrackerSearch(e.target.value); setTrackerPage(1); }}
-                  className="w-full pl-7 pr-6 py-1 text-xs bg-white border border-slate-200 rounded focus:outline-none focus:border-brand-500"
+                  className="w-full pl-7 pr-6 py-1 text-xs bg-white dark:bg-[#131C2E] border border-slate-200 dark:border-slate-800 rounded focus:outline-none focus:border-brand-500"
                 />
                 {trackerSearch && (
                   <button onClick={() => { setTrackerSearch(''); setTrackerPage(1); }} className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-slate-400">×</button>
@@ -1858,7 +1858,7 @@ export const ComplianceHub: React.FC = () => {
                     <button
                       onClick={() => setTrackerPage(p => Math.max(1, p - 1))}
                       disabled={trackerPage <= 1}
-                      className="px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-700 disabled:opacity-40"
+                      className="px-2 py-0.5 bg-white dark:bg-[#131C2E] border border-slate-200 dark:border-slate-800 rounded text-slate-700 disabled:opacity-40"
                     >
                       Prev
                     </button>
@@ -1866,7 +1866,7 @@ export const ComplianceHub: React.FC = () => {
                     <button
                       onClick={() => setTrackerPage(p => Math.min(totalPages, p + 1))}
                       disabled={trackerPage >= totalPages}
-                      className="px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-700 disabled:opacity-40"
+                      className="px-2 py-0.5 bg-white dark:bg-[#131C2E] border border-slate-200 dark:border-slate-800 rounded text-slate-700 disabled:opacity-40"
                     >
                       Next
                     </button>
@@ -1894,7 +1894,7 @@ export const ComplianceHub: React.FC = () => {
                     </div>
                   ) : (
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-mono text-[11px] sticky top-0">
+                      <thead className="bg-slate-50 dark:bg-[#1A253A] border-b border-slate-200 dark:border-slate-800 text-slate-500 font-mono text-[11px] sticky top-0">
                         <tr>
                           <th className="py-2 px-3">Client / Company Name</th>
                           <th className="py-2 px-3">GSTIN</th>
@@ -1905,10 +1905,10 @@ export const ComplianceHub: React.FC = () => {
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {pageItems.map((client: any) => (
-                          <tr key={client.customer_id || client.client_name} className="hover:bg-slate-50/70">
+                          <tr key={client.customer_id || client.client_name} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]/70">
                             <td className="py-2 px-3 font-semibold text-navy-950">{client.client_name}</td>
-                            <td className="py-2 px-3 font-mono text-[11px] text-slate-600">{client.gstin || 'N/A'}</td>
-                            <td className="py-2 px-3 font-mono text-[11px] text-slate-600">{client.phone || 'No Phone'}</td>
+                            <td className="py-2 px-3 font-mono text-[11px] text-slate-600 dark:text-slate-400">{client.gstin || 'N/A'}</td>
+                            <td className="py-2 px-3 font-mono text-[11px] text-slate-600 dark:text-slate-400">{client.phone || 'No Phone'}</td>
                             <td className="py-2 px-3 text-center">
                               <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 font-mono text-[10px] font-bold">
                                 PENDING
@@ -1918,7 +1918,7 @@ export const ComplianceHub: React.FC = () => {
                               <button
                                 onClick={() => handleSendReportReminders(client.customer_id ? [client.customer_id] : undefined)}
                                 disabled={sendingReminders || !waStatus?.can_send || !client.phone}
-                                className="px-2 py-1 bg-slate-100 hover:bg-brand-50 hover:text-brand-700 text-slate-600 rounded text-[11px] font-semibold transition-colors disabled:opacity-40"
+                                className="px-2 py-1 bg-slate-100 hover:bg-brand-50 hover:text-brand-700 text-slate-600 dark:text-slate-400 rounded text-[11px] font-semibold transition-colors disabled:opacity-40"
                               >
                                 Send Reminder
                               </button>
@@ -1944,14 +1944,14 @@ export const ComplianceHub: React.FC = () => {
               return (
                 <div className="overflow-x-auto max-h-[360px] overflow-y-auto pr-1">
                   {receivedList.length === 0 ? (
-                    <div className="p-6 bg-slate-50 rounded-lg border border-slate-200 text-center space-y-1 text-slate-500 text-xs">
+                    <div className="p-6 bg-slate-50 dark:bg-[#1A253A] rounded-lg border border-slate-200 dark:border-slate-800 text-center space-y-1 text-slate-500 text-xs">
                       <Clock className="w-6 h-6 text-slate-400 mx-auto" />
                       <p className="font-semibold text-navy-950">No Reports Received Yet</p>
                       <p className="text-[11px]">When clients reply on WhatsApp with their statement or PDF, it will auto-save to Desktop and appear here.</p>
                     </div>
                   ) : (
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-mono text-[11px] sticky top-0">
+                      <thead className="bg-slate-50 dark:bg-[#1A253A] border-b border-slate-200 dark:border-slate-800 text-slate-500 font-mono text-[11px] sticky top-0">
                         <tr>
                           <th className="py-2 px-3">Client / Company Name</th>
                           <th className="py-2 px-3">Received Timestamp</th>
@@ -1961,9 +1961,9 @@ export const ComplianceHub: React.FC = () => {
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {pageItems.map((client: any, idx: number) => (
-                          <tr key={idx} className="hover:bg-slate-50/70">
+                          <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]/70">
                             <td className="py-2 px-3 font-semibold text-navy-950">{client.client_name}</td>
-                            <td className="py-2 px-3 font-mono text-[11px] text-slate-600">{client.received_at || 'Just Now'}</td>
+                            <td className="py-2 px-3 font-mono text-[11px] text-slate-600 dark:text-slate-400">{client.received_at || 'Just Now'}</td>
                             <td className="py-2 px-3 font-mono text-[10px] text-emerald-800 max-w-xs truncate" title={client.file_path}>
                               {client.file_path || 'Saved in ~/Desktop/<Client>/TDS_GST_Reports/'}
                             </td>
@@ -1983,7 +1983,7 @@ export const ComplianceHub: React.FC = () => {
           </div>
 
           {/* Generator Input & Action Box */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+          <div className="bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
@@ -2013,7 +2013,7 @@ export const ComplianceHub: React.FC = () => {
                 value={rawNotesInput}
                 onChange={(e) => setRawNotesInput(e.target.value)}
                 placeholder="e.g. Biraju Bhai cleared 148A hearing; HDFC payment approved for client Zenith; Priya dispatched October GSTR-1s..."
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               />
             </div>
           </div>
@@ -2022,7 +2022,7 @@ export const ComplianceHub: React.FC = () => {
           {summaryData && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* WhatsApp Live Typography Preview & Detailed Sub-Tabs */}
-              <div className="lg:col-span-7 bg-[#EFEAE2] p-5 rounded-xl border border-slate-300 space-y-3 font-mono text-xs text-slate-900 shadow-inner">
+              <div className="lg:col-span-7 bg-[#EFEAE2] p-5 rounded-xl border border-slate-300 space-y-3 font-mono text-xs text-slate-900 dark:text-slate-100 shadow-inner">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-300 gap-2">
                   <div className="flex items-center space-x-2">
                     <span className="text-[11px] font-bold text-emerald-800 font-sans flex items-center gap-1.5">
@@ -2039,7 +2039,7 @@ export const ComplianceHub: React.FC = () => {
                       type="button"
                       onClick={() => setSummaryViewTab('FULL')}
                       className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors ${
-                        summaryViewTab === 'FULL' ? 'bg-white text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                        summaryViewTab === 'FULL' ? 'bg-white dark:bg-[#131C2E] text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900 dark:text-slate-100'
                       }`}
                     >
                       Complete Bubble (Part 1 & 2)
@@ -2048,7 +2048,7 @@ export const ComplianceHub: React.FC = () => {
                       type="button"
                       onClick={() => setSummaryViewTab('PARTS')}
                       className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors ${
-                        summaryViewTab === 'PARTS' ? 'bg-white text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                        summaryViewTab === 'PARTS' ? 'bg-white dark:bg-[#131C2E] text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900 dark:text-slate-100'
                       }`}
                     >
                       Part 1: Summary
@@ -2057,7 +2057,7 @@ export const ComplianceHub: React.FC = () => {
                       type="button"
                       onClick={() => setSummaryViewTab('UNREAD_LIST')}
                       className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors ${
-                        summaryViewTab === 'UNREAD_LIST' ? 'bg-white text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                        summaryViewTab === 'UNREAD_LIST' ? 'bg-white dark:bg-[#131C2E] text-navy-950 shadow-xs' : 'text-slate-600 hover:text-slate-900 dark:text-slate-100'
                       }`}
                     >
                       Part 2: Unread List ({summaryData.unread_count || 0})
@@ -2067,7 +2067,7 @@ export const ComplianceHub: React.FC = () => {
                         navigator.clipboard.writeText(summaryData.formatted_text);
                         alert('Formatted summary copied to clipboard.');
                       }}
-                      className="text-[10px] bg-white px-2 py-1 rounded text-slate-600 hover:bg-slate-50 border border-slate-200 flex items-center gap-1 font-semibold ml-1"
+                      className="text-[10px] bg-white dark:bg-[#131C2E] px-2 py-1 rounded text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 flex items-center gap-1 font-semibold ml-1"
                     >
                       <Copy className="w-3 h-3" />
                       <span>Copy</span>
@@ -2077,7 +2077,7 @@ export const ComplianceHub: React.FC = () => {
 
                 {/* Sub-Tab 1: Complete WhatsApp Preformatted Bubble */}
                 {summaryViewTab === 'FULL' && (
-                  <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-slate-800 bg-white p-4 rounded-lg border border-slate-200 shadow-xs max-h-[460px] overflow-y-auto">
+                  <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-slate-800 bg-white dark:bg-[#131C2E] p-4 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs max-h-[460px] overflow-y-auto">
                     {summaryData.formatted_text}
                   </pre>
                 )}
@@ -2085,7 +2085,7 @@ export const ComplianceHub: React.FC = () => {
                 {/* Sub-Tab 2: Part 1 Executive Briefing Breakdown */}
                 {summaryViewTab === 'PARTS' && (
                   <div className="space-y-3 font-sans max-h-[460px] overflow-y-auto pr-1">
-                    <div className="p-3.5 bg-white rounded-lg border border-slate-200 space-y-2">
+                    <div className="p-3.5 bg-white dark:bg-[#131C2E] rounded-lg border border-slate-200 dark:border-slate-800 space-y-2">
                       <h5 className="text-[11px] font-bold text-navy-950 uppercase tracking-wider flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5 text-brand-600" />
                         <span>Key Decisions & Client Updates</span>
@@ -2097,14 +2097,14 @@ export const ComplianceHub: React.FC = () => {
                       </ul>
                     </div>
 
-                    <div className="p-3.5 bg-white rounded-lg border border-slate-200 space-y-2">
+                    <div className="p-3.5 bg-white dark:bg-[#131C2E] rounded-lg border border-slate-200 dark:border-slate-800 space-y-2">
                       <h5 className="text-[11px] font-bold text-navy-950 uppercase tracking-wider flex items-center gap-1.5">
                         <ListChecks className="w-3.5 h-3.5 text-amber-600" />
                         <span>Action Items & Assigned Owners</span>
                       </h5>
                       <div className="space-y-1.5">
                         {summaryData.action_items?.map((ai: any, idx: number) => (
-                          <div key={idx} className="p-2 bg-slate-50 rounded border border-slate-100 flex items-center justify-between text-xs">
+                          <div key={idx} className="p-2 bg-slate-50 dark:bg-[#1A253A] rounded border border-slate-100 flex items-center justify-between text-xs">
                             <span className="font-semibold text-slate-800">{ai.task}</span>
                             <span className="text-[11px] font-mono text-slate-500">
                               @{ai.owner} • {ai.deadline}
@@ -2114,7 +2114,7 @@ export const ComplianceHub: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="p-3.5 bg-white rounded-lg border border-slate-200 space-y-2">
+                    <div className="p-3.5 bg-white dark:bg-[#131C2E] rounded-lg border border-slate-200 dark:border-slate-800 space-y-2">
                       <h5 className="text-[11px] font-bold text-navy-950 uppercase tracking-wider flex items-center gap-1.5">
                         <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
                         <span>Blockers & Pending Follow-Ups</span>
@@ -2132,14 +2132,14 @@ export const ComplianceHub: React.FC = () => {
                 {summaryViewTab === 'UNREAD_LIST' && (
                   <div className="space-y-2 font-sans max-h-[460px] overflow-y-auto pr-1">
                     {!summaryData.unread_messages || summaryData.unread_messages.length === 0 ? (
-                      <div className="p-6 bg-white rounded-lg border border-slate-200 text-center space-y-1 text-slate-500">
+                      <div className="p-6 bg-white dark:bg-[#131C2E] rounded-lg border border-slate-200 dark:border-slate-800 text-center space-y-1 text-slate-500">
                         <CheckCircle2 className="w-6 h-6 text-emerald-600 mx-auto" />
                         <p className="font-semibold text-xs text-navy-950">No Unread Messages Included</p>
                         <p className="text-[11px]">All client chats were caught up prior to summary generation.</p>
                       </div>
                     ) : (
                       summaryData.unread_messages.map((m: any, idx: number) => (
-                        <div key={m.id || idx} className="p-3 bg-white rounded-lg border border-slate-200 space-y-1 text-xs">
+                        <div key={m.id || idx} className="p-3 bg-white dark:bg-[#131C2E] rounded-lg border border-slate-200 dark:border-slate-800 space-y-1 text-xs">
                           <div className="flex items-center justify-between">
                             <span className="font-bold text-navy-950">
                               {idx + 1}. {m.sender_name} {m.chat_name && m.is_group ? `(${m.chat_name})` : ''}
@@ -2148,7 +2148,7 @@ export const ComplianceHub: React.FC = () => {
                               {m.formatted_time || m.timestamp}
                             </span>
                           </div>
-                          <p className="text-slate-700 bg-slate-50 p-2 rounded border border-slate-100 italic">
+                          <p className="text-slate-700 bg-slate-50 dark:bg-[#1A253A] p-2 rounded border border-slate-100 italic">
                             "{m.message_text}"
                           </p>
                         </div>
@@ -2159,7 +2159,7 @@ export const ComplianceHub: React.FC = () => {
               </div>
 
               {/* Action Sidebar */}
-              <div className="lg:col-span-5 bg-white p-5 rounded-xl border border-slate-200 space-y-4 shadow-xs">
+              <div className="lg:col-span-5 bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-xs">
                 <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
                   Dispatch Control
                 </h4>
@@ -2167,7 +2167,7 @@ export const ComplianceHub: React.FC = () => {
                   Transmits directly to the genuine "{selectedGroupName}" group via connected WhatsApp session. Fake delivery simulation is strictly prevented.
                 </p>
 
-                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-1.5 text-xs font-mono">
+                <div className="p-3 bg-slate-50 dark:bg-[#1A253A] rounded-lg border border-slate-200 dark:border-slate-800 space-y-1.5 text-xs font-mono">
                   <div className="flex justify-between">
                     <span className="text-slate-500">Summary Date:</span>
                     <span className="font-bold text-slate-800">{summaryData.date}</span>
@@ -2178,7 +2178,7 @@ export const ComplianceHub: React.FC = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Unread Included:</span>
-                    <span className="font-bold text-slate-900">{summaryData.unread_count || 0} Messages</span>
+                    <span className="font-bold text-slate-900 dark:text-slate-100">{summaryData.unread_count || 0} Messages</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Dispatch Status:</span>
@@ -2213,7 +2213,7 @@ export const ComplianceHub: React.FC = () => {
                       <span>Verified Live Transmission</span>
                     </div>
                     <p className="text-[11px] font-mono">
-                      Message ID: <strong className="text-slate-900">{realSendSuccess.message_id || 'Delivered'}</strong>
+                      Message ID: <strong className="text-slate-900 dark:text-slate-100">{realSendSuccess.message_id || 'Delivered'}</strong>
                     </p>
                   </div>
                 )}
@@ -2253,7 +2253,7 @@ export const ComplianceHub: React.FC = () => {
           )}
 
           {/* Delivery Logs & Audit Trail Table */}
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+          <div className="bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
             <div className="p-4 border-b border-slate-100 flex items-center justify-between">
               <div>
                 <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
@@ -2275,7 +2275,7 @@ export const ComplianceHub: React.FC = () => {
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs font-mono">
-                <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
+                <thead className="bg-slate-50 dark:bg-[#1A253A]/80 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                   <tr>
                     <th className="py-2.5 px-3">Date</th>
                     <th className="py-2.5 px-3">Target Group</th>
@@ -2294,8 +2294,8 @@ export const ComplianceHub: React.FC = () => {
                     </tr>
                   ) : (
                     summaryHistory.map((item) => (
-                      <tr key={item.id} className="hover:bg-slate-50">
-                        <td className="py-2.5 px-3 font-bold text-slate-900">{item.summary_date}</td>
+                      <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]">
+                        <td className="py-2.5 px-3 font-bold text-slate-900 dark:text-slate-100">{item.summary_date}</td>
                         <td className="py-2.5 px-3 text-emerald-800 font-bold">{item.team_name}</td>
                         <td className="py-2.5 px-3">
                           <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-100 text-slate-700 font-bold">
@@ -2316,7 +2316,7 @@ export const ComplianceHub: React.FC = () => {
                         <td className="py-2.5 px-3 text-slate-500 text-[11px]">
                           {item.posted_at || item.created_at || 'Pending'}
                         </td>
-                        <td className="py-2.5 px-3 text-slate-600 text-[11px]">{item.created_by}</td>
+                        <td className="py-2.5 px-3 text-slate-600 dark:text-slate-400 text-[11px]">{item.created_by}</td>
                       </tr>
                     ))
                   )}
@@ -2333,9 +2333,9 @@ export const ComplianceHub: React.FC = () => {
       {activeTab === 'skill_tools' && (
         <div className="space-y-8">
           {/* Tool 1: Consulting Report Generator */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-4 shadow-xs">
+          <div className="bg-white dark:bg-[#131C2E] p-6 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-xs">
             <div>
-              <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-800 text-[10px] font-mono font-bold uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-500/10 text-blue-800 dark:text-blue-400 text-[10px] font-mono font-bold uppercase tracking-wider">
                 Internal Advisory Utility
               </span>
               <h3 className="text-sm font-bold text-navy-950 mt-1 flex items-center gap-1.5">
@@ -2349,32 +2349,32 @@ export const ComplianceHub: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
-                <label className="block text-slate-600 mb-1 font-semibold">Client Name</label>
+                <label className="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Client Name</label>
                 <input
                   type="text"
                   value={consultingClient}
                   onChange={(e) => setConsultingClient(e.target.value)}
-                  className="w-full p-2 border border-slate-200 rounded-lg"
+                  className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg"
                 />
               </div>
               <div>
-                <label className="block text-slate-600 mb-1 font-semibold">Engagement Title</label>
+                <label className="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Engagement Title</label>
                 <input
                   type="text"
                   value={consultingTitle}
                   onChange={(e) => setConsultingTitle(e.target.value)}
-                  className="w-full p-2 border border-slate-200 rounded-lg"
+                  className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs text-slate-600 mb-1 font-semibold">Raw Findings & Diagnostic Notes</label>
+              <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1 font-semibold">Raw Findings & Diagnostic Notes</label>
               <textarea
                 rows={2}
                 value={consultingFindings}
                 onChange={(e) => setConsultingFindings(e.target.value)}
-                className="w-full p-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               />
             </div>
 
@@ -2388,8 +2388,8 @@ export const ComplianceHub: React.FC = () => {
             </button>
 
             {consultingReport && (
-              <div className="p-5 rounded-xl border border-slate-200 bg-slate-50/60 space-y-4 text-xs">
-                <div className="border-b border-slate-200 pb-3">
+              <div className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1A253A]/60 space-y-4 text-xs">
+                <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
                   <span className="text-[10px] font-mono font-bold text-brand-600 uppercase">CONFIDENTIAL ADVISORY</span>
                   <h4 className="text-sm font-bold text-navy-950 mt-0.5">{consultingReport.title}</h4>
                   <p className="text-[11px] text-slate-500">Prepared for: {consultingReport.client} | {consultingReport.date}</p>
@@ -2397,15 +2397,15 @@ export const ComplianceHub: React.FC = () => {
 
                 <div>
                   <h5 className="font-bold text-slate-800 uppercase tracking-wider text-[11px] mb-1">1. Executive Summary</h5>
-                  <p className="text-slate-600 leading-relaxed">{consultingReport.executive_summary}</p>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{consultingReport.executive_summary}</p>
                 </div>
 
                 <div>
                   <h5 className="font-bold text-slate-800 uppercase tracking-wider text-[11px] mb-1">2. Current State & Root Causes</h5>
                   <div className="space-y-1.5">
                     {consultingReport.current_state_analysis.map((c: any, i: number) => (
-                      <div key={i} className="p-2.5 bg-white rounded border border-slate-200 text-xs">
-                        <strong className="text-navy-950">{c.issue}:</strong> <span className="text-slate-600">{c.root_cause}</span>
+                      <div key={i} className="p-2.5 bg-white dark:bg-[#131C2E] rounded border border-slate-200 dark:border-slate-800 text-xs">
+                        <strong className="text-navy-950">{c.issue}:</strong> <span className="text-slate-600 dark:text-slate-400">{c.root_cause}</span>
                       </div>
                     ))}
                   </div>
@@ -2415,9 +2415,9 @@ export const ComplianceHub: React.FC = () => {
                   <h5 className="font-bold text-slate-800 uppercase tracking-wider text-[11px] mb-1">3. Implementation Roadmap</h5>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {consultingReport.implementation_roadmap.map((r: any, i: number) => (
-                      <div key={i} className="p-2.5 bg-white rounded border border-slate-200 text-xs">
+                      <div key={i} className="p-2.5 bg-white dark:bg-[#131C2E] rounded border border-slate-200 dark:border-slate-800 text-xs">
                         <strong className="text-brand-900 block font-sans">{r.phase}</strong>
-                        <span className="text-slate-600 text-[11px] mt-1 block">{r.milestones}</span>
+                        <span className="text-slate-600 dark:text-slate-400 text-[11px] mt-1 block">{r.milestones}</span>
                       </div>
                     ))}
                   </div>
@@ -2427,9 +2427,9 @@ export const ComplianceHub: React.FC = () => {
           </div>
 
           {/* Tool 2: Salary Calculation Tool */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-4 shadow-xs">
+          <div className="bg-white dark:bg-[#131C2E] p-6 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-xs">
             <div>
-              <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 text-[10px] font-mono font-bold uppercase tracking-wider">
                 Statutory Payroll Calculator
               </span>
               <h3 className="text-sm font-bold text-navy-950 mt-1 flex items-center gap-1.5">
@@ -2443,48 +2443,48 @@ export const ComplianceHub: React.FC = () => {
 
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs font-mono">
               <div>
-                <label className="block text-slate-600 mb-1 font-sans font-semibold">Monthly CTC (₹)</label>
+                <label className="block text-slate-600 dark:text-slate-400 mb-1 font-sans font-semibold">Monthly CTC (₹)</label>
                 <input
                   type="number"
                   value={ctcInput}
                   onChange={(e) => setCtcInput(e.target.value)}
-                  className="w-full p-2 border border-slate-200 rounded-lg"
+                  className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg"
                 />
               </div>
               <div>
-                <label className="block text-slate-600 mb-1 font-sans font-semibold">Basic (% of CTC)</label>
+                <label className="block text-slate-600 dark:text-slate-400 mb-1 font-sans font-semibold">Basic (% of CTC)</label>
                 <input
                   type="number"
                   value={basicPctInput}
                   onChange={(e) => setBasicPctInput(e.target.value)}
-                  className="w-full p-2 border border-slate-200 rounded-lg"
+                  className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg"
                 />
               </div>
               <div>
-                <label className="block text-slate-600 mb-1 font-sans font-semibold">HRA (% of Basic)</label>
+                <label className="block text-slate-600 dark:text-slate-400 mb-1 font-sans font-semibold">HRA (% of Basic)</label>
                 <input
                   type="number"
                   value={hraPctInput}
                   onChange={(e) => setHraPctInput(e.target.value)}
-                  className="w-full p-2 border border-slate-200 rounded-lg"
+                  className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg"
                 />
               </div>
               <div>
-                <label className="block text-slate-600 mb-1 font-sans font-semibold">LOP Days</label>
+                <label className="block text-slate-600 dark:text-slate-400 mb-1 font-sans font-semibold">LOP Days</label>
                 <input
                   type="number"
                   value={lopDaysInput}
                   onChange={(e) => setLopDaysInput(e.target.value)}
-                  className="w-full p-2 border border-slate-200 rounded-lg"
+                  className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg"
                 />
               </div>
               <div>
-                <label className="block text-slate-600 mb-1 font-sans font-semibold">Monthly TDS (₹)</label>
+                <label className="block text-slate-600 dark:text-slate-400 mb-1 font-sans font-semibold">Monthly TDS (₹)</label>
                 <input
                   type="number"
                   value={tdsMonthlyInput}
                   onChange={(e) => setTdsMonthlyInput(e.target.value)}
-                  className="w-full p-2 border border-slate-200 rounded-lg"
+                  className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg"
                 />
               </div>
             </div>
@@ -2497,9 +2497,9 @@ export const ComplianceHub: React.FC = () => {
             </button>
 
             {salaryResult && (
-              <div className="p-5 rounded-xl border border-slate-200 bg-slate-50/60 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
+              <div className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1A253A]/60 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
                 {/* Earnings */}
-                <div className="p-3 bg-white rounded-lg border border-slate-200 space-y-1">
+                <div className="p-3 bg-white dark:bg-[#131C2E] rounded-lg border border-slate-200 dark:border-slate-800 space-y-1">
                   <h5 className="font-bold text-navy-950 font-sans uppercase text-[11px] pb-1 border-b">Gross Earnings</h5>
                   <div className="flex justify-between"><span>Basic Pay:</span><span>₹{salaryResult.earnings.basic_salary}</span></div>
                   <div className="flex justify-between"><span>HRA:</span><span>₹{salaryResult.earnings.house_rent_allowance}</span></div>
@@ -2507,13 +2507,13 @@ export const ComplianceHub: React.FC = () => {
                   {salaryResult.earnings.lop_deduction > 0 && (
                     <div className="flex justify-between text-rose-600"><span>(-) LOP Cut:</span><span>₹{salaryResult.earnings.lop_deduction}</span></div>
                   )}
-                  <div className="flex justify-between font-bold border-t pt-1 text-slate-900">
+                  <div className="flex justify-between font-bold border-t pt-1 text-slate-900 dark:text-slate-100">
                     <span>Earned Gross:</span><span>₹{salaryResult.earnings.net_gross_earned}</span>
                   </div>
                 </div>
 
                 {/* Deductions */}
-                <div className="p-3 bg-white rounded-lg border border-slate-200 space-y-1">
+                <div className="p-3 bg-white dark:bg-[#131C2E] rounded-lg border border-slate-200 dark:border-slate-800 space-y-1">
                   <h5 className="font-bold text-rose-700 font-sans uppercase text-[11px] pb-1 border-b">Employee Deductions</h5>
                   <div className="flex justify-between"><span>EPF (12%):</span><span>₹{salaryResult.employee_deductions.provident_fund_12pct}</span></div>
                   <div className="flex justify-between"><span>ESIC (0.75%):</span><span>₹{salaryResult.employee_deductions.esic_0_75pct}</span></div>
@@ -2533,7 +2533,7 @@ export const ComplianceHub: React.FC = () => {
                     </p>
                     <span className="text-[10px] text-slate-500 font-sans block">Monthly Net Credit</span>
                   </div>
-                  <div className="text-[10px] text-slate-600 font-mono border-t border-brand-200 pt-1">
+                  <div className="text-[10px] text-slate-600 dark:text-slate-400 font-mono border-t border-brand-200 pt-1">
                     Employer CTC Cost: ₹{salaryResult.summary.total_employer_ctc}
                   </div>
                 </div>
@@ -2559,7 +2559,7 @@ export const ComplianceHub: React.FC = () => {
               value={itrClientName}
               onChange={(e) => setItrClientName(e.target.value)}
               placeholder="e.g. Rahul Sharma"
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
             />
           </div>
 
@@ -2572,7 +2572,7 @@ export const ComplianceHub: React.FC = () => {
                 value={itrPan}
                 onChange={(e) => setItrPan(e.target.value.toUpperCase())}
                 placeholder="ABCDE1234F"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
               />
             </div>
             <div>
@@ -2580,7 +2580,7 @@ export const ComplianceHub: React.FC = () => {
               <select
                 value={itrProfile}
                 onChange={(e) => setItrProfile(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               >
                 <option value="SALARIED">Salaried (Form 16 + 80C/80D)</option>
                 <option value="BUSINESS_PROFESSION">Business / Profession (P&L, Balance Sheet)</option>
@@ -2598,7 +2598,7 @@ export const ComplianceHub: React.FC = () => {
                 required
                 value={itrPhone}
                 onChange={(e) => setItrPhone(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
               />
             </div>
             <div>
@@ -2608,7 +2608,7 @@ export const ComplianceHub: React.FC = () => {
                 value={itrEmail}
                 onChange={(e) => setItrEmail(e.target.value)}
                 placeholder="client@gmail.com"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               />
             </div>
           </div>
@@ -2617,7 +2617,7 @@ export const ComplianceHub: React.FC = () => {
             <button
               type="button"
               onClick={() => setCreateCaseModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]"
             >
               Cancel
             </button>

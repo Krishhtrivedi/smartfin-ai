@@ -46,9 +46,9 @@ export const MISReports: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-none">
       {/* Top Header */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-sm font-bold text-navy-950 flex items-center gap-2">
             <BarChart3 className="w-4 h-4 text-brand-600" />
@@ -60,13 +60,13 @@ export const MISReports: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-2">
-          <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
+          <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
             {(['DAILY', 'WEEKLY', 'MONTHLY', 'CUSTOM'] as const).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriodType(p)}
                 className={`px-3 py-1 rounded-md text-xs font-semibold capitalize transition-all ${
-                  periodType === p ? 'bg-navy-900 text-white' : 'text-slate-600 hover:text-navy-900'
+                  periodType === p ? 'bg-navy-900 text-white' : 'text-slate-600 dark:text-slate-400 hover:text-navy-900'
                 }`}
               >
                 {p.toLowerCase()}
@@ -86,20 +86,20 @@ export const MISReports: React.FC = () => {
 
       {/* Custom Date Pickers if CUSTOM selected */}
       {periodType === 'CUSTOM' && (
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 flex items-center space-x-3 text-xs">
-          <span className="font-semibold text-slate-600">Custom Date Range:</span>
+        <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center space-x-3 text-xs">
+          <span className="font-semibold text-slate-600 dark:text-slate-400">Custom Date Range:</span>
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="p-1.5 border border-slate-200 rounded-lg text-xs"
+            className="p-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
           />
           <span className="text-slate-400">to</span>
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="p-1.5 border border-slate-200 rounded-lg text-xs"
+            className="p-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
           />
           <button
             onClick={fetchMIS}
@@ -111,7 +111,7 @@ export const MISReports: React.FC = () => {
       )}
 
       {loading ? (
-        <div className="bg-white p-16 rounded-xl border border-slate-200 text-center text-slate-400">
+        <div className="bg-white dark:bg-[#131C2E] p-16 rounded-xl border border-slate-200 dark:border-slate-800 text-center text-slate-400">
           <RefreshCw className="w-7 h-7 animate-spin mx-auto mb-2 text-brand-600" />
           Compiling financial statement from database records...
         </div>
@@ -119,25 +119,25 @@ export const MISReports: React.FC = () => {
         <div className="space-y-6">
           {/* Executive Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div className="bg-white p-4 rounded-xl border border-slate-200">
+            <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Gross Sales Turnover</span>
               <p className="text-xl font-bold text-navy-950 mt-1">₹{report.pnl.sales_revenue.toLocaleString('en-IN')}</p>
               <p className="text-[10px] text-slate-500 mt-0.5">{report.sales_summary.invoices_count} invoices issued</p>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200">
+            <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Purchases & Raw Materials</span>
               <p className="text-xl font-bold text-navy-950 mt-1">₹{report.pnl.cost_of_purchases.toLocaleString('en-IN')}</p>
               <p className="text-[10px] text-slate-500 mt-0.5">{report.purchase_summary.invoices_count} bills booked</p>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200">
+            <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Office & Op Expenses</span>
               <p className="text-xl font-bold text-navy-950 mt-1">₹{report.pnl.operating_expenses.toLocaleString('en-IN')}</p>
               <p className="text-[10px] text-slate-500 mt-0.5">Approved vouchers</p>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200">
+            <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800">
               <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Net Profit (Margin)</span>
               <p className="text-xl font-bold text-emerald-600 mt-1">₹{report.pnl.net_profit.toLocaleString('en-IN')}</p>
               <p className="text-[10px] font-semibold text-emerald-600 mt-0.5">{report.pnl.profit_margin_pct}% net margin</p>
@@ -147,7 +147,7 @@ export const MISReports: React.FC = () => {
           {/* Financial Statements Grid: P&L and Cash Flow */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Profit & Loss Table */}
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+            <div className="bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
               <div className="p-4 bg-navy-900 text-white flex items-center justify-between">
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-wider">Statement of Profit & Loss</h3>
@@ -161,13 +161,13 @@ export const MISReports: React.FC = () => {
               <div className="p-4 space-y-2 text-xs divide-y divide-slate-100">
                 <div className="flex items-center justify-between py-1.5 font-medium">
                   <span className="text-slate-700">Gross Sales Revenue</span>
-                  <span className="font-bold text-slate-900">₹{report.pnl.sales_revenue.toLocaleString('en-IN')}</span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100">₹{report.pnl.sales_revenue.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex items-center justify-between py-1.5 font-medium">
                   <span className="text-slate-700">Less: Direct Cost of Purchases</span>
                   <span className="text-rose-600 font-semibold">(₹{report.pnl.cost_of_purchases.toLocaleString('en-IN')})</span>
                 </div>
-                <div className="flex items-center justify-between py-2 font-bold bg-slate-50 px-2 rounded">
+                <div className="flex items-center justify-between py-2 font-bold bg-slate-50 dark:bg-[#1A253A] px-2 rounded">
                   <span className="text-navy-950">Gross Operating Profit</span>
                   <span className="text-navy-950">₹{report.pnl.gross_profit.toLocaleString('en-IN')}</span>
                 </div>
@@ -183,7 +183,7 @@ export const MISReports: React.FC = () => {
             </div>
 
             {/* Cash Flow Statement */}
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+            <div className="bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
               <div className="p-4 bg-slate-900 text-white flex items-center justify-between">
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-wider">Cash Flow Statement</h3>
@@ -219,34 +219,34 @@ export const MISReports: React.FC = () => {
 
           {/* Tax Compliance Health Section */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
+            <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
               <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider mb-2">GST Compliance Health</h4>
               <div className="flex justify-between text-xs py-1 border-b border-slate-100">
-                <span className="text-slate-600">Total Eligible ITC Claimed:</span>
-                <span className="font-bold text-slate-900">₹{report.gst_compliance.total_itc_claimed.toLocaleString('en-IN')}</span>
+                <span className="text-slate-600 dark:text-slate-400">Total Eligible ITC Claimed:</span>
+                <span className="font-bold text-slate-900 dark:text-slate-100">₹{report.gst_compliance.total_itc_claimed.toLocaleString('en-IN')}</span>
               </div>
               <div className="flex justify-between text-xs py-1 border-b border-slate-100">
-                <span className="text-slate-600">Fully Matched 2B Invoices:</span>
+                <span className="text-slate-600 dark:text-slate-400">Fully Matched 2B Invoices:</span>
                 <span className="font-bold text-emerald-600">{report.gst_compliance.matched_count}</span>
               </div>
               <div className="flex justify-between text-xs py-1">
-                <span className="text-slate-600">ITC At Risk (Missing in GSTR-2B):</span>
+                <span className="text-slate-600 dark:text-slate-400">ITC At Risk (Missing in GSTR-2B):</span>
                 <span className="font-bold text-rose-600">{report.gst_compliance.missing_in_gstr2b}</span>
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
+            <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
               <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider mb-2">TDS Statutory Compliance Health</h4>
               <div className="flex justify-between text-xs py-1 border-b border-slate-100">
-                <span className="text-slate-600">Expected Deductions:</span>
-                <span className="font-bold text-slate-900">₹{report.tds_compliance.expected_tds.toLocaleString('en-IN')}</span>
+                <span className="text-slate-600 dark:text-slate-400">Expected Deductions:</span>
+                <span className="font-bold text-slate-900 dark:text-slate-100">₹{report.tds_compliance.expected_tds.toLocaleString('en-IN')}</span>
               </div>
               <div className="flex justify-between text-xs py-1 border-b border-slate-100">
-                <span className="text-slate-600">Actual Deducted:</span>
+                <span className="text-slate-600 dark:text-slate-400">Actual Deducted:</span>
                 <span className="font-bold text-emerald-600">₹{report.tds_compliance.actual_deducted.toLocaleString('en-IN')}</span>
               </div>
               <div className="flex justify-between text-xs py-1">
-                <span className="text-slate-600">Shortfall Pending Deposit:</span>
+                <span className="text-slate-600 dark:text-slate-400">Shortfall Pending Deposit:</span>
                 <span className="font-bold text-amber-600">₹{report.tds_compliance.shortfall.toLocaleString('en-IN')}</span>
               </div>
             </div>

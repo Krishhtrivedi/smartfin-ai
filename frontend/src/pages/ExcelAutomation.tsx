@@ -129,9 +129,9 @@ export const ExcelAutomation: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-none">
       {/* Top Header */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-sm font-bold text-navy-950 flex items-center gap-2">
             <FileCode2 className="w-4 h-4 text-brand-600" />
@@ -142,11 +142,11 @@ export const ExcelAutomation: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
+        <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
           <button
             onClick={() => setActiveMode('clean')}
             className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-              activeMode === 'clean' ? 'bg-navy-900 text-white' : 'text-slate-600 hover:text-navy-900'
+              activeMode === 'clean' ? 'bg-navy-900 text-white' : 'text-slate-600 dark:text-slate-400 hover:text-navy-900'
             }`}
           >
             Clean & Normalize
@@ -154,7 +154,7 @@ export const ExcelAutomation: React.FC = () => {
           <button
             onClick={() => setActiveMode('compare')}
             className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-              activeMode === 'compare' ? 'bg-navy-900 text-white' : 'text-slate-600 hover:text-navy-900'
+              activeMode === 'compare' ? 'bg-navy-900 text-white' : 'text-slate-600 dark:text-slate-400 hover:text-navy-900'
             }`}
           >
             2-Sheet Compare
@@ -162,7 +162,7 @@ export const ExcelAutomation: React.FC = () => {
           <button
             onClick={() => setActiveMode('templates')}
             className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-              activeMode === 'templates' ? 'bg-navy-900 text-white' : 'text-slate-600 hover:text-navy-900'
+              activeMode === 'templates' ? 'bg-navy-900 text-white' : 'text-slate-600 dark:text-slate-400 hover:text-navy-900'
             }`}
           >
             Saved Templates
@@ -174,7 +174,7 @@ export const ExcelAutomation: React.FC = () => {
       {activeMode === 'clean' && (
         <div className="space-y-5">
           {/* File Upload Zone */}
-          <div className="bg-white p-6 rounded-xl border-2 border-dashed border-slate-300 text-center hover:border-brand-500 transition-colors">
+          <div className="bg-white dark:bg-[#131C2E] p-6 rounded-xl border-2 border-dashed border-slate-300 text-center hover:border-brand-500 transition-colors">
             <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
             <h3 className="text-xs font-bold text-slate-800">Upload Excel or CSV File to Inspect Schema</h3>
             <p className="text-[11px] text-slate-500 mt-1">Supports XLSX, XLS, and CSV files</p>
@@ -194,7 +194,7 @@ export const ExcelAutomation: React.FC = () => {
           </div>
 
           {inspecting && (
-            <div className="bg-white p-8 rounded-xl border border-slate-200 text-center text-xs text-slate-500">
+            <div className="bg-white dark:bg-[#131C2E] p-8 rounded-xl border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500">
               <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-brand-600" />
               Scanning column data types, nulls, and duplicate records...
             </div>
@@ -204,31 +204,31 @@ export const ExcelAutomation: React.FC = () => {
             <div className="space-y-5">
               {/* Inspection Summary */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="bg-white p-3.5 rounded-xl border border-slate-200">
+                <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
                   <p className="text-[10px] font-bold text-slate-400 uppercase">Total Rows</p>
                   <p className="text-xl font-bold text-navy-950 mt-1">{inspectData.total_rows}</p>
                 </div>
-                <div className="bg-white p-3.5 rounded-xl border border-slate-200">
+                <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
                   <p className="text-[10px] font-bold text-slate-400 uppercase">Total Columns</p>
                   <p className="text-xl font-bold text-navy-950 mt-1">{inspectData.total_columns}</p>
                 </div>
-                <div className="bg-white p-3.5 rounded-xl border border-slate-200">
+                <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
                   <p className="text-[10px] font-bold text-rose-600 uppercase">Duplicate Rows</p>
                   <p className="text-xl font-bold text-rose-600 mt-1">{inspectData.duplicate_rows}</p>
                 </div>
-                <div className="bg-white p-3.5 rounded-xl border border-slate-200">
+                <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
                   <p className="text-[10px] font-bold text-brand-600 uppercase">Sheets Detected</p>
                   <p className="text-xl font-bold text-brand-600 mt-1">{inspectData.available_sheets.length}</p>
                 </div>
               </div>
 
               {/* Automation Rules Configuration */}
-              <div className="bg-white p-4 rounded-xl border border-slate-200">
+              <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800">
                 <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider mb-3">
                   Configurable Transformation Pipeline
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-                  <label className="flex items-center space-x-2 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                  <label className="flex items-center space-x-2 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A] cursor-pointer">
                     <input
                       type="checkbox"
                       checked={removeDuplicates}
@@ -241,7 +241,7 @@ export const ExcelAutomation: React.FC = () => {
                     </div>
                   </label>
 
-                  <label className="flex items-center space-x-2 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                  <label className="flex items-center space-x-2 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A] cursor-pointer">
                     <input
                       type="checkbox"
                       checked={normalizeDates}
@@ -254,7 +254,7 @@ export const ExcelAutomation: React.FC = () => {
                     </div>
                   </label>
 
-                  <label className="flex items-center space-x-2 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                  <label className="flex items-center space-x-2 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A] cursor-pointer">
                     <input
                       type="checkbox"
                       checked={normalizeAmounts}
@@ -267,7 +267,7 @@ export const ExcelAutomation: React.FC = () => {
                     </div>
                   </label>
 
-                  <label className="flex items-center space-x-2 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                  <label className="flex items-center space-x-2 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A] cursor-pointer">
                     <input
                       type="checkbox"
                       checked={dropEmptyRows}
@@ -303,7 +303,7 @@ export const ExcelAutomation: React.FC = () => {
 
               {/* Cleaned Data Preview Table */}
               {processResult && (
-                <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+                <div className="bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
                   <div className="p-3.5 border-b border-slate-100 flex items-center justify-between">
                     <div>
                       <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
@@ -320,7 +320,7 @@ export const ExcelAutomation: React.FC = () => {
 
                   <div className="overflow-x-auto max-h-72">
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-[10px] font-bold sticky top-0">
+                      <thead className="bg-slate-50 dark:bg-[#1A253A] border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 uppercase text-[10px] font-bold sticky top-0">
                         <tr>
                           {processResult.columns.map((c: string) => (
                             <th key={c} className="py-2.5 px-3 whitespace-nowrap">{c}</th>
@@ -329,7 +329,7 @@ export const ExcelAutomation: React.FC = () => {
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {processResult.preview.map((row: any, i: number) => (
-                          <tr key={i} className="hover:bg-slate-50">
+                          <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]">
                             {processResult.columns.map((c: string) => (
                               <td key={c} className="py-2 px-3 whitespace-nowrap text-slate-800">
                                 {row[c] !== null ? String(row[c]) : '—'}
@@ -350,13 +350,13 @@ export const ExcelAutomation: React.FC = () => {
       {/* MODE 2: 2-SHEET COMPARE */}
       {activeMode === 'compare' && (
         <div className="space-y-5">
-          <div className="bg-white p-5 rounded-xl border border-slate-200 space-y-4">
+          <div className="bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
             <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
               Compare Two Excel Sheets / Ledgers
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1A253A]">
                 <label className="block text-xs font-bold text-slate-700 mb-1">Sheet A (Master / Books)</label>
                 <input
                   type="file"
@@ -366,7 +366,7 @@ export const ExcelAutomation: React.FC = () => {
                 />
               </div>
 
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1A253A]">
                 <label className="block text-xs font-bold text-slate-700 mb-1">Sheet B (External / Statement)</label>
                 <input
                   type="file"
@@ -384,7 +384,7 @@ export const ExcelAutomation: React.FC = () => {
                   type="text"
                   value={compareKey}
                   onChange={(e) => setCompareKey(e.target.value)}
-                  className="w-full p-2 rounded-lg border border-slate-200"
+                  className="w-full p-2 rounded-lg border border-slate-200 dark:border-slate-800"
                 />
               </div>
               <div>
@@ -393,7 +393,7 @@ export const ExcelAutomation: React.FC = () => {
                   type="number"
                   value={tolerance}
                   onChange={(e) => setTolerance(parseFloat(e.target.value) || 0)}
-                  className="w-full p-2 rounded-lg border border-slate-200"
+                  className="w-full p-2 rounded-lg border border-slate-200 dark:border-slate-800"
                 />
               </div>
             </div>
@@ -410,19 +410,19 @@ export const ExcelAutomation: React.FC = () => {
           {compareResult && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="bg-white p-3.5 rounded-xl border border-slate-200">
+                <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
                   <p className="text-[10px] font-bold text-slate-400 uppercase">Common Keys</p>
                   <p className="text-xl font-bold text-navy-950 mt-1">{compareResult.common_records}</p>
                 </div>
-                <div className="bg-white p-3.5 rounded-xl border border-slate-200">
+                <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
                   <p className="text-[10px] font-bold text-emerald-600 uppercase">100% Identical</p>
                   <p className="text-xl font-bold text-emerald-600 mt-1">{compareResult.identical_records}</p>
                 </div>
-                <div className="bg-white p-3.5 rounded-xl border border-slate-200">
+                <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
                   <p className="text-[10px] font-bold text-rose-600 uppercase">Cell Modifications</p>
                   <p className="text-xl font-bold text-rose-600 mt-1">{compareResult.modified_records_count}</p>
                 </div>
-                <div className="bg-white p-3.5 rounded-xl border border-slate-200">
+                <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
                   <p className="text-[10px] font-bold text-amber-600 uppercase">Missing in Sheet B</p>
                   <p className="text-xl font-bold text-amber-600 mt-1">{compareResult.only_in_sheet_a_count}</p>
                 </div>
@@ -430,15 +430,15 @@ export const ExcelAutomation: React.FC = () => {
 
               {/* Sample Modified Records */}
               {compareResult.modified_samples.length > 0 && (
-                <div className="bg-white rounded-xl border border-slate-200 p-4">
+                <div className="bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 p-4">
                   <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider mb-2">
                     Discrepancy Detail (Cell-level Modifications)
                   </h4>
                   <div className="space-y-2">
                     {compareResult.modified_samples.map((mod: any, idx: number) => (
-                      <div key={idx} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+                      <div key={idx} className="p-2.5 rounded-lg bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 text-xs">
                         <span className="font-bold text-brand-700">Key: {mod.key}</span>
-                        <div className="mt-1 space-y-1 text-slate-600">
+                        <div className="mt-1 space-y-1 text-slate-600 dark:text-slate-400">
                           {Object.entries(mod.modifications).map(([col, diff]: [string, any]) => (
                             <div key={col} className="flex items-center space-x-2 text-[11px]">
                               <span className="font-semibold text-slate-800">{col}:</span>
@@ -465,7 +465,7 @@ export const ExcelAutomation: React.FC = () => {
       {activeMode === 'templates' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {templates.map((tmpl) => (
-            <div key={tmpl.id} className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-2">
+            <div key={tmpl.id} className="bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded border border-brand-200">
                   {tmpl.workflow_type}

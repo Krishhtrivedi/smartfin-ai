@@ -160,7 +160,7 @@ export const StatutoryNotices: React.FC = () => {
 
   const getUrgencyBadge = (days: number, status: string) => {
     if (status === 'CLOSED') {
-      return <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">CLOSED</span>;
+      return <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 dark:text-slate-400">CLOSED</span>;
     }
     if (days < 0) {
       return (
@@ -191,9 +191,9 @@ export const StatutoryNotices: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-none">
       {/* Top Header */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+      <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
         <div>
           <div className="flex items-center space-x-2">
             <span className="px-2 py-0.5 rounded bg-brand-50 text-brand-700 text-[10px] font-mono font-bold uppercase tracking-wider">
@@ -223,26 +223,26 @@ export const StatutoryNotices: React.FC = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Notices</p>
           <p className="text-xl font-bold text-navy-950 mt-1 font-mono">{notices.filter(n => n.status !== 'CLOSED').length}</p>
           <span className="text-[10px] text-slate-500">Under active monitoring</span>
         </div>
-        <div className="bg-white p-4 rounded-xl border border-rose-100 bg-rose-50/20 shadow-xs">
+        <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-rose-100 bg-rose-50/20 shadow-xs">
           <p className="text-[10px] font-bold text-rose-600 uppercase tracking-wider">Urgent / Critical (&lt;7d)</p>
           <p className="text-xl font-bold text-rose-600 mt-1 font-mono">
             {notices.filter(n => n.status !== 'CLOSED' && n.days_remaining <= 7).length}
           </p>
           <span className="text-[10px] text-rose-600">Immediate filing attention</span>
         </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assigned to Birju Sir</p>
           <p className="text-xl font-bold text-brand-900 mt-1 font-mono">
             {notices.filter(n => n.assigned_owner.includes('Birju')).length}
           </p>
           <span className="text-[10px] text-slate-500">Senior partner oversight</span>
         </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Disputed Demand</p>
           <p className="text-xl font-bold text-navy-950 mt-1 font-mono">
             ₹{notices.reduce((sum, n) => sum + (n.demand_amount || 0), 0).toLocaleString('en-IN')}
@@ -254,7 +254,7 @@ export const StatutoryNotices: React.FC = () => {
       {/* Main 2-Column Split: List on Left, Detail & Response on Right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: Notice Registry (7 Cols) */}
-        <div className="lg:col-span-7 bg-white rounded-xl border border-slate-200 p-4 space-y-4 shadow-xs">
+        <div className="lg:col-span-7 bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-4 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
             <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
               Statutory Notice Registry ({filteredNotices.length})
@@ -265,7 +265,7 @@ export const StatutoryNotices: React.FC = () => {
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="px-2 py-1 border border-slate-200 rounded text-xs bg-slate-50"
+                className="px-2 py-1 border border-slate-200 dark:border-slate-800 rounded text-xs bg-slate-50 dark:bg-[#1A253A]"
               >
                 <option value="ALL">All Authorities</option>
                 <option value="INCOME_TAX">Income Tax</option>
@@ -276,7 +276,7 @@ export const StatutoryNotices: React.FC = () => {
               <select
                 value={filterRisk}
                 onChange={(e) => setFilterRisk(e.target.value)}
-                className="px-2 py-1 border border-slate-200 rounded text-xs bg-slate-50"
+                className="px-2 py-1 border border-slate-200 dark:border-slate-800 rounded text-xs bg-slate-50 dark:bg-[#1A253A]"
               >
                 <option value="ALL">All Risk Levels</option>
                 <option value="CRITICAL">Critical</option>
@@ -305,7 +305,7 @@ export const StatutoryNotices: React.FC = () => {
                 className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold transition-colors ${
                   timeFilter === chip.key
                     ? 'bg-[#1A2F46] text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    : 'bg-slate-100 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
                 }`}
               >
                 {chip.label}
@@ -331,7 +331,7 @@ export const StatutoryNotices: React.FC = () => {
                     className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
                       isSelected
                         ? 'border-brand-600 bg-brand-50/30 shadow-xs'
-                        : 'border-slate-200 hover:bg-slate-50'
+                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
@@ -339,7 +339,7 @@ export const StatutoryNotices: React.FC = () => {
                         <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
                           {n.notice_type} // Sec {n.section}
                         </span>
-                        <h4 className="text-xs font-bold text-slate-900">{n.client_name}</h4>
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">{n.client_name}</h4>
                       </div>
                       {getUrgencyBadge(n.days_remaining, n.status)}
                     </div>
@@ -363,7 +363,7 @@ export const StatutoryNotices: React.FC = () => {
                         )}
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                           n.status === 'FILED' ? 'bg-emerald-100 text-emerald-800' :
-                          n.status === 'CLOSED' ? 'bg-slate-100 text-slate-600' :
+                          n.status === 'CLOSED' ? 'bg-slate-100 text-slate-600 dark:text-slate-400' :
                           'bg-amber-100 text-amber-800'
                         }`}>
                           {n.status.replace('_', ' ')}
@@ -378,11 +378,11 @@ export const StatutoryNotices: React.FC = () => {
         </div>
 
         {/* Right: Selected Notice Workspace & Response Builder (5 Cols) */}
-        <div className="lg:col-span-5 bg-white rounded-xl border border-slate-200 p-5 space-y-5 shadow-xs">
+        <div className="lg:col-span-5 bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-5 shadow-xs">
           {selectedNotice ? (
             <>
               {/* Header */}
-              <div className="pb-3 border-b border-slate-200">
+              <div className="pb-3 border-b border-slate-200 dark:border-slate-800">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-mono text-brand-600 font-bold uppercase">
                     Notice ID: {selectedNotice.notice_number}
@@ -405,7 +405,7 @@ export const StatutoryNotices: React.FC = () => {
 
               {/* Status Workflow Progression */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-2">
+                <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                   Response Workflow Progression
                 </label>
                 <div className="grid grid-cols-5 gap-1 text-[10px] font-semibold text-center">
@@ -424,7 +424,7 @@ export const StatutoryNotices: React.FC = () => {
                         className={`py-1.5 px-1 rounded transition-colors ${
                           isCurrent
                             ? 'bg-brand-600 text-white font-bold'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            : 'bg-slate-100 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
                         }`}
                       >
                         {step.label}
@@ -436,10 +436,10 @@ export const StatutoryNotices: React.FC = () => {
 
               {/* Action Checklist */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-2">
+                <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                   Statutory Checklist & Defense Prep
                 </label>
-                <div className="space-y-2 bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs">
+                <div className="space-y-2 bg-slate-50 dark:bg-[#1A253A] p-3 rounded-lg border border-slate-200 dark:border-slate-800 text-xs">
                   {(selectedNotice.checklist || []).map((item: any, idx: number) => (
                     <div
                       key={item.id || idx}
@@ -461,7 +461,7 @@ export const StatutoryNotices: React.FC = () => {
 
               {/* Legal Reply & Response Notes */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
                   Draft Reply Notes & Legal Grounds
                 </label>
                 <textarea
@@ -469,7 +469,7 @@ export const StatutoryNotices: React.FC = () => {
                   value={activeNotes}
                   onChange={(e) => setActiveNotes(e.target.value)}
                   placeholder="Enter legal defense grounds, cross-examination points, judicial citations (e.g. Supreme Court ruling on Section 148)..."
-                  className="w-full p-2.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600 font-sans"
+                  className="w-full p-2.5 text-xs border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-600 font-sans"
                 />
                 <button
                   type="button"
@@ -482,14 +482,14 @@ export const StatutoryNotices: React.FC = () => {
 
               {/* Attachments Section */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-2">
+                <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                   Attachments & Working Sheets
                 </label>
                 <div className="space-y-1.5">
                   {(selectedNotice.attachments || []).map((file: string, idx: number) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-200 text-xs"
+                      className="flex items-center justify-between p-2 rounded bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 text-xs"
                     >
                       <span className="flex items-center gap-1.5 text-slate-700 truncate max-w-[220px]">
                         <Paperclip className="w-3.5 h-3.5 text-brand-600" />
@@ -525,7 +525,7 @@ export const StatutoryNotices: React.FC = () => {
               <select
                 value={noticeType}
                 onChange={(e) => setNoticeType(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               >
                 <option value="INCOME_TAX">Income Tax Department</option>
                 <option value="GST">GST Department</option>
@@ -541,7 +541,7 @@ export const StatutoryNotices: React.FC = () => {
                 value={section}
                 onChange={(e) => setSection(e.target.value)}
                 placeholder="e.g. 143(1), 148, DRC-01"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
               />
             </div>
           </div>
@@ -555,7 +555,7 @@ export const StatutoryNotices: React.FC = () => {
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
                 placeholder="e.g. Zenith Global LLP"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               />
             </div>
             <div>
@@ -566,7 +566,7 @@ export const StatutoryNotices: React.FC = () => {
                 value={clientPanGstin}
                 onChange={(e) => setClientPanGstin(e.target.value.toUpperCase())}
                 placeholder="AAACZ1234F"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
               />
             </div>
           </div>
@@ -579,7 +579,7 @@ export const StatutoryNotices: React.FC = () => {
                 required
                 value={issueDate}
                 onChange={(e) => setIssueDate(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
               />
             </div>
             <div>
@@ -589,7 +589,7 @@ export const StatutoryNotices: React.FC = () => {
                 required
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
               />
             </div>
           </div>
@@ -600,7 +600,7 @@ export const StatutoryNotices: React.FC = () => {
               <select
                 value={assignedOwner}
                 onChange={(e) => setAssignedOwner(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               >
                 <option value="Biraju Bhai (Birju Sir)">Biraju Bhai (Birju Sir)</option>
                 <option value="Pinal Shah">Pinal Shah</option>
@@ -613,7 +613,7 @@ export const StatutoryNotices: React.FC = () => {
               <select
                 value={riskLevel}
                 onChange={(e) => setRiskLevel(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               >
                 <option value="CRITICAL">Critical (High Demand / Penalty Risk)</option>
                 <option value="HIGH">High (Disallowance proposed)</option>
@@ -630,7 +630,7 @@ export const StatutoryNotices: React.FC = () => {
               value={demandAmount}
               onChange={(e) => setDemandAmount(e.target.value)}
               placeholder="0.00"
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
             />
           </div>
 
@@ -641,7 +641,7 @@ export const StatutoryNotices: React.FC = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Summary of discrepancy or mismatch alleged by the assessing officer..."
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
             />
           </div>
 
@@ -649,7 +649,7 @@ export const StatutoryNotices: React.FC = () => {
             <button
               type="button"
               onClick={() => setCreateModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]"
             >
               Cancel
             </button>

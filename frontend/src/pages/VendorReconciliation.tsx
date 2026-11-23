@@ -189,9 +189,9 @@ export const VendorReconciliation: React.FC = () => {
   const totalOutstanding = vendors.reduce((sum, v) => sum + (v.outstanding_balance || 0), 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-none">
       {/* Top Header */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-sm font-bold text-navy-950 flex items-center gap-2">
             <Building2 className="w-4 h-4 text-brand-600" />
@@ -235,7 +235,7 @@ export const VendorReconciliation: React.FC = () => {
       {/* Main 2-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Vendor Master List */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
+        <div className="bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-3">
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
             <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
               Vendors ({vendors.length})
@@ -267,11 +267,11 @@ export const VendorReconciliation: React.FC = () => {
                     className={`p-3 rounded-xl border cursor-pointer transition-all ${
                       isSelected
                         ? 'border-brand-600 bg-brand-50/40 shadow-xs'
-                        : 'border-slate-200 hover:bg-slate-50'
+                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-bold text-slate-900 truncate max-w-[180px]">{v.name}</h4>
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate max-w-[180px]">{v.name}</h4>
                       <span className="text-[10px] font-mono text-slate-500">{v.payment_terms_days || 30}d terms</span>
                     </div>
                     <p className="text-[10px] font-mono text-slate-400 mt-0.5">{v.gstin || 'Unregistered'}</p>
@@ -292,7 +292,7 @@ export const VendorReconciliation: React.FC = () => {
         {/* Right: Selected Vendor Reconciliation Details */}
         <div className="lg:col-span-2 space-y-5">
           {reconLoading ? (
-            <div className="bg-white p-12 rounded-xl border border-slate-200 text-center text-slate-400">
+            <div className="bg-white dark:bg-[#131C2E] p-12 rounded-xl border border-slate-200 dark:border-slate-800 text-center text-slate-400">
               <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-brand-600" />
               Loading vendor ledger...
             </div>
@@ -300,19 +300,19 @@ export const VendorReconciliation: React.FC = () => {
             <>
               {/* Summary Cards */}
               <div className="grid grid-cols-3 gap-3">
-                <div className="bg-white p-4 rounded-xl border border-slate-200">
+                <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Purchases</p>
                   <p className="text-lg font-bold text-navy-950 mt-1 font-mono">₹{formatINR(reconciliationData.total_purchases)}</p>
                   <p className="text-[10px] text-slate-500 mt-0.5">{reconciliationData.invoices_count || 0} bills recorded</p>
                 </div>
 
-                <div className="bg-white p-4 rounded-xl border border-slate-200">
+                <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Paid</p>
                   <p className="text-lg font-bold text-emerald-600 mt-1 font-mono">₹{formatINR(reconciliationData.total_payments)}</p>
                   <p className="text-[10px] text-slate-500 mt-0.5">{reconciliationData.payments_count || 0} payment vouchers</p>
                 </div>
 
-                <div className="bg-white p-4 rounded-xl border border-slate-200">
+                <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800">
                   <p className="text-[10px] font-bold text-rose-600 uppercase tracking-wider">Outstanding Due</p>
                   <p className="text-lg font-bold text-rose-600 mt-1 font-mono">₹{formatINR(reconciliationData.outstanding_balance)}</p>
                   <p className="text-[10px] text-slate-500 mt-0.5">{reconciliationData.unpaid_invoices_count || 0} unpaid invoices</p>
@@ -320,7 +320,7 @@ export const VendorReconciliation: React.FC = () => {
               </div>
 
               {/* Purchase Invoices List */}
-              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+              <div className="bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
                 <div className="p-3.5 border-b border-slate-100 flex items-center justify-between">
                   <div>
                     <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider">Purchase Bills Register</h4>
@@ -341,7 +341,7 @@ export const VendorReconciliation: React.FC = () => {
                     </div>
                   ) : (
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
+                      <thead className="bg-slate-50 dark:bg-[#1A253A]/80 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                         <tr>
                           <th className="py-2.5 px-4">Invoice No</th>
                           <th className="py-2.5 px-4">Date</th>
@@ -353,11 +353,11 @@ export const VendorReconciliation: React.FC = () => {
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {invoices.map((inv) => (
-                          <tr key={inv.id} className="hover:bg-slate-50/60 font-mono">
-                            <td className="py-2.5 px-4 font-semibold text-slate-900">{inv.invoice_number}</td>
+                          <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]/60 font-mono">
+                            <td className="py-2.5 px-4 font-semibold text-slate-900 dark:text-slate-100">{inv.invoice_number}</td>
                             <td className="py-2.5 px-4 text-slate-500">{inv.invoice_date}</td>
                             <td className="py-2.5 px-4 text-right">₹{formatINR(inv.taxable_amount)}</td>
-                            <td className="py-2.5 px-4 text-right text-slate-600">₹{formatINR(inv.total_tax)}</td>
+                            <td className="py-2.5 px-4 text-right text-slate-600 dark:text-slate-400">₹{formatINR(inv.total_tax)}</td>
                             <td className="py-2.5 px-4 text-right font-bold text-navy-950">₹{formatINR(inv.total_amount)}</td>
                             <td className="py-2.5 px-4 text-center">
                               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
@@ -377,7 +377,7 @@ export const VendorReconciliation: React.FC = () => {
               </div>
             </>
           ) : (
-            <div className="bg-white p-12 rounded-xl border border-slate-200 text-center text-slate-400 font-mono text-xs">
+            <div className="bg-white dark:bg-[#131C2E] p-12 rounded-xl border border-slate-200 dark:border-slate-800 text-center text-slate-400 font-mono text-xs">
               No vendor selected or no records available. Register a vendor to start recording accounts payable.
             </div>
           )}
@@ -400,7 +400,7 @@ export const VendorReconciliation: React.FC = () => {
               value={vendorName}
               onChange={(e) => setVendorName(e.target.value)}
               placeholder="e.g. Acme Cloud Solutions Pvt Ltd"
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -411,7 +411,7 @@ export const VendorReconciliation: React.FC = () => {
                 value={vendorGstin}
                 onChange={(e) => setVendorGstin(e.target.value.toUpperCase())}
                 placeholder="24AABCS1234D1Z5"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
               />
             </div>
             <div>
@@ -421,7 +421,7 @@ export const VendorReconciliation: React.FC = () => {
                 value={vendorPan}
                 onChange={(e) => setVendorPan(e.target.value.toUpperCase())}
                 placeholder="AABCS1234D"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
               />
             </div>
           </div>
@@ -433,7 +433,7 @@ export const VendorReconciliation: React.FC = () => {
                 value={vendorEmail}
                 onChange={(e) => setVendorEmail(e.target.value)}
                 placeholder="billing@acme.com"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               />
             </div>
             <div>
@@ -443,7 +443,7 @@ export const VendorReconciliation: React.FC = () => {
                 value={vendorPhone}
                 onChange={(e) => setVendorPhone(e.target.value)}
                 placeholder="+91 98765 43210"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
               />
             </div>
           </div>
@@ -454,7 +454,7 @@ export const VendorReconciliation: React.FC = () => {
                 type="text"
                 value={vendorState}
                 onChange={(e) => setVendorState(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               />
             </div>
             <div>
@@ -463,7 +463,7 @@ export const VendorReconciliation: React.FC = () => {
                 type="number"
                 value={vendorTerms}
                 onChange={(e) => setVendorTerms(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
               />
             </div>
           </div>
@@ -472,7 +472,7 @@ export const VendorReconciliation: React.FC = () => {
             <button
               type="button"
               onClick={() => setAddVendorModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]"
             >
               Cancel
             </button>
@@ -504,7 +504,7 @@ export const VendorReconciliation: React.FC = () => {
                 value={invNumber}
                 onChange={(e) => setInvNumber(e.target.value)}
                 placeholder="INV-2026-001"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
               />
             </div>
             <div>
@@ -514,7 +514,7 @@ export const VendorReconciliation: React.FC = () => {
                 required
                 value={invDate}
                 onChange={(e) => setInvDate(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
               />
             </div>
           </div>
@@ -529,7 +529,7 @@ export const VendorReconciliation: React.FC = () => {
                 value={invTaxable}
                 onChange={(e) => setInvTaxable(e.target.value)}
                 placeholder="50000.00"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
               />
             </div>
             <div>
@@ -537,7 +537,7 @@ export const VendorReconciliation: React.FC = () => {
               <select
                 value={invGstRate}
                 onChange={(e) => setInvGstRate(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               >
                 <option value={18}>18% (Standard Services / Goods)</option>
                 <option value={12}>12% (Specified Items)</option>
@@ -549,12 +549,12 @@ export const VendorReconciliation: React.FC = () => {
           </div>
 
           {invTaxable && (
-            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs font-mono space-y-1">
+            <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 text-xs font-mono space-y-1">
               <div className="flex justify-between">
                 <span>Taxable Amount:</span>
                 <span>₹{formatINR(parseFloat(invTaxable) || 0)}</span>
               </div>
-              <div className="flex justify-between text-slate-600">
+              <div className="flex justify-between text-slate-600 dark:text-slate-400">
                 <span>GST ({invGstRate}%):</span>
                 <span>₹{formatINR(((parseFloat(invTaxable) || 0) * invGstRate) / 100)}</span>
               </div>
@@ -569,7 +569,7 @@ export const VendorReconciliation: React.FC = () => {
             <button
               type="button"
               onClick={() => setAddInvoiceModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]"
             >
               Cancel
             </button>
@@ -607,7 +607,7 @@ export const VendorReconciliation: React.FC = () => {
             <button
               type="button"
               onClick={() => setUploadModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]"
             >
               Cancel
             </button>

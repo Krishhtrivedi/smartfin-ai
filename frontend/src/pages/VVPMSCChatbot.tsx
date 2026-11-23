@@ -90,7 +90,7 @@ export const VVPMSCChatbot: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-none">
       {/* Top Banner */}
       <div className="bg-[#1A2F46] p-6 rounded-xl text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -109,7 +109,7 @@ export const VVPMSCChatbot: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center space-x-3 bg-white/10 px-4 py-2.5 rounded-lg border border-white/10 text-xs font-mono">
+        <div className="flex items-center space-x-3 bg-white dark:bg-[#131C2E]/10 px-4 py-2.5 rounded-lg border border-white/10 text-xs font-mono">
           <BookOpenCheck className="w-4 h-4 text-[#E65909]" />
           <div>
             <div className="text-[10px] text-slate-400">Knowledge Scope</div>
@@ -121,9 +121,9 @@ export const VVPMSCChatbot: React.FC = () => {
       {/* Main Chat Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: Chat Stream */}
-        <div className="lg:col-span-8 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-[650px] overflow-hidden">
+        <div className="lg:col-span-8 bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col h-[650px] overflow-hidden">
           {/* Chat Stream Header */}
-          <div className="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+          <div className="p-4 border-b border-slate-100 bg-slate-50 dark:bg-[#1A253A] flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-xs font-bold text-navy-950 font-mono">Active Policy Assistant Session</span>
@@ -148,7 +148,7 @@ export const VVPMSCChatbot: React.FC = () => {
                   className={`max-w-[85%] rounded-xl p-4 text-xs leading-relaxed space-y-2 shadow-xs ${
                     msg.sender === 'user'
                       ? 'bg-[#1A2F46] text-white rounded-tr-none'
-                      : 'bg-slate-50 border border-slate-200 text-slate-800 rounded-tl-none'
+                      : 'bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 text-slate-800 rounded-tl-none'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-4 pb-1 border-b border-current/10 text-[10px] opacity-75 font-mono">
@@ -159,13 +159,13 @@ export const VVPMSCChatbot: React.FC = () => {
                   <p className="whitespace-pre-wrap">{msg.text}</p>
 
                   {msg.citation && (
-                    <div className="pt-2 border-t border-slate-200/60 mt-2 space-y-1 text-[11px] font-mono">
+                    <div className="pt-2 border-t border-slate-200 dark:border-slate-800/60 mt-2 space-y-1 text-[11px] font-mono">
                       <div className="flex items-center gap-1 text-[#E65909] font-bold">
                         <FileText className="w-3 h-3" />
                         <span>Citation: {msg.citation}</span>
                       </div>
                       {msg.owner && (
-                        <div className="text-slate-600 flex items-center gap-1">
+                        <div className="text-slate-600 dark:text-slate-400 flex items-center gap-1">
                           <UserCheck className="w-3 h-3 text-slate-400" />
                           <span>Designated Reviewer: <strong>{msg.owner}</strong></span>
                         </div>
@@ -190,7 +190,7 @@ export const VVPMSCChatbot: React.FC = () => {
           </div>
 
           {/* Input Area */}
-          <div className="p-4 border-t border-slate-200 bg-white">
+          <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131C2E]">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -203,7 +203,7 @@ export const VVPMSCChatbot: React.FC = () => {
                 value={inputQuery}
                 onChange={(e) => setInputQuery(e.target.value)}
                 placeholder="Ask about firm checklists, notice defense SOPs, SEBI rules, or office guidelines..."
-                className="flex-1 px-4 py-2.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1A2F46] bg-slate-50/50"
+                className="flex-1 px-4 py-2.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1A2F46] bg-slate-50 dark:bg-[#1A253A]/50"
               />
               <button
                 type="submit"
@@ -220,7 +220,7 @@ export const VVPMSCChatbot: React.FC = () => {
         {/* Right: Quick Prompts & Knowledge Index */}
         <div className="lg:col-span-4 space-y-5">
           {/* Quick Prompts Box */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <div className="bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
             <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-[#E65909]" />
               <span>Standard Operational Inquiries</span>
@@ -234,7 +234,7 @@ export const VVPMSCChatbot: React.FC = () => {
                   key={idx}
                   onClick={() => handleSend(prompt)}
                   disabled={isQuerying}
-                  className="w-full text-left p-2.5 rounded-lg border border-slate-200 hover:border-[#1A2F46] hover:bg-slate-50 transition-colors text-xs text-slate-700 flex items-start space-x-2 disabled:opacity-50"
+                  className="w-full text-left p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-[#1A2F46] hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A] transition-colors text-xs text-slate-700 flex items-start space-x-2 disabled:opacity-50"
                 >
                   <CornerDownRight className="w-3.5 h-3.5 text-[#E65909] mt-0.5 flex-shrink-0" />
                   <span>{prompt}</span>
@@ -244,21 +244,21 @@ export const VVPMSCChatbot: React.FC = () => {
           </div>
 
           {/* Key Partner Contacts & Escalations Box */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <div className="bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
             <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>Practice Escalation Matrix</span>
             </h3>
             <div className="space-y-2.5 text-xs font-mono">
-              <div className="p-2.5 rounded bg-slate-50 border border-slate-200 space-y-0.5">
+              <div className="p-2.5 rounded bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 space-y-0.5">
                 <div className="font-bold text-navy-950">Biraju Bhai (birju@smartfin.ai)</div>
                 <div className="text-[11px] text-slate-500">Statutory Tax Notices, 148A, Scrutiny & Litigation</div>
               </div>
-              <div className="p-2.5 rounded bg-slate-50 border border-slate-200 space-y-0.5">
+              <div className="p-2.5 rounded bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 space-y-0.5">
                 <div className="font-bold text-navy-950">Pinal Shah (pinal@smartfin.ai)</div>
                 <div className="text-[11px] text-slate-500">GST Filings, Audit Assurance & PMS Client Mandates</div>
               </div>
-              <div className="p-2.5 rounded bg-slate-50 border border-slate-200 space-y-0.5">
+              <div className="p-2.5 rounded bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 space-y-0.5">
                 <div className="font-bold text-navy-950">Nilesh Jain (nilesh@smartfin.ai)</div>
                 <div className="text-[11px] text-slate-500">Banking Reconciliations, TDS 194Q & Operations</div>
               </div>

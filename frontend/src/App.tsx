@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { Layout } from './components/layout/Layout';
 import { NavigationTab } from './components/layout/Sidebar';
 import { Login } from './pages/Login';
@@ -48,10 +49,10 @@ const AppContent: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F6F3EE] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F6F3EE] dark:bg-[#0B1120] text-[#171E25] dark:text-slate-100 flex items-center justify-center">
         <div className="flex flex-col items-center space-y-3">
           <div className="w-8 h-8 border-3 border-[#E65909] border-t-transparent rounded-full animate-spin" />
-          <p className="text-xs font-mono text-[#5D646C]">Authenticating SMARTFIN.AI session...</p>
+          <p className="text-xs font-mono text-[#5D646C] dark:text-slate-400">Authenticating SMARTFIN.AI session...</p>
         </div>
       </div>
     );
@@ -316,9 +317,11 @@ const AppContent: React.FC = () => {
 
 export function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

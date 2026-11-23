@@ -83,18 +83,18 @@ export const PMSCPublicWebsite: React.FC = () => {
   };
 
   return (
-    <div className={`space-y-8 ${isFullscreen ? 'fixed inset-0 z-50 bg-white overflow-y-auto p-4 md:p-8' : ''}`}>
+    <div className={`space-y-8 ${isFullscreen ? 'fixed inset-0 z-50 bg-white dark:bg-[#131C2E] overflow-y-auto p-4 md:p-8' : ''}`}>
       {/* Top Bar with Mode Controls */}
-      <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+      <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center space-x-2">
-          <span className="px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold uppercase tracking-wider">
+          <span className="px-2.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 text-[10px] font-mono font-bold uppercase tracking-wider">
             Public Web Presence
           </span>
           <span className="text-xs font-mono text-slate-400">| Domain: pmsc.vicharvimarsh.com (Institutional Site)</span>
         </div>
         <button
           onClick={() => setIsFullscreen(!isFullscreen)}
-          className="text-xs font-mono text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+          className="text-xs font-mono text-slate-600 hover:text-slate-900 dark:text-slate-100 flex items-center space-x-1.5 px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
         >
           {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
           <span>{isFullscreen ? 'Exit Standalone View' : 'Preview as Standalone Site'}</span>
@@ -125,7 +125,7 @@ export const PMSCPublicWebsite: React.FC = () => {
             </a>
             <a
               href="#core-practices"
-              className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg border border-white/20 transition-colors"
+              className="px-6 py-3 bg-white dark:bg-[#131C2E]/10 hover:bg-white dark:bg-[#131C2E]/20 text-white text-xs font-semibold rounded-lg border border-white/20 transition-colors"
             >
               <span>Explore Practice Areas</span>
             </a>
@@ -137,7 +137,7 @@ export const PMSCPublicWebsite: React.FC = () => {
       </div>
 
       {/* Key Practice Pillars */}
-      <div id="core-practices" className="space-y-4">
+      <div id="core-practices" className="space-y-4 w-full max-w-none">
         <div className="text-center max-w-xl mx-auto space-y-1">
           <span className="text-[11px] font-mono font-bold text-[#E65909] uppercase tracking-wider">
             Our Advisory Capabilities
@@ -148,45 +148,45 @@ export const PMSCPublicWebsite: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3 hover:border-[#1A2F46] transition-colors">
+          <div className="bg-white dark:bg-[#131C2E] p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 hover:border-[#1A2F46] transition-colors">
             <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
               <TrendingUp className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-navy-950">PMS & Family Office</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               SEBI-aligned portfolio management consulting, capital allocation frameworks, and hurdle-rate structured mandates for HNIs with ₹50L+ investable corpus.
             </p>
             <div className="text-[11px] font-mono text-[#E65909] font-bold">Led by Pinal Shah</div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3 hover:border-[#1A2F46] transition-colors">
+          <div className="bg-white dark:bg-[#131C2E] p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 hover:border-[#1A2F46] transition-colors">
             <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
               <Scale className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-navy-950">Statutory Tax Litigation</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               Decisive defense in Section 148A reassessment notices, faceless scrutiny appeals, and GST search/seizure proceedings under Indian tax statutes.
             </p>
             <div className="text-[11px] font-mono text-[#E65909] font-bold">Led by Biraju Bhai</div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3 hover:border-[#1A2F46] transition-colors">
+          <div className="bg-white dark:bg-[#131C2E] p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 hover:border-[#1A2F46] transition-colors">
             <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
               <FileCheck2 className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-navy-950">Trade Receivables & DSO</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               Structured B2B payment recovery sequences, MSME Section 16 interest protection notices, and debt collection automation for enterprise distributors.
             </p>
             <div className="text-[11px] font-mono text-[#E65909] font-bold">Credit Control Desk</div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3 hover:border-[#1A2F46] transition-colors">
+          <div className="bg-white dark:bg-[#131C2E] p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 hover:border-[#1A2F46] transition-colors">
             <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold">
               <Landmark className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-navy-950">Virtual CFO & Bank Audit</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               High-velocity treasury management, bank reconciliation audits, and automated MIS reporting for board-level governance.
             </p>
             <div className="text-[11px] font-mono text-[#E65909] font-bold">Led by Nilesh Jain</div>
@@ -195,7 +195,7 @@ export const PMSCPublicWebsite: React.FC = () => {
       </div>
 
       {/* Compliance & Standards Showcase */}
-      <div className="bg-slate-50 p-6 md:p-8 rounded-xl border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="bg-slate-50 dark:bg-[#1A253A] p-6 md:p-8 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-1 max-w-xl">
           <div className="flex items-center space-x-2 text-emerald-700 text-xs font-mono font-bold">
             <ShieldCheck className="w-4 h-4" />
@@ -204,17 +204,17 @@ export const PMSCPublicWebsite: React.FC = () => {
           <h3 className="text-base font-bold text-navy-950 font-display">
             Bank-Grade Data Security with Comprehensive Audit Trails
           </h3>
-          <p className="text-xs text-slate-600 leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
             All client files, return filings, and communications are secured under 256-bit encryption. Actions are tied to verifiable timestamps and client IPs for uncompromised regulatory assurance.
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-3 text-center text-xs font-mono font-bold w-full md:w-auto">
-          <div className="p-3 bg-white rounded-lg border border-slate-200">
-            <div className="text-lg text-[#1A2F46]">100%</div>
+          <div className="p-3 bg-white dark:bg-[#131C2E] rounded-lg border border-slate-200 dark:border-slate-800">
+            <div className="text-lg text-[#1A2F46] dark:text-slate-100">100%</div>
             <div className="text-[10px] text-slate-500 font-normal">Statutory Compliance</div>
           </div>
-          <div className="p-3 bg-white rounded-lg border border-slate-200">
+          <div className="p-3 bg-white dark:bg-[#131C2E] rounded-lg border border-slate-200 dark:border-slate-800">
             <div className="text-lg text-[#E65909]">₹50L+</div>
             <div className="text-[10px] text-slate-500 font-normal">SEBI PMS Floor</div>
           </div>
@@ -222,7 +222,7 @@ export const PMSCPublicWebsite: React.FC = () => {
       </div>
 
       {/* Interactive Public Client Intake Form */}
-      <div id="client-intake" className="bg-white p-6 md:p-10 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+      <div id="client-intake" className="bg-white dark:bg-[#131C2E] p-6 md:p-10 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
         <div className="space-y-1">
           <span className="text-[11px] font-mono font-bold text-[#E65909] uppercase tracking-wider">
             Inbound Client Intake
@@ -257,7 +257,7 @@ export const PMSCPublicWebsite: React.FC = () => {
                 value={formData.full_name}
                 onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                 placeholder="e.g. Rajesh Singhania"
-                className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               />
             </div>
 
@@ -270,7 +270,7 @@ export const PMSCPublicWebsite: React.FC = () => {
                 value={formData.entity_name}
                 onChange={(e) => setFormData({ ...formData, entity_name: e.target.value })}
                 placeholder="e.g. Singhania Logistics LLP"
-                className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               />
             </div>
           </div>
@@ -283,7 +283,7 @@ export const PMSCPublicWebsite: React.FC = () => {
               <select
                 value={formData.service_type}
                 onChange={(e) => setFormData({ ...formData, service_type: e.target.value })}
-                className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs bg-white font-medium"
+                className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs bg-white dark:bg-[#131C2E] font-medium"
               >
                 <option value="PMS_WEALTH">Portfolio Management (₹50L+)</option>
                 <option value="TAX_LITIGATION">Statutory Tax & Notice Defense</option>
@@ -303,7 +303,7 @@ export const PMSCPublicWebsite: React.FC = () => {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="rajesh@singhania.com"
-                className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               />
             </div>
 
@@ -317,7 +317,7 @@ export const PMSCPublicWebsite: React.FC = () => {
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="+91 98250 XXXXX"
-                className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               />
             </div>
           </div>
@@ -331,7 +331,7 @@ export const PMSCPublicWebsite: React.FC = () => {
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               placeholder="Outline the matter, pending notices, or corpus size..."
-              className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs"
+              className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
             />
           </div>
 
@@ -353,7 +353,7 @@ export const PMSCPublicWebsite: React.FC = () => {
 
       {/* Admin Leads Review Desk (Only visible to authenticated administrators/partners) */}
       {user?.role === 'admin' && (
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div className="bg-white dark:bg-[#131C2E] p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div className="flex items-center space-x-2">
               <span className="p-1.5 rounded-lg bg-[#E65909]/10 text-[#E65909]">
@@ -379,9 +379,9 @@ export const PMSCPublicWebsite: React.FC = () => {
           </div>
 
           {inquiries.length === 0 ? (
-            <div className="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
+            <div className="p-8 text-center bg-slate-50 dark:bg-[#1A253A] rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
               <Inbox className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-              <p className="text-xs font-semibold text-slate-600">No Inbound Consultation Leads Yet</p>
+              <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">No Inbound Consultation Leads Yet</p>
               <p className="text-[11px] text-slate-400 mt-0.5">
                 New inquiries submitted via the form above will appear here in real-time.
               </p>
@@ -389,7 +389,7 @@ export const PMSCPublicWebsite: React.FC = () => {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-600 font-mono text-[11px] border-b border-slate-200">
+                <thead className="bg-slate-50 dark:bg-[#1A253A] text-slate-600 dark:text-slate-400 font-mono text-[11px] border-b border-slate-200 dark:border-slate-800">
                   <tr>
                     <th className="py-2.5 px-3">Intake Code</th>
                     <th className="py-2.5 px-3">Client / Entity</th>
@@ -402,7 +402,7 @@ export const PMSCPublicWebsite: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-sans">
                   {inquiries.map((inq) => (
-                    <tr key={inq.id} className="hover:bg-slate-50/70 transition-colors">
+                    <tr key={inq.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]/70 transition-colors">
                       <td className="py-2.5 px-3 font-mono text-[11px] font-bold text-[#E65909]">
                         {inq.intake_code}
                       </td>
@@ -419,7 +419,7 @@ export const PMSCPublicWebsite: React.FC = () => {
                         <div className="text-slate-800">{inq.email}</div>
                         <div className="text-slate-500">{inq.phone}</div>
                       </td>
-                      <td className="py-2.5 px-3 text-[11px] text-slate-600 max-w-xs truncate">
+                      <td className="py-2.5 px-3 text-[11px] text-slate-600 dark:text-slate-400 max-w-xs truncate">
                         {inq.message || <span className="italic text-slate-400">No brief provided</span>}
                       </td>
                       <td className="py-2.5 px-3 font-mono text-[10px] text-slate-500">
@@ -438,7 +438,7 @@ export const PMSCPublicWebsite: React.FC = () => {
       )}
 
       {/* Footer */}
-      <footer className="pt-6 border-t border-slate-200 text-slate-500 text-xs flex flex-col sm:flex-row items-center justify-between gap-3 font-mono">
+      <footer className="pt-6 border-t border-slate-200 dark:border-slate-800 text-slate-500 text-xs flex flex-col sm:flex-row items-center justify-between gap-3 font-mono">
         <div>
           © 2026 PMSC (Vichar Vimarsh Group). All rights reserved.
         </div>

@@ -37,7 +37,7 @@ export const CareerPathwayAI: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-none">
       {/* Top Banner */}
       <div className="bg-[#1A2F46] p-6 rounded-xl text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -56,7 +56,7 @@ export const CareerPathwayAI: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center space-x-3 bg-white/10 px-4 py-2.5 rounded-lg border border-white/10 text-xs font-mono">
+        <div className="flex items-center space-x-3 bg-white dark:bg-[#131C2E]/10 px-4 py-2.5 rounded-lg border border-white/10 text-xs font-mono">
           <Award className="w-4 h-4 text-blue-400" />
           <div>
             <div className="text-[10px] text-slate-400">Industry Standards</div>
@@ -66,7 +66,7 @@ export const CareerPathwayAI: React.FC = () => {
       </div>
 
       {/* Intake & Config Box */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+      <div className="bg-white dark:bg-[#131C2E] p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
         <div className="space-y-1">
           <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
             Define Your Progression Vector
@@ -84,7 +84,7 @@ export const CareerPathwayAI: React.FC = () => {
             <select
               value={currentRole}
               onChange={(e) => setCurrentRole(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs bg-white dark:bg-[#131C2E]"
             >
               <option value="Articled Assistant / Junior Accountant">Articled Assistant / Junior Accountant</option>
               <option value="Senior Tax Executive">Senior Tax Executive</option>
@@ -101,7 +101,7 @@ export const CareerPathwayAI: React.FC = () => {
             <select
               value={targetRole}
               onChange={(e) => setTargetRole(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white font-bold text-navy-950"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs bg-white dark:bg-[#131C2E] font-bold text-navy-950"
             >
               <option value="FP&A Manager">FP&A Manager</option>
               <option value="Statutory Auditor">Statutory Auditor</option>
@@ -142,7 +142,7 @@ export const CareerPathwayAI: React.FC = () => {
         <div className="space-y-6">
           {/* Compensation & Certification Benchmarks */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-1">
+            <div className="bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
               <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
                 Target Salary Trajectory (Indian Market)
               </span>
@@ -154,7 +154,7 @@ export const CareerPathwayAI: React.FC = () => {
               </p>
             </div>
 
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-1">
+            <div className="bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
               <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
                 Recommended Professional Certifications
               </span>
@@ -168,7 +168,7 @@ export const CareerPathwayAI: React.FC = () => {
           </div>
 
           {/* Timeline Milestones */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+          <div className="bg-white dark:bg-[#131C2E] p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
             <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider flex items-center gap-1.5">
               <Calendar className="w-4 h-4 text-blue-600" />
               <span>12-Month Structured Progression Milestones</span>
@@ -176,12 +176,12 @@ export const CareerPathwayAI: React.FC = () => {
 
             <div className="space-y-4">
               {roadmapData.milestones.map((m: any, idx: number) => (
-                <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <div key={idx} className="p-4 rounded-xl bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-[#1A2F46] font-display">
+                    <span className="font-bold text-xs text-[#1A2F46] dark:text-slate-100 font-display">
                       {m.phase}
                     </span>
-                    <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-800 text-[10px] font-mono font-bold">
+                    <span className="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-500/10 text-blue-800 dark:text-blue-400 text-[10px] font-mono font-bold">
                       Milestone {idx + 1}
                     </span>
                   </div>
@@ -190,14 +190,14 @@ export const CareerPathwayAI: React.FC = () => {
                     {m.skills.map((skill: string, sIdx: number) => (
                       <span
                         key={sIdx}
-                        className="px-2 py-1 bg-white rounded border border-slate-200 text-[11px] font-mono text-slate-700"
+                        className="px-2 py-1 bg-white dark:bg-[#131C2E] rounded border border-slate-200 dark:border-slate-800 text-[11px] font-mono text-slate-700"
                       >
                         ✓ {skill}
                       </span>
                     ))}
                   </div>
 
-                  <p className="text-xs text-slate-600 pt-1 font-sans">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 pt-1 font-sans">
                     <strong>Action Item:</strong> {m.action}
                   </p>
                 </div>

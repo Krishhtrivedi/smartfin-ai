@@ -5,9 +5,12 @@ import {
   Sparkles,
   AlertTriangle,
   Building,
-  Activity
+  Activity,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { api } from '../../services/api';
 import { NavigationTab } from './Sidebar';
 import { DiagnosticsModal } from '../common/DiagnosticsModal';
@@ -24,6 +27,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAI,
 }) => {
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -190,12 +194,13 @@ export const Header: React.FC<HeaderProps> = ({
   const current = tabTitles[currentTab] || { spec: 'SYSTEM', title: 'Dashboard', subtitle: '' };
 
   return (
-    <header className="h-18 bg-[#F6F3EE] border-b border-[#C5CBD2] px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+    <header className="h-18 bg-[#F6F3EE] dark:bg-[#131C2E] border-b border-[#C5CBD2] dark:border-slate-800 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs transition-colors">
       {/* Left Title & Mobile Button */}
       <div className="flex items-center space-x-3 min-w-0 flex-1 mr-3">
         <button
           onClick={onOpenMobileMenu}
-          className="p-2 text-[#4A545D] hover:text-[#171E25] hover:bg-[#ECE9E3] rounded-[3px] lg:hidden border border-[#C5CBD2] flex-shrink-0"
+          className="p-2 text-[#4A545D] dark:text-slate-300 hover:text-[#171E25] dark:hover:text-white bg-white dark:bg-[#1A253A] hover:bg-[#ECE9E3] dark:hover:bg-slate-800 rounded-[3px] lg:hidden border border-[#C5CBD2] dark:border-slate-700 flex-shrink-0 transition-colors"
+          title="Open Navigation Menu"
         >
           <Menu className="w-5 h-5" />
         </button>
@@ -205,14 +210,14 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="spec-tag text-[#E65909] font-bold bg-[#E65909]/10 px-1.5 py-0.5 rounded-[2px] border border-[#E65909]/20 flex-shrink-0 text-[10px] font-mono">
               {current.spec}
             </span>
-            <h1 className="text-sm sm:text-base md:text-lg font-display font-bold text-[#1A2F46] truncate">
+            <h1 className="text-sm sm:text-base md:text-lg font-display font-bold text-[#1A2F46] dark:text-slate-50 truncate">
               {current.title}
             </h1>
-            <span className="hidden sm:inline-flex items-center text-[10px] font-mono font-medium bg-[#ECE9E3] text-[#4A545D] px-2 py-0.5 rounded-[2px] border border-[#C5CBD2] flex-shrink-0">
+            <span className="hidden sm:inline-flex items-center text-[10px] font-mono font-medium bg-[#ECE9E3] dark:bg-[#1A253A] text-[#4A545D] dark:text-slate-300 px-2 py-0.5 rounded-[2px] border border-[#C5CBD2] dark:border-slate-700 flex-shrink-0">
               FY 2026-27
             </span>
           </div>
-          <p className="hidden md:block text-xs font-sans text-[#4A545D] truncate mt-0.5">
+          <p className="hidden md:block text-xs font-sans text-[#4A545D] dark:text-slate-400 truncate mt-0.5">
             {current.subtitle}
           </p>
         </div>
@@ -220,13 +225,13 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Right Action Icons & Profile */}
       <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
-        {/* System Diagnostics Trigger (Zero Simulation) */}
+        {/* System Diagnostics Trigger */}
         <button
           onClick={() => setDiagnosticsOpen(true)}
-          className="flex items-center space-x-1.5 px-2.5 py-1.5 text-xs font-semibold bg-white hover:bg-[#ECE9E3] text-[#1A2F46] border border-[#C5CBD2] rounded-[3px] transition-colors shadow-xs"
+          className="flex items-center space-x-1.5 px-2.5 py-1.5 text-xs font-semibold bg-white dark:bg-[#1A253A] hover:bg-[#ECE9E3] dark:hover:bg-slate-800 text-[#1A2F46] dark:text-slate-200 border border-[#C5CBD2] dark:border-slate-700 rounded-[3px] transition-colors shadow-xs"
           title="Connections & Data Flow Diagnostics"
         >
-          <Activity className="w-3.5 h-3.5 text-emerald-600" />
+          <Activity className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
           <span className="hidden md:inline font-mono text-[11px]">Diagnostics</span>
         </button>
 
@@ -234,16 +239,32 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           onClick={onOpenAI}
           className="btn-signal flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold shadow-xs"
+          title="Ask SmartFin AI"
         >
           <Sparkles className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Ask SmartFin AI</span>
+        </button>
+
+        {/* Global Sun/Moon Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="p-2 text-[#4A545D] dark:text-slate-300 hover:text-[#171E25] dark:hover:text-white bg-white dark:bg-[#1A253A] hover:bg-[#ECE9E3] dark:hover:bg-slate-800 rounded-[3px] border border-[#C5CBD2] dark:border-slate-700 transition-colors shadow-xs"
+          title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+          aria-label="Toggle theme"
+        >
+          {theme === 'dark' ? (
+            <Sun className="w-4 h-4 text-amber-400 animate-in spin-in-180 duration-200" />
+          ) : (
+            <Moon className="w-4 h-4 text-indigo-700 animate-in spin-in-180 duration-200" />
+          )}
         </button>
 
         {/* Notifications Popover */}
         <div className="relative">
           <button
             onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-2 text-[#4A545D] hover:text-[#171E25] hover:bg-[#ECE9E3] rounded-[3px] border border-[#C5CBD2] transition-colors"
+            className="relative p-2 text-[#4A545D] dark:text-slate-300 hover:text-[#171E25] dark:hover:text-white bg-white dark:bg-[#1A253A] hover:bg-[#ECE9E3] dark:hover:bg-slate-800 rounded-[3px] border border-[#C5CBD2] dark:border-slate-700 transition-colors shadow-xs"
+            title="Notifications"
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
@@ -254,19 +275,19 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-[3px] shadow-xl border border-[#C5CBD2] py-2 z-50 animate-in fade-in slide-in-from-top-2">
-              <div className="px-4 py-2 border-b border-[#ECE9E3] flex items-center justify-between">
-                <span className="font-display font-bold text-xs text-[#1A2F46] uppercase tracking-wider">
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-[#131C2E] rounded-[3px] shadow-xl border border-[#C5CBD2] dark:border-slate-800 py-2 z-50 animate-in fade-in slide-in-from-top-2">
+              <div className="px-4 py-2 border-b border-[#ECE9E3] dark:border-slate-800 flex items-center justify-between">
+                <span className="font-display font-bold text-xs text-[#1A2F46] dark:text-slate-100 uppercase tracking-wider">
                   Audit & Compliance Alerts
                 </span>
-                <span className="text-[10px] font-mono text-[#8B97A3]">
+                <span className="text-[10px] font-mono text-[#8B97A3] dark:text-slate-400">
                   {notifications.length} alerts
                 </span>
               </div>
 
-              <div className="max-h-72 overflow-y-auto divide-y divide-[#ECE9E3]">
+              <div className="max-h-72 overflow-y-auto divide-y divide-[#ECE9E3] dark:divide-slate-800">
                 {notifications.length === 0 ? (
-                  <div className="p-4 text-center text-xs text-[#8B97A3]">
+                  <div className="p-4 text-center text-xs text-[#8B97A3] dark:text-slate-400">
                     No unread notifications
                   </div>
                 ) : (
@@ -274,16 +295,16 @@ export const Header: React.FC<HeaderProps> = ({
                     <div
                       key={n.id}
                       onClick={() => handleMarkRead(n.id)}
-                      className={`p-3.5 hover:bg-[#F6F3EE] cursor-pointer transition-colors ${
-                        !n.is_read ? 'bg-[#E65909]/5' : ''
+                      className={`p-3.5 hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] cursor-pointer transition-colors ${
+                        !n.is_read ? 'bg-[#E65909]/5 dark:bg-[#E65909]/10' : ''
                       }`}
                     >
                       <div className="flex items-start space-x-2.5">
                         <AlertTriangle className="w-4 h-4 text-[#E65909] flex-shrink-0 mt-0.5" />
                         <div className="flex-1">
-                          <p className="text-xs font-bold text-[#171E25] font-sans">{n.title}</p>
-                          <p className="text-[11px] text-[#4A545D] mt-0.5 line-clamp-2">{n.message}</p>
-                          <span className="text-[10px] font-mono text-[#8B97A3] mt-1 inline-block">
+                          <p className="text-xs font-bold text-[#171E25] dark:text-slate-100 font-sans">{n.title}</p>
+                          <p className="text-[11px] text-[#4A545D] dark:text-slate-300 mt-0.5 line-clamp-2">{n.message}</p>
+                          <span className="text-[10px] font-mono text-[#8B97A3] dark:text-slate-400 mt-1 inline-block">
                             {new Date(n.created_at).toLocaleDateString()}
                           </span>
                         </div>
@@ -297,12 +318,12 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* User Role Badge */}
-        <div className="flex items-center space-x-2 pl-2 border-l border-[#C5CBD2]">
-          <div className="w-8 h-8 rounded-[3px] bg-[#1A2F46] text-[#F6F3EE] flex items-center justify-center font-bold text-xs">
+        <div className="flex items-center space-x-2 pl-2 border-l border-[#C5CBD2] dark:border-slate-700">
+          <div className="w-8 h-8 rounded-[3px] bg-[#1A2F46] dark:bg-[#0D2035] text-[#F6F3EE] flex items-center justify-center font-bold text-xs shadow-xs border border-white/5">
             {user?.full_name?.charAt(0) || 'U'}
           </div>
           <div className="hidden sm:block text-left">
-            <p className="text-xs font-semibold text-[#171E25] leading-tight">
+            <p className="text-xs font-semibold text-[#171E25] dark:text-slate-100 leading-tight">
               {user?.full_name}
             </p>
             <span className="text-[9px] uppercase font-mono font-bold text-[#E65909] bg-[#E65909]/10 px-1 py-0.2 rounded-[2px] border border-[#E65909]/20">

@@ -532,16 +532,16 @@ export const CustomerReconciliation: React.FC = () => {
   const selectedCustomer = customers.find(c => c.id === selectedCustomerId);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 w-full max-w-none">
       {/* Primary Sub-Tab Switcher & Action Toolbar (Eliminated Redundant Double Banner) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#C5CBD2] pb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#C5CBD2] dark:border-slate-800 pb-2">
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setActiveModuleMode('DIRECTORY')}
             className={`px-3.5 py-1.5 text-xs font-semibold rounded-[3px] flex items-center space-x-2 transition-all ${
               activeModuleMode === 'DIRECTORY'
                 ? 'bg-[#1A2F46] text-white shadow-xs font-bold'
-                : 'text-[#5D646C] hover:text-[#1A2F46] hover:bg-[#ECE9E3]'
+                : 'text-[#5D646C] hover:text-[#1A2F46] dark:text-slate-100 hover:bg-[#ECE9E3] dark:bg-[#1A253A]'
             }`}
           >
             <Users2 className="w-4 h-4 text-[#E65909]" />
@@ -553,7 +553,7 @@ export const CustomerReconciliation: React.FC = () => {
             className={`px-3.5 py-1.5 text-xs font-semibold rounded-[3px] flex items-center space-x-2 transition-all ${
               activeModuleMode === 'RECEIVABLES'
                 ? 'bg-[#1A2F46] text-white shadow-xs font-bold'
-                : 'text-[#5D646C] hover:text-[#1A2F46] hover:bg-[#ECE9E3]'
+                : 'text-[#5D646C] hover:text-[#1A2F46] dark:text-slate-100 hover:bg-[#ECE9E3] dark:bg-[#1A253A]'
             }`}
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
@@ -572,7 +572,7 @@ export const CustomerReconciliation: React.FC = () => {
 
           <button
             onClick={() => setMasterImportModalOpen(true)}
-            className="bg-white hover:bg-[#ECE9E3] text-[#1A2F46] border border-[#C5CBD2] px-3 py-1.5 text-xs font-semibold rounded-[3px] flex items-center space-x-1.5 transition-colors shadow-xs"
+            className="bg-white dark:bg-[#131C2E] hover:bg-[#ECE9E3] dark:bg-[#1A253A] text-[#1A2F46] dark:text-slate-100 border border-[#C5CBD2] dark:border-slate-800 px-3 py-1.5 text-xs font-semibold rounded-[3px] flex items-center space-x-1.5 transition-colors shadow-xs"
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
             <span>Sync Excel Masters</span>
@@ -585,37 +585,37 @@ export const CustomerReconciliation: React.FC = () => {
         <div className="space-y-4">
           {/* Master Stats Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-            <div className="bg-white p-3 rounded-[3px] border border-[#C5CBD2] shadow-xs">
-              <span className="text-[10px] font-mono text-[#5D646C] uppercase tracking-wider block">Total Clients</span>
-              <p className="text-lg font-display font-bold text-[#1A2F46] mt-0.5 font-mono">{totalMasterCount.toLocaleString()}</p>
+            <div className="bg-white dark:bg-[#131C2E] p-3 rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 shadow-xs">
+              <span className="text-[10px] font-mono text-[#5D646C] dark:text-slate-400 uppercase tracking-wider block">Total Clients</span>
+              <p className="text-lg font-display font-bold text-[#1A2F46] dark:text-slate-100 mt-0.5 font-mono">{totalMasterCount.toLocaleString()}</p>
               <span className="text-[9px] text-[#8B97A3]">Master Database</span>
             </div>
 
-            <div className="bg-white p-3 rounded-[3px] border border-[#C5CBD2] shadow-xs">
-              <span className="text-[10px] font-mono text-[#1A2F46] uppercase tracking-wider block">GST Registered</span>
-              <p className="text-lg font-display font-bold text-[#1A2F46] mt-0.5 font-mono">{gstRegisteredCount}</p>
+            <div className="bg-white dark:bg-[#131C2E] p-3 rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 shadow-xs">
+              <span className="text-[10px] font-mono text-[#1A2F46] dark:text-slate-100 uppercase tracking-wider block">GST Registered</span>
+              <p className="text-lg font-display font-bold text-[#1A2F46] dark:text-slate-100 mt-0.5 font-mono">{gstRegisteredCount}</p>
               <span className="text-[9px] text-[#8B97A3]">GSTIN Mapped</span>
             </div>
 
-            <div className="bg-white p-3 rounded-[3px] border border-[#C5CBD2] shadow-xs">
-              <span className="text-[10px] font-mono text-[#1A2F46] uppercase tracking-wider block">Income Tax</span>
-              <p className="text-lg font-display font-bold text-[#1A2F46] mt-0.5 font-mono">{itAssesseesCount.toLocaleString()}</p>
+            <div className="bg-white dark:bg-[#131C2E] p-3 rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 shadow-xs">
+              <span className="text-[10px] font-mono text-[#1A2F46] dark:text-slate-100 uppercase tracking-wider block">Income Tax</span>
+              <p className="text-lg font-display font-bold text-[#1A2F46] dark:text-slate-100 mt-0.5 font-mono">{itAssesseesCount.toLocaleString()}</p>
               <span className="text-[9px] text-[#8B97A3]">PAN & Genius IT</span>
             </div>
 
-            <div className="bg-white p-3 rounded-[3px] border border-[#C5CBD2] shadow-xs">
-              <span className="text-[10px] font-mono text-[#1A2F46] uppercase tracking-wider block">TDS Deductors</span>
-              <p className="text-lg font-display font-bold text-[#1A2F46] mt-0.5 font-mono">{tdsDeductorsCount}</p>
+            <div className="bg-white dark:bg-[#131C2E] p-3 rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 shadow-xs">
+              <span className="text-[10px] font-mono text-[#1A2F46] dark:text-slate-100 uppercase tracking-wider block">TDS Deductors</span>
+              <p className="text-lg font-display font-bold text-[#1A2F46] dark:text-slate-100 mt-0.5 font-mono">{tdsDeductorsCount}</p>
               <span className="text-[9px] text-[#8B97A3]">TAN Accounts</span>
             </div>
 
-            <div className="bg-white p-3 rounded-[3px] border border-[#C5CBD2] shadow-xs">
+            <div className="bg-white dark:bg-[#131C2E] p-3 rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 shadow-xs">
               <span className="text-[10px] font-mono text-emerald-700 uppercase tracking-wider block">WhatsApp Phone</span>
               <p className="text-lg font-display font-bold text-emerald-700 mt-0.5 font-mono">{withPhoneCount}</p>
               <span className="text-[9px] text-[#8B97A3]">Direct Reminder</span>
             </div>
 
-            <div className="bg-white p-3 rounded-[3px] border border-[#C5CBD2] shadow-xs">
+            <div className="bg-white dark:bg-[#131C2E] p-3 rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 shadow-xs">
               <span className="text-[10px] font-mono text-blue-700 uppercase tracking-wider block">Email Linked</span>
               <p className="text-lg font-display font-bold text-blue-700 mt-0.5 font-mono">{withEmailCount}</p>
               <span className="text-[9px] text-[#8B97A3]">GSTR PDF Dispatch</span>
@@ -623,7 +623,7 @@ export const CustomerReconciliation: React.FC = () => {
           </div>
 
           {/* Directory Control Strip */}
-          <div className="bg-white p-3 rounded-[3px] border border-[#C5CBD2] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="bg-white dark:bg-[#131C2E] p-3 rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[260px]">
               <Search className="w-3.5 h-3.5 text-[#8B97A3] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -632,12 +632,12 @@ export const CustomerReconciliation: React.FC = () => {
                 placeholder="Search by client name, trade name, GSTIN, PAN, TAN, phone, or folder..."
                 value={directorySearch}
                 onChange={(e) => { setDirectorySearch(e.target.value); setDirPage(1); }}
-                className="w-full pl-9 pr-8 py-2 text-xs bg-white border border-[#C5CBD2] rounded-[2px] font-sans focus:outline-none focus:border-[#E65909]"
+                className="w-full pl-9 pr-8 py-2 text-xs bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] font-sans focus:outline-none focus:border-[#E65909]"
               />
               {directorySearch && (
                 <button
                   onClick={() => { setDirectorySearch(''); setDirPage(1); }}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#8B97A3] hover:text-[#1A2F46]"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#8B97A3] hover:text-[#1A2F46] dark:text-slate-100"
                 >
                   ×
                 </button>
@@ -660,7 +660,7 @@ export const CustomerReconciliation: React.FC = () => {
                   className={`px-2.5 py-1 text-[11px] font-mono uppercase tracking-wider rounded-[2px] font-semibold transition-colors ${
                     directoryFilter === f.id
                       ? 'bg-[#1A2F46] text-white shadow-xs'
-                      : 'bg-[#F6F3EE] text-[#5D646C] hover:bg-[#ECE9E3]'
+                      : 'bg-[#F6F3EE] dark:bg-[#0B1120] text-[#5D646C] dark:text-slate-400 hover:bg-[#ECE9E3] dark:bg-[#1A253A]'
                   }`}
                 >
                   {f.label}
@@ -670,7 +670,7 @@ export const CustomerReconciliation: React.FC = () => {
           </div>
 
           {/* Master Clients Table */}
-          <div className="bg-white rounded-[3px] border border-[#C5CBD2] shadow-xs overflow-hidden">
+          <div className="bg-white dark:bg-[#131C2E] rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 shadow-xs overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-[1020px] w-full text-left text-xs border-collapse">
                 <thead>
@@ -684,7 +684,7 @@ export const CustomerReconciliation: React.FC = () => {
                     <th className="py-2.5 px-3 font-semibold min-w-[110px] text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#ECE9E3] font-sans">
+                <tbody className="divide-y divide-[#ECE9E3] dark:divide-slate-800 font-sans">
                   {paginatedClients.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="text-center py-12 text-[#8B97A3]">
@@ -695,13 +695,13 @@ export const CustomerReconciliation: React.FC = () => {
                     </tr>
                   ) : (
                     paginatedClients.map(c => (
-                      <tr key={c.id} className="hover:bg-[#F6F3EE]/80 transition-colors">
+                      <tr key={c.id} className="hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120]/80 transition-colors">
                         <td className="py-2.5 px-3">
-                          <div className="font-semibold text-[#1A2F46] font-display text-xs">
+                          <div className="font-semibold text-[#1A2F46] dark:text-slate-100 font-display text-xs">
                             {c.name}
                           </div>
                           {c.trade_name && c.trade_name !== c.name && (
-                            <div className="text-[10px] font-mono text-[#5D646C] mt-0.5">
+                            <div className="text-[10px] font-mono text-[#5D646C] dark:text-slate-400 mt-0.5">
                               Trade: {c.trade_name}
                             </div>
                           )}
@@ -712,19 +712,19 @@ export const CustomerReconciliation: React.FC = () => {
                             {c.gstin ? (
                               <div className="flex items-center space-x-1.5">
                                 <span className="bg-brand-50 text-brand-700 px-1.5 py-0.2 rounded text-[10px] font-bold">GST</span>
-                                <span className="text-[#1A2F46] font-semibold">{c.gstin}</span>
+                                <span className="text-[#1A2F46] dark:text-slate-100 font-semibold">{c.gstin}</span>
                               </div>
                             ) : null}
                             {c.pan ? (
                               <div className="flex items-center space-x-1.5">
                                 <span className="bg-blue-50 text-blue-700 px-1.5 py-0.2 rounded text-[10px] font-bold">PAN</span>
-                                <span className="text-[#5D646C]">{c.pan}</span>
+                                <span className="text-[#5D646C] dark:text-slate-400">{c.pan}</span>
                               </div>
                             ) : null}
                             {c.tan ? (
                               <div className="flex items-center space-x-1.5">
                                 <span className="bg-amber-50 text-amber-800 px-1.5 py-0.2 rounded text-[10px] font-bold">TAN</span>
-                                <span className="text-[#5D646C]">{c.tan}</span>
+                                <span className="text-[#5D646C] dark:text-slate-400">{c.tan}</span>
                               </div>
                             ) : null}
                             {!c.gstin && !c.pan && !c.tan && (
@@ -764,7 +764,7 @@ export const CustomerReconciliation: React.FC = () => {
                           </div>
                         </td>
 
-                        <td className="py-2.5 px-3 font-mono text-[11px] text-[#5D646C]">
+                        <td className="py-2.5 px-3 font-mono text-[11px] text-[#5D646C] dark:text-slate-400">
                           <div className="flex items-center space-x-1">
                             <Folder className="w-3 h-3 text-amber-600 flex-shrink-0" />
                             <span className="truncate max-w-[140px]" title={c.folder_name || c.name}>
@@ -801,7 +801,7 @@ export const CustomerReconciliation: React.FC = () => {
                           <div className="flex items-center justify-end space-x-1.5">
                             <button
                               onClick={() => handleOpenEditCustomer(c)}
-                              className="px-2 py-1 bg-slate-100 hover:bg-[#1A2F46] hover:text-white text-[#1A2F46] rounded text-[11px] font-semibold flex items-center space-x-1 transition-colors"
+                              className="px-2 py-1 bg-slate-100 hover:bg-[#1A2F46] hover:text-white text-[#1A2F46] dark:text-slate-100 rounded text-[11px] font-semibold flex items-center space-x-1 transition-colors"
                               title="Edit Client Information"
                             >
                               <Edit3 className="w-3 h-3" />
@@ -812,7 +812,7 @@ export const CustomerReconciliation: React.FC = () => {
                                 setSelectedCustomerId(c.id);
                                 setActiveModuleMode('RECEIVABLES');
                               }}
-                              className="px-2 py-1 bg-[#F6F3EE] hover:bg-[#ECE9E3] text-[#5D646C] hover:text-[#1A2F46] rounded text-[11px] font-mono flex items-center space-x-1 transition-colors"
+                              className="px-2 py-1 bg-[#F6F3EE] dark:bg-[#0B1120] hover:bg-[#ECE9E3] dark:bg-[#1A253A] text-[#5D646C] hover:text-[#1A2F46] dark:text-slate-100 rounded text-[11px] font-mono flex items-center space-x-1 transition-colors"
                               title="View Trade Receivables Ledger"
                             >
                               <Receipt className="w-3 h-3 text-emerald-600" />
@@ -828,13 +828,13 @@ export const CustomerReconciliation: React.FC = () => {
             </div>
 
             {/* Pagination Controls */}
-            <div className="p-3 bg-[#F6F3EE] border-t border-[#C5CBD2] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono text-[#5D646C]">
+            <div className="p-3 bg-[#F6F3EE] dark:bg-[#0B1120] border-t border-[#C5CBD2] dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono text-[#5D646C] dark:text-slate-400">
               <div className="flex items-center space-x-2">
                 <span>Show</span>
                 <select
                   value={dirPageSize}
                   onChange={(e) => { setDirPageSize(Number(e.target.value)); setDirPage(1); }}
-                  className="px-2 py-1 bg-white border border-[#C5CBD2] rounded text-xs focus:outline-none"
+                  className="px-2 py-1 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded text-xs focus:outline-none"
                 >
                   <option value={25}>25 per page</option>
                   <option value={50}>50 per page</option>
@@ -849,31 +849,31 @@ export const CustomerReconciliation: React.FC = () => {
                 <button
                   onClick={() => setDirPage(1)}
                   disabled={dirPage === 1}
-                  className="px-2.5 py-1 bg-white border border-[#C5CBD2] rounded text-xs disabled:opacity-40 hover:bg-[#ECE9E3]"
+                  className="px-2.5 py-1 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded text-xs disabled:opacity-40 hover:bg-[#ECE9E3] dark:bg-[#1A253A]"
                 >
                   « First
                 </button>
                 <button
                   onClick={() => setDirPage(p => Math.max(1, p - 1))}
                   disabled={dirPage === 1}
-                  className="px-2.5 py-1 bg-white border border-[#C5CBD2] rounded text-xs disabled:opacity-40 hover:bg-[#ECE9E3]"
+                  className="px-2.5 py-1 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded text-xs disabled:opacity-40 hover:bg-[#ECE9E3] dark:bg-[#1A253A]"
                 >
                   ‹ Prev
                 </button>
-                <span className="px-3 py-1 font-bold text-[#1A2F46]">
+                <span className="px-3 py-1 font-bold text-[#1A2F46] dark:text-slate-100">
                   Page {dirPage} of {totalDirPages}
                 </span>
                 <button
                   onClick={() => setDirPage(p => Math.min(totalDirPages, p + 1))}
                   disabled={dirPage === totalDirPages || totalDirPages === 0}
-                  className="px-2.5 py-1 bg-white border border-[#C5CBD2] rounded text-xs disabled:opacity-40 hover:bg-[#ECE9E3]"
+                  className="px-2.5 py-1 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded text-xs disabled:opacity-40 hover:bg-[#ECE9E3] dark:bg-[#1A253A]"
                 >
                   Next ›
                 </button>
                 <button
                   onClick={() => setDirPage(totalDirPages)}
                   disabled={dirPage === totalDirPages || totalDirPages === 0}
-                  className="px-2.5 py-1 bg-white border border-[#C5CBD2] rounded text-xs disabled:opacity-40 hover:bg-[#ECE9E3]"
+                  className="px-2.5 py-1 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded text-xs disabled:opacity-40 hover:bg-[#ECE9E3] dark:bg-[#1A253A]"
                 >
                   Last »
                 </button>
@@ -889,18 +889,18 @@ export const CustomerReconciliation: React.FC = () => {
 
       {/* Aggregate Overview Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="bg-white p-3.5 rounded-[3px] border border-[#C5CBD2] shadow-xs">
+        <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono text-[#5D646C] uppercase tracking-wider">Gross Trade Revenue</span>
-            <DollarSign className="w-4 h-4 text-[#1A2F46]" />
+            <span className="text-[10px] font-mono text-[#5D646C] dark:text-slate-400 uppercase tracking-wider">Gross Trade Revenue</span>
+            <DollarSign className="w-4 h-4 text-[#1A2F46] dark:text-slate-100" />
           </div>
-          <p className="text-xl font-display font-extrabold text-[#1A2F46] mt-1 font-mono">
+          <p className="text-xl font-display font-extrabold text-[#1A2F46] dark:text-slate-100 mt-1 font-mono">
             ₹{formatINR(totalInvoicedAll)}
           </p>
-          <p className="text-[10px] text-[#5D646C] mt-0.5">Across all registered customer accounts</p>
+          <p className="text-[10px] text-[#5D646C] dark:text-slate-400 mt-0.5">Across all registered customer accounts</p>
         </div>
 
-        <div className="bg-white p-3.5 rounded-[3px] border border-[#C5CBD2] shadow-xs">
+        <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-emerald-700 uppercase tracking-wider">Total Collections Received</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -908,10 +908,10 @@ export const CustomerReconciliation: React.FC = () => {
           <p className="text-xl font-display font-extrabold text-emerald-700 mt-1 font-mono">
             ₹{formatINR(totalCollectedAll)}
           </p>
-          <p className="text-[10px] text-[#5D646C] mt-0.5">Realized bank credits & UTR receipts</p>
+          <p className="text-[10px] text-[#5D646C] dark:text-slate-400 mt-0.5">Realized bank credits & UTR receipts</p>
         </div>
 
-        <div className="bg-white p-3.5 rounded-[3px] border border-[#C5CBD2] shadow-xs">
+        <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-[#E65909] uppercase tracking-wider">Active Receivables Due</span>
             <Clock className="w-4 h-4 text-[#E65909]" />
@@ -919,24 +919,24 @@ export const CustomerReconciliation: React.FC = () => {
           <p className="text-xl font-display font-extrabold text-[#E65909] mt-1 font-mono">
             ₹{formatINR(totalReceivables)}
           </p>
-          <p className="text-[10px] text-[#5D646C] mt-0.5">Outstanding trade debit balance</p>
+          <p className="text-[10px] text-[#5D646C] dark:text-slate-400 mt-0.5">Outstanding trade debit balance</p>
         </div>
       </div>
 
       {/* Main 2-Column Responsive Workspace */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
         {/* Left Column: Customer Master Directory (col-span-4) */}
-        <div className="xl:col-span-4 bg-white rounded-[3px] border border-[#C5CBD2] flex flex-col shadow-xs">
+        <div className="xl:col-span-4 bg-white dark:bg-[#131C2E] rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 flex flex-col shadow-xs">
           {/* Search & Filter Header */}
-          <div className="p-3 border-b border-[#C5CBD2] bg-[#F6F3EE] space-y-2.5">
+          <div className="p-3 border-b border-[#C5CBD2] dark:border-slate-800 bg-[#F6F3EE] dark:bg-[#0B1120] space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-display font-bold text-[#1A2F46] uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-xs font-display font-bold text-[#1A2F46] dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
                 <Users2 className="w-3.5 h-3.5 text-[#E65909]" />
                 <span>Customer Ledger ({filteredCustomers.length})</span>
               </span>
               <button
                 onClick={fetchCustomers}
-                className="text-[10px] font-mono text-[#5D646C] hover:text-[#1A2F46] flex items-center gap-1"
+                className="text-[10px] font-mono text-[#5D646C] hover:text-[#1A2F46] dark:text-slate-100 flex items-center gap-1"
                 title="Refresh Customer Directory"
               >
                 <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
@@ -952,7 +952,7 @@ export const CustomerReconciliation: React.FC = () => {
                 placeholder="Search customer, GSTIN, PAN..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-[#C5CBD2] rounded-[2px] font-sans focus:outline-none focus:border-[#E65909]"
+                className="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] font-sans focus:outline-none focus:border-[#E65909]"
               />
             </div>
 
@@ -965,7 +965,7 @@ export const CustomerReconciliation: React.FC = () => {
                   className={`flex-1 py-1 text-[10px] font-mono uppercase tracking-wider font-semibold rounded-[2px] transition-colors ${
                     statusFilter === tab
                       ? 'bg-[#1A2F46] text-white'
-                      : 'bg-[#ECE9E3] text-[#5D646C] hover:bg-[#DBE2E9]'
+                      : 'bg-[#ECE9E3] dark:bg-[#1A253A] text-[#5D646C] dark:text-slate-400 hover:bg-[#DBE2E9]'
                   }`}
                 >
                   {tab === 'ALL' ? 'All' : tab === 'DUE' ? 'With Balance' : 'Zero Due'}
@@ -975,7 +975,7 @@ export const CustomerReconciliation: React.FC = () => {
           </div>
 
           {/* Customer Cards List */}
-          <div className="divide-y divide-[#ECE9E3] max-h-[580px] overflow-y-auto">
+          <div className="divide-y divide-[#ECE9E3] dark:divide-slate-800 max-h-[580px] overflow-y-auto">
             {loading ? (
               <div className="p-8 text-center text-xs font-mono text-[#8B97A3]">
                 <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-[#E65909]" />
@@ -1004,17 +1004,17 @@ export const CustomerReconciliation: React.FC = () => {
                     onClick={() => setSelectedCustomerId(c.id)}
                     className={`p-3 cursor-pointer transition-all border-l-4 ${
                       isSelected
-                        ? 'border-[#E65909] bg-[#F6F3EE]'
-                        : 'border-transparent hover:bg-slate-50'
+                        ? 'border-[#E65909] bg-[#F6F3EE] dark:bg-[#0B1120]'
+                        : 'border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <h4 className="text-xs font-bold text-[#1A2F46] truncate">{c.name}</h4>
+                        <h4 className="text-xs font-bold text-[#1A2F46] dark:text-slate-100 truncate">{c.name}</h4>
                         <div className="flex items-center space-x-2 mt-0.5">
-                          <span className="text-[10px] font-mono text-[#5D646C]">{c.gstin || 'Unregistered'}</span>
+                          <span className="text-[10px] font-mono text-[#5D646C] dark:text-slate-400">{c.gstin || 'Unregistered'}</span>
                           {c.state && (
-                            <span className="text-[9px] font-mono text-[#8B97A3] bg-[#ECE9E3] px-1 py-0.2 rounded-xs">
+                            <span className="text-[9px] font-mono text-[#8B97A3] bg-[#ECE9E3] dark:bg-[#1A253A] px-1 py-0.2 rounded-xs">
                               {c.state}
                             </span>
                           )}
@@ -1041,7 +1041,7 @@ export const CustomerReconciliation: React.FC = () => {
                           style={{ width: `${util}%` }}
                         />
                       </div>
-                      <span className="text-[9px] font-mono text-[#5D646C]">{util}% used</span>
+                      <span className="text-[9px] font-mono text-[#5D646C] dark:text-slate-400">{util}% used</span>
                     </div>
                   </div>
                 );
@@ -1053,26 +1053,26 @@ export const CustomerReconciliation: React.FC = () => {
         {/* Right Column: Selected Customer Detail Workspace (col-span-8) */}
         <div className="xl:col-span-8 space-y-4">
           {reconLoading ? (
-            <div className="bg-white p-12 rounded-[3px] border border-[#C5CBD2] text-center text-[#8B97A3] font-mono text-xs">
+            <div className="bg-white dark:bg-[#131C2E] p-12 rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 text-center text-[#8B97A3] font-mono text-xs">
               <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#E65909]" />
               Loading customer subledger & reconciliation...
             </div>
           ) : selectedCustomer && reconciliationData ? (
             <>
               {/* Profile Card Header */}
-              <div className="bg-white p-4 rounded-[3px] border border-[#C5CBD2] shadow-xs">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#ECE9E3] gap-2">
+              <div className="bg-white dark:bg-[#131C2E] p-4 rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#ECE9E3] dark:border-slate-800 gap-2">
                   <div>
                     <div className="flex items-center space-x-2">
                       <Building className="w-4 h-4 text-[#E65909]" />
-                      <h3 className="text-base font-display font-bold text-[#1A2F46]">
+                      <h3 className="text-base font-display font-bold text-[#1A2F46] dark:text-slate-100">
                         {reconciliationData.customer_name}
                       </h3>
                       <span className="text-[10px] font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded-[2px] font-bold">
                         ACTIVE DEBTOR
                       </span>
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-mono text-[#5D646C] mt-1">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-mono text-[#5D646C] dark:text-slate-400 mt-1">
                       <span>GSTIN: <strong>{reconciliationData.gstin || 'UNREGISTERED'}</strong></span>
                       {selectedCustomer.pan && <span>PAN: <strong>{selectedCustomer.pan}</strong></span>}
                       {selectedCustomer.email && <span>Email: <strong>{selectedCustomer.email}</strong></span>}
@@ -1100,9 +1100,9 @@ export const CustomerReconciliation: React.FC = () => {
 
                 {/* KPI Cards Row */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3">
-                  <div className="p-2.5 bg-[#F6F3EE] rounded-[2px] border border-[#ECE9E3]">
-                    <span className="text-[10px] font-mono text-[#5D646C] uppercase tracking-wider block">Total Billed</span>
-                    <span className="text-base font-bold font-mono text-[#1A2F46]">
+                  <div className="p-2.5 bg-[#F6F3EE] dark:bg-[#0B1120] rounded-[2px] border border-[#ECE9E3] dark:border-slate-800">
+                    <span className="text-[10px] font-mono text-[#5D646C] dark:text-slate-400 uppercase tracking-wider block">Total Billed</span>
+                    <span className="text-base font-bold font-mono text-[#1A2F46] dark:text-slate-100">
                       ₹{formatINR(reconciliationData.total_sales)}
                     </span>
                     <span className="text-[9px] text-[#8B97A3] block mt-0.5">
@@ -1143,14 +1143,14 @@ export const CustomerReconciliation: React.FC = () => {
               </div>
 
               {/* Sub-Tabs: Invoices / Receipts / Aging / Statement */}
-              <div className="bg-white rounded-[3px] border border-[#C5CBD2] overflow-hidden shadow-xs">
-                <div className="flex border-b border-[#C5CBD2] bg-[#F6F3EE] px-3 pt-2 space-x-1">
+              <div className="bg-white dark:bg-[#131C2E] rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 overflow-hidden shadow-xs">
+                <div className="flex border-b border-[#C5CBD2] dark:border-slate-800 bg-[#F6F3EE] dark:bg-[#0B1120] px-3 pt-2 space-x-1">
                   <button
                     onClick={() => setActiveTab('INVOICES')}
                     className={`px-3 py-2 text-xs font-mono font-semibold uppercase tracking-wider border-b-2 transition-all flex items-center space-x-1.5 ${
                       activeTab === 'INVOICES'
-                        ? 'border-[#E65909] text-[#1A2F46] bg-white'
-                        : 'border-transparent text-[#5D646C] hover:text-[#1A2F46]'
+                        ? 'border-[#E65909] text-[#1A2F46] dark:text-slate-100 bg-white dark:bg-[#131C2E]'
+                        : 'border-transparent text-[#5D646C] hover:text-[#1A2F46] dark:text-slate-100'
                     }`}
                   >
                     <FileText className="w-3.5 h-3.5" />
@@ -1161,8 +1161,8 @@ export const CustomerReconciliation: React.FC = () => {
                     onClick={() => setActiveTab('RECEIPTS')}
                     className={`px-3 py-2 text-xs font-mono font-semibold uppercase tracking-wider border-b-2 transition-all flex items-center space-x-1.5 ${
                       activeTab === 'RECEIPTS'
-                        ? 'border-[#E65909] text-[#1A2F46] bg-white'
-                        : 'border-transparent text-[#5D646C] hover:text-[#1A2F46]'
+                        ? 'border-[#E65909] text-[#1A2F46] dark:text-slate-100 bg-white dark:bg-[#131C2E]'
+                        : 'border-transparent text-[#5D646C] hover:text-[#1A2F46] dark:text-slate-100'
                     }`}
                   >
                     <Receipt className="w-3.5 h-3.5" />
@@ -1173,8 +1173,8 @@ export const CustomerReconciliation: React.FC = () => {
                     onClick={() => setActiveTab('AGING')}
                     className={`px-3 py-2 text-xs font-mono font-semibold uppercase tracking-wider border-b-2 transition-all flex items-center space-x-1.5 ${
                       activeTab === 'AGING'
-                        ? 'border-[#E65909] text-[#1A2F46] bg-white'
-                        : 'border-transparent text-[#5D646C] hover:text-[#1A2F46]'
+                        ? 'border-[#E65909] text-[#1A2F46] dark:text-slate-100 bg-white dark:bg-[#131C2E]'
+                        : 'border-transparent text-[#5D646C] hover:text-[#1A2F46] dark:text-slate-100'
                     }`}
                   >
                     <Clock className="w-3.5 h-3.5" />
@@ -1186,8 +1186,8 @@ export const CustomerReconciliation: React.FC = () => {
                       onClick={() => setActiveTab('STATEMENT')}
                       className={`px-3 py-2 text-xs font-mono font-semibold uppercase tracking-wider border-b-2 transition-all flex items-center space-x-1.5 ${
                         activeTab === 'STATEMENT'
-                          ? 'border-[#E65909] text-[#1A2F46] bg-white'
-                          : 'border-transparent text-[#5D646C] hover:text-[#1A2F46]'
+                          ? 'border-[#E65909] text-[#1A2F46] dark:text-slate-100 bg-white dark:bg-[#131C2E]'
+                          : 'border-transparent text-[#5D646C] hover:text-[#1A2F46] dark:text-slate-100'
                       }`}
                     >
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
@@ -1211,7 +1211,7 @@ export const CustomerReconciliation: React.FC = () => {
                       </div>
                     ) : (
                       <table className="w-full text-left text-xs font-mono">
-                        <thead className="bg-[#F6F3EE] border-b border-[#C5CBD2] text-[#5D646C] uppercase tracking-wider text-[10px]">
+                        <thead className="bg-[#F6F3EE] dark:bg-[#0B1120] border-b border-[#C5CBD2] dark:border-slate-800 text-[#5D646C] dark:text-slate-400 uppercase tracking-wider text-[10px]">
                           <tr>
                             <th className="py-2.5 px-3">Invoice No</th>
                             <th className="py-2.5 px-3">Date</th>
@@ -1224,21 +1224,21 @@ export const CustomerReconciliation: React.FC = () => {
                             <th className="py-2.5 px-3 text-right">Action</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#ECE9E3]">
+                        <tbody className="divide-y divide-[#ECE9E3] dark:divide-slate-800">
                           {invoices.map(inv => {
                             const isPaid = inv.status === 'PAID';
                             const balanceDue = inv.balance_due !== undefined ? inv.balance_due : (isPaid ? 0 : inv.total_amount);
 
                             return (
-                              <tr key={inv.id} className="hover:bg-slate-50">
-                                <td className="py-2.5 px-3 font-semibold text-[#1A2F46]">
+                              <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]">
+                                <td className="py-2.5 px-3 font-semibold text-[#1A2F46] dark:text-slate-100">
                                   {inv.invoice_number}
                                 </td>
-                                <td className="py-2.5 px-3 text-[#5D646C]">{inv.invoice_date}</td>
-                                <td className="py-2.5 px-3 text-[#5D646C]">{inv.due_date || '-'}</td>
+                                <td className="py-2.5 px-3 text-[#5D646C] dark:text-slate-400">{inv.invoice_date}</td>
+                                <td className="py-2.5 px-3 text-[#5D646C] dark:text-slate-400">{inv.due_date || '-'}</td>
                                 <td className="py-2.5 px-3 text-right">₹{formatINR(inv.taxable_amount)}</td>
-                                <td className="py-2.5 px-3 text-right text-[#5D646C]">₹{formatINR(inv.total_tax)}</td>
-                                <td className="py-2.5 px-3 text-right font-bold text-[#1A2F46]">₹{formatINR(inv.total_amount)}</td>
+                                <td className="py-2.5 px-3 text-right text-[#5D646C] dark:text-slate-400">₹{formatINR(inv.total_tax)}</td>
+                                <td className="py-2.5 px-3 text-right font-bold text-[#1A2F46] dark:text-slate-100">₹{formatINR(inv.total_amount)}</td>
                                 <td className="py-2.5 px-3 text-right font-mono font-bold text-[#E65909]">
                                   ₹{formatINR(balanceDue)}
                                 </td>
@@ -1291,7 +1291,7 @@ export const CustomerReconciliation: React.FC = () => {
                       </div>
                     ) : (
                       <table className="w-full text-left text-xs font-mono">
-                        <thead className="bg-[#F6F3EE] border-b border-[#C5CBD2] text-[#5D646C] uppercase tracking-wider text-[10px]">
+                        <thead className="bg-[#F6F3EE] dark:bg-[#0B1120] border-b border-[#C5CBD2] dark:border-slate-800 text-[#5D646C] dark:text-slate-400 uppercase tracking-wider text-[10px]">
                           <tr>
                             <th className="py-2.5 px-3">Receipt No</th>
                             <th className="py-2.5 px-3">Date</th>
@@ -1301,19 +1301,19 @@ export const CustomerReconciliation: React.FC = () => {
                             <th className="py-2.5 px-3 text-center">Status</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#ECE9E3]">
+                        <tbody className="divide-y divide-[#ECE9E3] dark:divide-slate-800">
                           {receipts.map(r => (
-                            <tr key={r.id} className="hover:bg-slate-50">
+                            <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]">
                               <td className="py-2.5 px-3 font-semibold text-emerald-800">
                                 {r.payment_number}
                               </td>
-                              <td className="py-2.5 px-3 text-[#5D646C]">{r.payment_date}</td>
+                              <td className="py-2.5 px-3 text-[#5D646C] dark:text-slate-400">{r.payment_date}</td>
                               <td className="py-2.5 px-3">
-                                <span className="bg-[#ECE9E3] text-[#1A2F46] px-1.5 py-0.5 rounded-xs text-[10px]">
+                                <span className="bg-[#ECE9E3] dark:bg-[#1A253A] text-[#1A2F46] dark:text-slate-100 px-1.5 py-0.5 rounded-xs text-[10px]">
                                   {r.payment_mode}
                                 </span>
                               </td>
-                              <td className="py-2.5 px-3 text-[#5D646C]">{r.reference_number || '-'}</td>
+                              <td className="py-2.5 px-3 text-[#5D646C] dark:text-slate-400">{r.reference_number || '-'}</td>
                               <td className="py-2.5 px-3 text-right font-bold text-emerald-700">
                                 ₹{formatINR(r.amount)}
                               </td>
@@ -1334,10 +1334,10 @@ export const CustomerReconciliation: React.FC = () => {
                 {activeTab === 'AGING' && reconciliationData.aging && (
                   <div className="p-4 space-y-4">
                     <div>
-                      <h4 className="text-xs font-display font-bold text-[#1A2F46] uppercase tracking-wider">
+                      <h4 className="text-xs font-display font-bold text-[#1A2F46] dark:text-slate-100 uppercase tracking-wider">
                         Trade Debtor Aging Schedule
                       </h4>
-                      <p className="text-[11px] text-[#5D646C] mt-0.5">
+                      <p className="text-[11px] text-[#5D646C] dark:text-slate-400 mt-0.5">
                         Categorization of outstanding receivables based on invoice creation date.
                       </p>
                     </div>
@@ -1377,14 +1377,14 @@ export const CustomerReconciliation: React.FC = () => {
                     </div>
 
                     {/* MSMED Statutory Advisory Box */}
-                    <div className="p-3.5 rounded-[2px] bg-[#F6F3EE] border border-[#C5CBD2] space-y-1">
+                    <div className="p-3.5 rounded-[2px] bg-[#F6F3EE] dark:bg-[#0B1120] border border-[#C5CBD2] dark:border-slate-800 space-y-1">
                       <div className="flex items-center space-x-2">
                         <AlertTriangle className="w-4 h-4 text-[#E65909]" />
-                        <span className="text-xs font-bold text-[#1A2F46] font-display">
+                        <span className="text-xs font-bold text-[#1A2F46] dark:text-slate-100 font-display">
                           MSMED Act Section 15 & 16 Compliance Protocol
                         </span>
                       </div>
-                      <p className="text-[11px] text-[#5D646C]">
+                      <p className="text-[11px] text-[#5D646C] dark:text-slate-400">
                         Under the Micro, Small and Medium Enterprises Development (MSMED) Act, 2006, payments beyond 45 days attract compound interest with monthly rests at <strong>three times the RBI bank rate</strong>. Ensure formal reminder notices are issued for any invoices exceeding 45 days.
                       </p>
                     </div>
@@ -1395,7 +1395,7 @@ export const CustomerReconciliation: React.FC = () => {
                 {activeTab === 'STATEMENT' && (
                   <div className="p-4 space-y-3 font-mono">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#1A2F46]">
+                      <span className="text-xs font-bold text-[#1A2F46] dark:text-slate-100">
                         Automated Statement Reconciliation Results
                       </span>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-[2px] ${
@@ -1410,7 +1410,7 @@ export const CustomerReconciliation: React.FC = () => {
                     {reconciliationData.matched_transactions && reconciliationData.matched_transactions.length > 0 && (
                       <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs">
-                          <thead className="bg-[#F6F3EE] text-[#5D646C] text-[10px] uppercase">
+                          <thead className="bg-[#F6F3EE] dark:bg-[#0B1120] text-[#5D646C] dark:text-slate-400 text-[10px] uppercase">
                             <tr>
                               <th className="py-2 px-3">Invoice No</th>
                               <th className="py-2 px-3 text-right">Ledger Amount</th>
@@ -1419,7 +1419,7 @@ export const CustomerReconciliation: React.FC = () => {
                               <th className="py-2 px-3 text-center">Status</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-[#ECE9E3]">
+                          <tbody className="divide-y divide-[#ECE9E3] dark:divide-slate-800">
                             {reconciliationData.matched_transactions.map((m: any, idx: number) => (
                               <tr key={idx}>
                                 <td className="py-2 px-3 font-bold">{m.invoice_number}</td>
@@ -1444,7 +1444,7 @@ export const CustomerReconciliation: React.FC = () => {
               </div>
             </>
           ) : (
-            <div className="bg-white p-12 rounded-[3px] border border-[#C5CBD2] text-center text-[#8B97A3] font-mono text-xs">
+            <div className="bg-white dark:bg-[#131C2E] p-12 rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 text-center text-[#8B97A3] font-mono text-xs">
               No customer selected or registered yet. Click &quot;+ Add Customer&quot; above to begin tracking trade receivables.
             </div>
           )}
@@ -1463,7 +1463,7 @@ export const CustomerReconciliation: React.FC = () => {
         <form onSubmit={handleCreateCustomer} className="space-y-3 font-sans max-h-[75vh] overflow-y-auto pr-1">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
                 Client / Company Legal Name *
               </label>
               <input
@@ -1472,12 +1472,12 @@ export const CustomerReconciliation: React.FC = () => {
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 placeholder="e.g. HIREN PATEL ARCHITECT"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
                 Trade Name (Optional)
               </label>
               <input
@@ -1485,14 +1485,14 @@ export const CustomerReconciliation: React.FC = () => {
                 value={customerTradeName}
                 onChange={(e) => setCustomerTradeName(e.target.value)}
                 placeholder="e.g. HPA Studio"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">GSTIN (15 Chars)</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">GSTIN (15 Chars)</label>
               <input
                 type="text"
                 value={customerGstin}
@@ -1505,38 +1505,38 @@ export const CustomerReconciliation: React.FC = () => {
                 }}
                 placeholder="24AAMPP2463N2Z7"
                 maxLength={15}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Income Tax PAN</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Income Tax PAN</label>
               <input
                 type="text"
                 value={customerPan}
                 onChange={(e) => setCustomerPan(e.target.value.toUpperCase())}
                 placeholder="AAMPP2463N"
                 maxLength={10}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">TDS TAN (10 Chars)</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">TDS TAN (10 Chars)</label>
               <input
                 type="text"
                 value={customerTan}
                 onChange={(e) => setCustomerTan(e.target.value.toUpperCase())}
                 placeholder="AHMH01522D"
                 maxLength={10}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
                 WhatsApp Phone Number
               </label>
               <div className="relative">
@@ -1546,14 +1546,14 @@ export const CustomerReconciliation: React.FC = () => {
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
                   placeholder="+91 98765 43210"
-                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
                 />
               </div>
               <span className="text-[10px] text-[#8B97A3]">Used for Daily TDS/GST Reminders & Delivery</span>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
                 Official Accounts Email
               </label>
               <div className="relative">
@@ -1563,7 +1563,7 @@ export const CustomerReconciliation: React.FC = () => {
                   value={customerEmail}
                   onChange={(e) => setCustomerEmail(e.target.value)}
                   placeholder="accounts@clientcompany.com"
-                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
                 />
               </div>
               <span className="text-[10px] text-[#8B97A3]">Used for GSTR-1, 2B, 3B Auto-Email Dispatch</span>
@@ -1572,7 +1572,7 @@ export const CustomerReconciliation: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
                 Local Desktop Folder Name
               </label>
               <div className="relative">
@@ -1582,18 +1582,18 @@ export const CustomerReconciliation: React.FC = () => {
                   value={customerFolderName}
                   onChange={(e) => setCustomerFolderName(e.target.value)}
                   placeholder="Defaults to Client Name"
-                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
                 />
               </div>
               <span className="text-[10px] text-[#8B97A3]">Directory on Mac: ~/Desktop/&lt;Folder&gt;</span>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Compliance Status</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Compliance Status</label>
               <select
                 value={customerComplianceStatus}
                 onChange={(e) => setCustomerComplianceStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               >
                 <option value="ACTIVE">ACTIVE (Receives Reminders & Dispatches)</option>
                 <option value="PENDING_ONBOARDING">PENDING ONBOARDING</option>
@@ -1603,74 +1603,74 @@ export const CustomerReconciliation: React.FC = () => {
           </div>
 
           {/* Optional Portal Credentials (Encrypted at Rest) */}
-          <div className="p-3 bg-[#F6F3EE] rounded-[3px] border border-[#C5CBD2] space-y-2 mt-2">
-            <span className="text-[11px] font-mono font-bold text-[#1A2F46] flex items-center gap-1.5 uppercase tracking-wider">
+          <div className="p-3 bg-[#F6F3EE] dark:bg-[#0B1120] rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 space-y-2 mt-2">
+            <span className="text-[11px] font-mono font-bold text-[#1A2F46] dark:text-slate-100 flex items-center gap-1.5 uppercase tracking-wider">
               <Lock className="w-3.5 h-3.5 text-emerald-700" />
               <span>Statutory Portal Credentials (Zero Plaintext — AES Encrypted)</span>
             </span>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div>
-                <label className="block text-[10px] font-mono text-[#5D646C]">GST Portal User</label>
+                <label className="block text-[10px] font-mono text-[#5D646C] dark:text-slate-400">GST Portal User</label>
                 <input
                   type="text"
                   value={customerGstUser}
                   onChange={(e) => setCustomerGstUser(e.target.value)}
                   placeholder="GST Username"
-                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono"
+                  className="w-full px-2 py-1.5 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono"
                 />
                 <input
                   type="password"
                   value={customerGstPwd}
                   onChange={(e) => setCustomerGstPwd(e.target.value)}
                   placeholder="GST Password"
-                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono mt-1"
+                  className="w-full px-2 py-1.5 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono mt-1"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-mono text-[#5D646C]">IT e-Filing User</label>
+                <label className="block text-[10px] font-mono text-[#5D646C] dark:text-slate-400">IT e-Filing User</label>
                 <input
                   type="text"
                   value={customerItUser}
                   onChange={(e) => setCustomerItUser(e.target.value)}
                   placeholder="PAN / IT User"
-                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono"
+                  className="w-full px-2 py-1.5 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono"
                 />
                 <input
                   type="password"
                   value={customerItPwd}
                   onChange={(e) => setCustomerItPwd(e.target.value)}
                   placeholder="IT Password"
-                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono mt-1"
+                  className="w-full px-2 py-1.5 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono mt-1"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-mono text-[#5D646C]">TDS Traces User</label>
+                <label className="block text-[10px] font-mono text-[#5D646C] dark:text-slate-400">TDS Traces User</label>
                 <input
                   type="text"
                   value={customerTdsUser}
                   onChange={(e) => setCustomerTdsUser(e.target.value)}
                   placeholder="TDS User ID"
-                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono"
+                  className="w-full px-2 py-1.5 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono"
                 />
                 <input
                   type="password"
                   value={customerTdsPwd}
                   onChange={(e) => setCustomerTdsPwd(e.target.value)}
                   placeholder="TDS Password"
-                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono mt-1"
+                  className="w-full px-2 py-1.5 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono mt-1"
                 />
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end space-x-2 pt-3 border-t border-[#ECE9E3]">
+          <div className="flex justify-end space-x-2 pt-3 border-t border-[#ECE9E3] dark:border-slate-800">
             <button
               type="button"
               onClick={() => setAddCustomerModalOpen(false)}
-              className="px-4 py-2 border border-[#C5CBD2] text-xs font-semibold rounded-[2px] text-[#5D646C] hover:bg-[#F6F3EE]"
+              className="px-4 py-2 border border-[#C5CBD2] dark:border-slate-800 text-xs font-semibold rounded-[2px] text-[#5D646C] dark:text-slate-400 hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120]"
             >
               Cancel
             </button>
@@ -1695,7 +1695,7 @@ export const CustomerReconciliation: React.FC = () => {
         <form onSubmit={handleUpdateCustomer} className="space-y-3 font-sans max-h-[75vh] overflow-y-auto pr-1">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
                 Client / Company Legal Name *
               </label>
               <input
@@ -1703,12 +1703,12 @@ export const CustomerReconciliation: React.FC = () => {
                 required
                 value={editForm.name}
                 onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
                 Trade Name
               </label>
               <input
@@ -1716,52 +1716,52 @@ export const CustomerReconciliation: React.FC = () => {
                 value={editForm.trade_name}
                 onChange={(e) => setEditForm(prev => ({ ...prev, trade_name: e.target.value }))}
                 placeholder="Optional trade / brand name"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">GSTIN (15 Chars)</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">GSTIN (15 Chars)</label>
               <input
                 type="text"
                 value={editForm.gstin}
                 onChange={(e) => setEditForm(prev => ({ ...prev, gstin: e.target.value.toUpperCase() }))}
                 placeholder="24AAMPP2463N2Z7"
                 maxLength={15}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Income Tax PAN</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Income Tax PAN</label>
               <input
                 type="text"
                 value={editForm.pan}
                 onChange={(e) => setEditForm(prev => ({ ...prev, pan: e.target.value.toUpperCase() }))}
                 placeholder="AAMPP2463N"
                 maxLength={10}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">TDS TAN</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">TDS TAN</label>
               <input
                 type="text"
                 value={editForm.tan}
                 onChange={(e) => setEditForm(prev => ({ ...prev, tan: e.target.value.toUpperCase() }))}
                 placeholder="AHMH01522D"
                 maxLength={10}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
                 WhatsApp Phone Number
               </label>
               <div className="relative">
@@ -1771,14 +1771,14 @@ export const CustomerReconciliation: React.FC = () => {
                   value={editForm.phone}
                   onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
                   placeholder="+91 98765 43210"
-                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
                 />
               </div>
               <span className="text-[10px] text-[#8B97A3]">Used for Daily WhatsApp TDS/GST Reminders</span>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
                 Official Accounts Email
               </label>
               <div className="relative">
@@ -1788,7 +1788,7 @@ export const CustomerReconciliation: React.FC = () => {
                   value={editForm.email}
                   onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="accounts@clientcompany.com"
-                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
                 />
               </div>
               <span className="text-[10px] text-[#8B97A3]">Used for GSTR PDF Auto-Email & Compliance Letters</span>
@@ -1797,7 +1797,7 @@ export const CustomerReconciliation: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
                 Primary Contact Person
               </label>
               <input
@@ -1805,12 +1805,12 @@ export const CustomerReconciliation: React.FC = () => {
                 value={editForm.contact_person}
                 onChange={(e) => setEditForm(prev => ({ ...prev, contact_person: e.target.value }))}
                 placeholder="e.g. Hiren Patel (Managing Director)"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
                 Search Aliases & Folder Keywords
               </label>
               <input
@@ -1818,7 +1818,7 @@ export const CustomerReconciliation: React.FC = () => {
                 value={editForm.aliases}
                 onChange={(e) => setEditForm(prev => ({ ...prev, aliases: e.target.value }))}
                 placeholder="e.g. Swastik, Swastik Insecticides"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               />
               <span className="text-[10px] text-[#8B97A3]">Comma-separated aliases for fuzzy routing</span>
             </div>
@@ -1826,7 +1826,7 @@ export const CustomerReconciliation: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
                 Local Desktop Folder Name
               </label>
               <div className="relative">
@@ -1835,14 +1835,14 @@ export const CustomerReconciliation: React.FC = () => {
                   type="text"
                   value={editForm.folder_name}
                   onChange={(e) => setEditForm(prev => ({ ...prev, folder_name: e.target.value }))}
-                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                  className="w-full pl-8 pr-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
                 />
               </div>
               <span className="text-[10px] text-[#8B97A3]">Sync directory on Mac: ~/Desktop/&lt;Folder&gt;</span>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
                 Custom Folder Path Override (Optional)
               </label>
               <input
@@ -1850,24 +1850,24 @@ export const CustomerReconciliation: React.FC = () => {
                 value={editForm.custom_folder_override}
                 onChange={(e) => setEditForm(prev => ({ ...prev, custom_folder_override: e.target.value }))}
                 placeholder="e.g. ~/Desktop/Clients/CustomName"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
               <span className="text-[10px] text-[#8B97A3]">Direct override path for FolderResolver</span>
             </div>
           </div>
 
           {/* Automation Dispatch Toggles */}
-          <div className="p-2.5 bg-[#F6F3EE] rounded-[3px] border border-[#C5CBD2] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <span className="text-xs font-bold text-[#1A2F46] uppercase font-mono tracking-wider">
+          <div className="p-2.5 bg-[#F6F3EE] dark:bg-[#0B1120] rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <span className="text-xs font-bold text-[#1A2F46] dark:text-slate-100 uppercase font-mono tracking-wider">
               Automated Dispatches:
             </span>
-            <div className="flex items-center space-x-6 text-xs text-[#1A2F46]">
+            <div className="flex items-center space-x-6 text-xs text-[#1A2F46] dark:text-slate-100">
               <label className="flex items-center space-x-2 cursor-pointer font-medium">
                 <input
                   type="checkbox"
                   checked={editForm.auto_email_dispatch}
                   onChange={(e) => setEditForm(prev => ({ ...prev, auto_email_dispatch: e.target.checked }))}
-                  className="rounded border-[#C5CBD2] text-[#E65909] focus:ring-[#E65909]"
+                  className="rounded border-[#C5CBD2] dark:border-slate-800 text-[#E65909] focus:ring-[#E65909]"
                 />
                 <span>Auto-Email GSTR & Notices</span>
               </label>
@@ -1877,7 +1877,7 @@ export const CustomerReconciliation: React.FC = () => {
                   type="checkbox"
                   checked={editForm.auto_whatsapp_dispatch}
                   onChange={(e) => setEditForm(prev => ({ ...prev, auto_whatsapp_dispatch: e.target.checked }))}
-                  className="rounded border-[#C5CBD2] text-[#E65909] focus:ring-[#E65909]"
+                  className="rounded border-[#C5CBD2] dark:border-slate-800 text-[#E65909] focus:ring-[#E65909]"
                 />
                 <span>Auto-WhatsApp Reminders</span>
               </label>
@@ -1886,11 +1886,11 @@ export const CustomerReconciliation: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Compliance Status</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Compliance Status</label>
               <select
                 value={editForm.compliance_status}
                 onChange={(e) => setEditForm(prev => ({ ...prev, compliance_status: e.target.value }))}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               >
                 <option value="ACTIVE">ACTIVE</option>
                 <option value="PENDING_ONBOARDING">PENDING ONBOARDING</option>
@@ -1900,9 +1900,9 @@ export const CustomerReconciliation: React.FC = () => {
           </div>
 
           {/* Optional Portal Credentials Update */}
-          <div className="p-3 bg-[#F6F3EE] rounded-[3px] border border-[#C5CBD2] space-y-2 mt-2">
+          <div className="p-3 bg-[#F6F3EE] dark:bg-[#0B1120] rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 space-y-2 mt-2">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-mono font-bold text-[#1A2F46] flex items-center gap-1.5 uppercase tracking-wider">
+              <span className="text-[11px] font-mono font-bold text-[#1A2F46] dark:text-slate-100 flex items-center gap-1.5 uppercase tracking-wider">
                 <Lock className="w-3.5 h-3.5 text-emerald-700" />
                 <span>Statutory Portal Credentials (AES Encrypted at Rest)</span>
               </span>
@@ -1911,62 +1911,62 @@ export const CustomerReconciliation: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div>
-                <label className="block text-[10px] font-mono text-[#5D646C]">GST Portal</label>
+                <label className="block text-[10px] font-mono text-[#5D646C] dark:text-slate-400">GST Portal</label>
                 <input
                   type="text"
                   value={editForm.gst_username}
                   onChange={(e) => setEditForm(prev => ({ ...prev, gst_username: e.target.value }))}
                   placeholder="GST Username"
-                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono"
+                  className="w-full px-2 py-1.5 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono"
                 />
                 <input
                   type="password"
                   value={editForm.gst_password}
                   onChange={(e) => setEditForm(prev => ({ ...prev, gst_password: e.target.value }))}
                   placeholder="New password (optional)"
-                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono mt-1"
+                  className="w-full px-2 py-1.5 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono mt-1"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-mono text-[#5D646C]">Income Tax e-Filing</label>
+                <label className="block text-[10px] font-mono text-[#5D646C] dark:text-slate-400">Income Tax e-Filing</label>
                 <input
                   type="text"
                   value={editForm.it_username}
                   onChange={(e) => setEditForm(prev => ({ ...prev, it_username: e.target.value }))}
                   placeholder="PAN / IT User"
-                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono"
+                  className="w-full px-2 py-1.5 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono"
                 />
                 <input
                   type="password"
                   value={editForm.it_password}
                   onChange={(e) => setEditForm(prev => ({ ...prev, it_password: e.target.value }))}
                   placeholder="New password (optional)"
-                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono mt-1"
+                  className="w-full px-2 py-1.5 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono mt-1"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-mono text-[#5D646C]">TDS Traces</label>
+                <label className="block text-[10px] font-mono text-[#5D646C] dark:text-slate-400">TDS Traces</label>
                 <input
                   type="text"
                   value={editForm.tds_username}
                   onChange={(e) => setEditForm(prev => ({ ...prev, tds_username: e.target.value }))}
                   placeholder="TDS User ID"
-                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono"
+                  className="w-full px-2 py-1.5 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono"
                 />
                 <input
                   type="password"
                   value={editForm.tds_password}
                   onChange={(e) => setEditForm(prev => ({ ...prev, tds_password: e.target.value }))}
                   placeholder="New password (optional)"
-                  className="w-full px-2 py-1.5 bg-white border border-[#C5CBD2] rounded-[2px] text-xs font-mono mt-1"
+                  className="w-full px-2 py-1.5 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono mt-1"
                 />
               </div>
             </div>
           </div>
 
-          <div className="flex justify-between items-center pt-3 border-t border-[#ECE9E3]">
+          <div className="flex justify-between items-center pt-3 border-t border-[#ECE9E3] dark:border-slate-800">
             {editingCustomerId && (
               <button
                 type="button"
@@ -1982,7 +1982,7 @@ export const CustomerReconciliation: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setEditCustomerModalOpen(false)}
-                className="px-4 py-2 border border-[#C5CBD2] text-xs font-semibold rounded-[2px] text-[#5D646C] hover:bg-[#F6F3EE]"
+                className="px-4 py-2 border border-[#C5CBD2] dark:border-slate-800 text-xs font-semibold rounded-[2px] text-[#5D646C] dark:text-slate-400 hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120]"
               >
                 Cancel
               </button>
@@ -2006,62 +2006,62 @@ export const CustomerReconciliation: React.FC = () => {
         subtitle="Process GST_Company Master.xlsx, TDS Master.xlsx, and IT Genius credentials"
       >
         <div className="space-y-4 font-sans">
-          <div className="p-3 bg-[#F6F3EE] rounded-[3px] border border-[#C5CBD2] text-xs text-[#1A2F46] space-y-1.5">
+          <div className="p-3 bg-[#F6F3EE] dark:bg-[#0B1120] rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 text-xs text-[#1A2F46] dark:text-slate-100 space-y-1.5">
             <p className="font-bold">Automated Master Mapping Pipeline:</p>
-            <p className="text-[11px] text-[#5D646C]">
+            <p className="text-[11px] text-[#5D646C] dark:text-slate-400">
               Reads from <code>data/client_masters/</code> or uploaded files, maps GSTIN, PAN, and TAN across records, and securely encrypts all credentials with zero plaintext exposure.
             </p>
             <div className="grid grid-cols-3 gap-2 pt-1 font-mono text-[10px]">
-              <div className="bg-white p-2 rounded border border-[#C5CBD2]">
-                <span className="font-bold text-[#1A2F46]">GST Master:</span> 33 Companies
+              <div className="bg-white dark:bg-[#131C2E] p-2 rounded border border-[#C5CBD2] dark:border-slate-800">
+                <span className="font-bold text-[#1A2F46] dark:text-slate-100">GST Master:</span> 33 Companies
               </div>
-              <div className="bg-white p-2 rounded border border-[#C5CBD2]">
-                <span className="font-bold text-[#1A2F46]">IT Genius:</span> 2,193 Assessees
+              <div className="bg-white dark:bg-[#131C2E] p-2 rounded border border-[#C5CBD2] dark:border-slate-800">
+                <span className="font-bold text-[#1A2F46] dark:text-slate-100">IT Genius:</span> 2,193 Assessees
               </div>
-              <div className="bg-white p-2 rounded border border-[#C5CBD2]">
-                <span className="font-bold text-[#1A2F46]">TDS Master:</span> 22 Accounts
+              <div className="bg-white dark:bg-[#131C2E] p-2 rounded border border-[#C5CBD2] dark:border-slate-800">
+                <span className="font-bold text-[#1A2F46] dark:text-slate-100">TDS Master:</span> 22 Accounts
               </div>
             </div>
           </div>
 
-          <div className="border border-[#C5CBD2] rounded-[3px] p-3 space-y-3">
-            <span className="text-xs font-bold text-[#1A2F46] block">Optional: Upload Replacement Excel Files</span>
+          <div className="border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] p-3 space-y-3">
+            <span className="text-xs font-bold text-[#1A2F46] dark:text-slate-100 block">Optional: Upload Replacement Excel Files</span>
             <div className="space-y-2 text-xs">
               <div>
-                <label className="block text-[10px] font-mono text-[#5D646C]">GST_Company Master.xlsx</label>
+                <label className="block text-[10px] font-mono text-[#5D646C] dark:text-slate-400">GST_Company Master.xlsx</label>
                 <input
                   type="file"
                   accept=".xlsx"
                   onChange={(e) => setUploadGstFile(e.target.files?.[0] || null)}
-                  className="text-xs text-[#5D646C]"
+                  className="text-xs text-[#5D646C] dark:text-slate-400"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-mono text-[#5D646C]">IT User id password from Genius.xlsx</label>
+                <label className="block text-[10px] font-mono text-[#5D646C] dark:text-slate-400">IT User id password from Genius.xlsx</label>
                 <input
                   type="file"
                   accept=".xlsx"
                   onChange={(e) => setUploadItFile(e.target.files?.[0] || null)}
-                  className="text-xs text-[#5D646C]"
+                  className="text-xs text-[#5D646C] dark:text-slate-400"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-mono text-[#5D646C]">TDS Master.xlsx</label>
+                <label className="block text-[10px] font-mono text-[#5D646C] dark:text-slate-400">TDS Master.xlsx</label>
                 <input
                   type="file"
                   accept=".xlsx"
                   onChange={(e) => setUploadTdsFile(e.target.files?.[0] || null)}
-                  className="text-xs text-[#5D646C]"
+                  className="text-xs text-[#5D646C] dark:text-slate-400"
                 />
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end space-x-2 pt-2 border-t border-[#ECE9E3]">
+          <div className="flex justify-end space-x-2 pt-2 border-t border-[#ECE9E3] dark:border-slate-800">
             <button
               type="button"
               onClick={() => setMasterImportModalOpen(false)}
-              className="px-4 py-2 border border-[#C5CBD2] text-xs font-semibold rounded-[2px] text-[#5D646C] hover:bg-[#F6F3EE]"
+              className="px-4 py-2 border border-[#C5CBD2] dark:border-slate-800 text-xs font-semibold rounded-[2px] text-[#5D646C] dark:text-slate-400 hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120]"
             >
               Cancel
             </button>
@@ -2088,31 +2088,31 @@ export const CustomerReconciliation: React.FC = () => {
         <form onSubmit={handleCreateInvoice} className="space-y-3 font-sans">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Invoice Number *</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Invoice Number *</label>
               <input
                 type="text"
                 required
                 value={invNumber}
                 onChange={(e) => setInvNumber(e.target.value)}
                 placeholder="SF-SALES-2026-001"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Invoice Date *</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Invoice Date *</label>
               <input
                 type="date"
                 required
                 value={invDate}
                 onChange={(e) => setInvDate(e.target.value)}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Taxable Amount (₹) *</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Taxable Amount (₹) *</label>
               <input
                 type="number"
                 step="0.01"
@@ -2120,15 +2120,15 @@ export const CustomerReconciliation: React.FC = () => {
                 value={invTaxable}
                 onChange={(e) => setInvTaxable(e.target.value)}
                 placeholder="100000.00"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">GST Rate (%)</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">GST Rate (%)</label>
               <select
                 value={invGstRate}
                 onChange={(e) => setInvGstRate(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               >
                 <option value={18}>18% (Standard Services / Tech / SaaS)</option>
                 <option value={12}>12% (Specified Goods)</option>
@@ -2140,27 +2140,27 @@ export const CustomerReconciliation: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Payment Due Date (Optional)</label>
+            <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Payment Due Date (Optional)</label>
             <input
               type="date"
               value={invDueDate}
               onChange={(e) => setInvDueDate(e.target.value)}
-              className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+              className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
             />
             <p className="text-[10px] text-[#8B97A3] mt-0.5">Defaults to +30 days if left blank</p>
           </div>
 
           {invTaxable && (
-            <div className="p-3 rounded-[2px] bg-[#F6F3EE] border border-[#C5CBD2] text-xs font-mono space-y-1">
+            <div className="p-3 rounded-[2px] bg-[#F6F3EE] dark:bg-[#0B1120] border border-[#C5CBD2] dark:border-slate-800 text-xs font-mono space-y-1">
               <div className="flex justify-between">
                 <span>Taxable Amount:</span>
                 <span>₹{formatINR(parseFloat(invTaxable) || 0)}</span>
               </div>
-              <div className="flex justify-between text-[#5D646C]">
+              <div className="flex justify-between text-[#5D646C] dark:text-slate-400">
                 <span>GST Output ({invGstRate}%):</span>
                 <span>₹{formatINR(((parseFloat(invTaxable) || 0) * invGstRate) / 100)}</span>
               </div>
-              <div className="flex justify-between font-bold text-[#1A2F46] border-t border-[#C5CBD2] pt-1">
+              <div className="flex justify-between font-bold text-[#1A2F46] dark:text-slate-100 border-t border-[#C5CBD2] dark:border-slate-800 pt-1">
                 <span>Total Receivable Amount:</span>
                 <span className="text-[#E65909]">
                   ₹{formatINR(((parseFloat(invTaxable) || 0) * (1 + invGstRate / 100)))}
@@ -2169,11 +2169,11 @@ export const CustomerReconciliation: React.FC = () => {
             </div>
           )}
 
-          <div className="flex justify-end space-x-2 pt-3 border-t border-[#ECE9E3]">
+          <div className="flex justify-end space-x-2 pt-3 border-t border-[#ECE9E3] dark:border-slate-800">
             <button
               type="button"
               onClick={() => setAddInvoiceModalOpen(false)}
-              className="px-4 py-2 border border-[#C5CBD2] text-xs font-semibold rounded-[2px] text-[#5D646C] hover:bg-[#F6F3EE]"
+              className="px-4 py-2 border border-[#C5CBD2] dark:border-slate-800 text-xs font-semibold rounded-[2px] text-[#5D646C] dark:text-slate-400 hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120]"
             >
               Cancel
             </button>
@@ -2198,30 +2198,30 @@ export const CustomerReconciliation: React.FC = () => {
         <form onSubmit={handleRecordReceipt} className="space-y-3 font-sans">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Receipt / Voucher No</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Receipt / Voucher No</label>
               <input
                 type="text"
                 value={receiptNumber}
                 onChange={(e) => setReceiptNumber(e.target.value)}
                 placeholder="Auto-generated if empty"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Receipt Date *</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Receipt Date *</label>
               <input
                 type="date"
                 required
                 value={receiptDate}
                 onChange={(e) => setReceiptDate(e.target.value)}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Amount Received (₹) *</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Amount Received (₹) *</label>
               <input
                 type="number"
                 step="0.01"
@@ -2229,15 +2229,15 @@ export const CustomerReconciliation: React.FC = () => {
                 value={receiptAmount}
                 onChange={(e) => setReceiptAmount(e.target.value)}
                 placeholder="100000.00"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Payment Mode</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Payment Mode</label>
               <select
                 value={receiptMode}
                 onChange={(e) => setReceiptMode(e.target.value)}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               >
                 <option value="NEFT">NEFT Bank Transfer</option>
                 <option value="RTGS">RTGS High-Value Transfer</option>
@@ -2249,24 +2249,24 @@ export const CustomerReconciliation: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1A2F46] mb-1">UTR / Bank Transaction Reference</label>
+            <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">UTR / Bank Transaction Reference</label>
             <input
               type="text"
               value={receiptUtr}
               onChange={(e) => setReceiptUtr(e.target.value)}
               placeholder="e.g. HDFCR52026111800123"
-              className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+              className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+            <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
               Apply to Specific Invoice (Optional)
             </label>
             <select
               value={receiptInvoiceId || ''}
               onChange={(e) => setReceiptInvoiceId(e.target.value ? Number(e.target.value) : undefined)}
-              className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
             >
               <option value="">Auto-allocate across oldest unpaid invoices (FIFO)</option>
               {invoices.filter(i => i.status !== 'PAID').map(i => (
@@ -2277,11 +2277,11 @@ export const CustomerReconciliation: React.FC = () => {
             </select>
           </div>
 
-          <div className="flex justify-end space-x-2 pt-3 border-t border-[#ECE9E3]">
+          <div className="flex justify-end space-x-2 pt-3 border-t border-[#ECE9E3] dark:border-slate-800">
             <button
               type="button"
               onClick={() => setAddReceiptModalOpen(false)}
-              className="px-4 py-2 border border-[#C5CBD2] text-xs font-semibold rounded-[2px] text-[#5D646C] hover:bg-[#F6F3EE]"
+              className="px-4 py-2 border border-[#C5CBD2] dark:border-slate-800 text-xs font-semibold rounded-[2px] text-[#5D646C] dark:text-slate-400 hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120]"
             >
               Cancel
             </button>
@@ -2304,23 +2304,23 @@ export const CustomerReconciliation: React.FC = () => {
         subtitle={`Match customer's external ledger against SmartFin subledger for ${selectedCustomer?.name || 'Customer'}`}
       >
         <form onSubmit={handleUploadStatement} className="space-y-4 font-sans">
-          <div className="border-2 border-dashed border-[#C5CBD2] rounded-[2px] p-6 text-center hover:border-[#E65909] transition-colors">
+          <div className="border-2 border-dashed border-[#C5CBD2] dark:border-slate-800 rounded-[2px] p-6 text-center hover:border-[#E65909] transition-colors">
             <Upload className="w-8 h-8 text-[#8B97A3] mx-auto mb-2" />
-            <p className="text-xs text-[#1A2F46] font-semibold">Select Excel or CSV Ledger File</p>
+            <p className="text-xs text-[#1A2F46] dark:text-slate-100 font-semibold">Select Excel or CSV Ledger File</p>
             <p className="text-[10px] text-[#8B97A3] mt-1">Expected columns: Invoice No, Amount / Balance</p>
             <input
               type="file"
               accept=".xlsx,.xls,.csv"
               onChange={(e) => setStatementFile(e.target.files?.[0] || null)}
-              className="mt-3 text-xs text-[#5D646C]"
+              className="mt-3 text-xs text-[#5D646C] dark:text-slate-400"
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-2 border-t border-[#ECE9E3]">
+          <div className="flex justify-end space-x-2 pt-2 border-t border-[#ECE9E3] dark:border-slate-800">
             <button
               type="button"
               onClick={() => setUploadModalOpen(false)}
-              className="px-4 py-2 border border-[#C5CBD2] text-xs font-semibold rounded-[2px] text-[#5D646C] hover:bg-[#F6F3EE]"
+              className="px-4 py-2 border border-[#C5CBD2] dark:border-slate-800 text-xs font-semibold rounded-[2px] text-[#5D646C] dark:text-slate-400 hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120]"
             >
               Cancel
             </button>

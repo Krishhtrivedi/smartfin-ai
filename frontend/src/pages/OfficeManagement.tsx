@@ -156,9 +156,9 @@ export const OfficeManagement: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-none">
       {/* Module Navigation Tabs */}
-      <div className="bg-white p-2 rounded-xl border border-slate-200 flex items-center space-x-1 overflow-x-auto shadow-xs">
+      <div className="bg-white dark:bg-[#131C2E] p-2 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center space-x-1 overflow-x-auto shadow-xs">
         {[
           { id: 'expenses', label: 'Expense Reimbursements', icon: Receipt },
           { id: 'tasks', label: 'Office Tasks & Kanban', icon: CheckSquare },
@@ -175,7 +175,7 @@ export const OfficeManagement: React.FC = () => {
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                 isActive
                   ? 'bg-navy-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-navy-900 hover:bg-slate-50'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-navy-900 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -202,9 +202,9 @@ export const OfficeManagement: React.FC = () => {
             </button>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
+          <div className="bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto shadow-xs">
+            <table className="w-full min-w-[700px] text-left text-xs">
+              <thead className="bg-slate-50 dark:bg-[#1A253A]/80 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="py-3 px-4">Title / Purpose</th>
                   <th className="py-3 px-4">Category</th>
@@ -216,9 +216,9 @@ export const OfficeManagement: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {expenses.map((exp) => (
-                  <tr key={exp.id} className="hover:bg-slate-50/60">
+                  <tr key={exp.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]/60">
                     <td className="py-3 px-4">
-                      <p className="font-semibold text-slate-900">{exp.title}</p>
+                      <p className="font-semibold text-slate-900 dark:text-slate-100">{exp.title}</p>
                       {exp.remarks && <p className="text-[10px] text-slate-400 mt-0.5">{exp.remarks}</p>}
                     </td>
                     <td className="py-3 px-4">
@@ -286,19 +286,19 @@ export const OfficeManagement: React.FC = () => {
             {(['TODO', 'IN_PROGRESS', 'REVIEW', 'COMPLETED'] as const).map((colStatus) => {
               const colTasks = tasks.filter((t) => t.status === colStatus);
               return (
-                <div key={colStatus} className="bg-slate-100/70 rounded-xl p-3 border border-slate-200 flex flex-col">
-                  <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-200">
+                <div key={colStatus} className="bg-slate-100/70 rounded-xl p-3 border border-slate-200 dark:border-slate-800 flex flex-col">
+                  <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-200 dark:border-slate-800">
                     <span className="text-xs font-bold text-slate-700 capitalize">
                       {colStatus.toLowerCase().replace('_', ' ')}
                     </span>
-                    <span className="text-[10px] font-bold bg-white text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">
+                    <span className="text-[10px] font-bold bg-white dark:bg-[#131C2E] text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-800">
                       {colTasks.length}
                     </span>
                   </div>
 
                   <div className="space-y-2.5 flex-1">
                     {colTasks.map((t) => (
-                      <div key={t.id} className="bg-white p-3 rounded-lg border border-slate-200 shadow-xs space-y-2">
+                      <div key={t.id} className="bg-white dark:bg-[#131C2E] p-3 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
                         <div className="flex items-center justify-between">
                           <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
                             t.priority === 'URGENT' ? 'bg-rose-100 text-rose-700' :
@@ -315,7 +315,7 @@ export const OfficeManagement: React.FC = () => {
                           )}
                         </div>
 
-                        <p className="text-xs font-bold text-slate-900 leading-snug">{t.title}</p>
+                        <p className="text-xs font-bold text-slate-900 dark:text-slate-100 leading-snug">{t.title}</p>
                         {t.description && <p className="text-[11px] text-slate-500 line-clamp-2">{t.description}</p>}
 
                         <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
@@ -323,7 +323,7 @@ export const OfficeManagement: React.FC = () => {
                           <select
                             value={t.status}
                             onChange={(e) => handleUpdateTaskStatus(t.id, e.target.value)}
-                            className="text-[10px] font-medium border border-slate-200 rounded px-1.5 py-0.5 bg-slate-50"
+                            className="text-[10px] font-medium border border-slate-200 dark:border-slate-800 rounded px-1.5 py-0.5 bg-slate-50 dark:bg-[#1A253A]"
                           >
                             <option value="TODO">To-Do</option>
                             <option value="IN_PROGRESS">In Progress</option>
@@ -343,14 +343,14 @@ export const OfficeManagement: React.FC = () => {
 
       {/* 3. EMPLOYEES VIEW */}
       {activeTab === 'employees' && (
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+        <div className="bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto shadow-xs">
           <div className="p-4 border-b border-slate-100 flex items-center justify-between">
             <h3 className="text-sm font-bold text-navy-950">Employee Master Directory</h3>
             <span className="text-xs text-slate-500">{employees.length} active members</span>
           </div>
 
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[11px]">
+          <table className="w-full min-w-[750px] text-left text-xs">
+            <thead className="bg-slate-50 dark:bg-[#1A253A] border-b border-slate-200 dark:border-slate-800 text-slate-500 font-semibold uppercase text-[11px]">
               <tr>
                 <th className="py-3 px-4">Code</th>
                 <th className="py-3 px-4">Employee Name</th>
@@ -362,14 +362,14 @@ export const OfficeManagement: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {employees.map((emp) => (
-                <tr key={emp.id} className="hover:bg-slate-50/60">
+                <tr key={emp.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]/60">
                   <td className="py-3 px-4 font-mono font-bold text-brand-600">{emp.employee_code}</td>
-                  <td className="py-3 px-4 font-bold text-slate-900">{emp.first_name} {emp.last_name}</td>
+                  <td className="py-3 px-4 font-bold text-slate-900 dark:text-slate-100">{emp.first_name} {emp.last_name}</td>
                   <td className="py-3 px-4">
                     <p className="font-semibold text-slate-800">{emp.designation}</p>
                     <p className="text-[10px] text-slate-400">{emp.department}</p>
                   </td>
-                  <td className="py-3 px-4 text-slate-600">
+                  <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
                     <p>{emp.email}</p>
                     <p className="text-[10px] text-slate-400">{emp.phone}</p>
                   </td>
@@ -384,14 +384,14 @@ export const OfficeManagement: React.FC = () => {
 
       {/* 4. ATTENDANCE VIEW */}
       {activeTab === 'attendance' && (
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+        <div className="bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto shadow-xs">
           <div className="p-4 border-b border-slate-100 flex items-center justify-between">
             <h3 className="text-sm font-bold text-navy-950">Daily Attendance & Leave Log</h3>
             <span className="text-xs text-slate-500">{attendance.length} records</span>
           </div>
 
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[11px]">
+          <table className="w-full min-w-[700px] text-left text-xs">
+            <thead className="bg-slate-50 dark:bg-[#1A253A] border-b border-slate-200 dark:border-slate-800 text-slate-500 font-semibold uppercase text-[11px]">
               <tr>
                 <th className="py-3 px-4">Date</th>
                 <th className="py-3 px-4">Employee ID</th>
@@ -404,17 +404,17 @@ export const OfficeManagement: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {attendance.map((att) => (
-                <tr key={att.id} className="hover:bg-slate-50/60">
-                  <td className="py-3 px-4 font-mono font-medium text-slate-600">{att.date}</td>
-                  <td className="py-3 px-4 font-bold text-slate-900">EMP-00{att.employee_id}</td>
+                <tr key={att.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]/60">
+                  <td className="py-3 px-4 font-mono font-medium text-slate-600 dark:text-slate-400">{att.date}</td>
+                  <td className="py-3 px-4 font-bold text-slate-900 dark:text-slate-100">EMP-00{att.employee_id}</td>
                   <td className="py-3 px-4">
                     <Badge variant={att.status === 'PRESENT' ? 'success' : att.status === 'ON_LEAVE' ? 'warning' : 'neutral'}>
                       {att.status}
                     </Badge>
                   </td>
-                  <td className="py-3 px-4 text-slate-600">{att.check_in || '—'}</td>
-                  <td className="py-3 px-4 text-slate-600">{att.check_out || '—'}</td>
-                  <td className="py-3 px-4 font-bold text-slate-900">{att.total_hours} hrs</td>
+                  <td className="py-3 px-4 text-slate-600 dark:text-slate-400">{att.check_in || '—'}</td>
+                  <td className="py-3 px-4 text-slate-600 dark:text-slate-400">{att.check_out || '—'}</td>
+                  <td className="py-3 px-4 font-bold text-slate-900 dark:text-slate-100">{att.total_hours} hrs</td>
                   <td className="py-3 px-4 text-slate-400">{att.notes || att.leave_type || '—'}</td>
                 </tr>
               ))}
@@ -442,7 +442,7 @@ export const OfficeManagement: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {documents.map((doc) => (
-              <div key={doc.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+              <div key={doc.id} className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded border border-brand-200">
@@ -474,7 +474,7 @@ export const OfficeManagement: React.FC = () => {
               value={expTitle}
               onChange={(e) => setExpTitle(e.target.value)}
               placeholder="e.g. Client Dinner, Zoom Subscription..."
-              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
           <div>
@@ -482,7 +482,7 @@ export const OfficeManagement: React.FC = () => {
             <select
               value={expCategory}
               onChange={(e) => setExpCategory(e.target.value)}
-              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-slate-50"
+              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-slate-50 dark:bg-[#1A253A]"
             >
               <option value="OFFICE_SUPPLIES">Office Supplies</option>
               <option value="TRAVEL">Travel & Logistics</option>
@@ -500,7 +500,7 @@ export const OfficeManagement: React.FC = () => {
               value={expAmount}
               onChange={(e) => setExpAmount(e.target.value)}
               placeholder="0.00"
-              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
           <div>
@@ -510,14 +510,14 @@ export const OfficeManagement: React.FC = () => {
               required
               value={expDate}
               onChange={(e) => setExpDate(e.target.value)}
-              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
           <div className="flex justify-end space-x-2 pt-2">
             <button
               type="button"
               onClick={() => setExpenseModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]"
             >
               Cancel
             </button>
@@ -542,7 +542,7 @@ export const OfficeManagement: React.FC = () => {
               value={taskTitle}
               onChange={(e) => setTaskTitle(e.target.value)}
               placeholder="e.g. Audit Form 26Q Draft"
-              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
           <div>
@@ -551,7 +551,7 @@ export const OfficeManagement: React.FC = () => {
               rows={2}
               value={taskDesc}
               onChange={(e) => setTaskDesc(e.target.value)}
-              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -560,7 +560,7 @@ export const OfficeManagement: React.FC = () => {
               <select
                 value={taskPriority}
                 onChange={(e) => setTaskPriority(e.target.value)}
-                className="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-slate-50 focus:outline-none"
+                className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1A253A] focus:outline-none"
               >
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
@@ -573,7 +573,7 @@ export const OfficeManagement: React.FC = () => {
               <select
                 value={taskAssignee}
                 onChange={(e) => setTaskAssignee(parseInt(e.target.value))}
-                className="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-slate-50 focus:outline-none"
+                className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1A253A] focus:outline-none"
               >
                 {employees.map((emp) => (
                   <option key={emp.id} value={emp.id}>{emp.first_name} {emp.last_name}</option>
@@ -587,14 +587,14 @@ export const OfficeManagement: React.FC = () => {
               type="date"
               value={taskDueDate}
               onChange={(e) => setTaskDueDate(e.target.value)}
-              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none"
+              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none"
             />
           </div>
           <div className="flex justify-end space-x-2 pt-2">
             <button
               type="button"
               onClick={() => setTaskModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]"
             >
               Cancel
             </button>
@@ -619,7 +619,7 @@ export const OfficeManagement: React.FC = () => {
               value={docTitle}
               onChange={(e) => setDocTitle(e.target.value)}
               placeholder="e.g. Master Services Agreement 2026"
-              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
           <div>
@@ -627,7 +627,7 @@ export const OfficeManagement: React.FC = () => {
             <select
               value={docCategory}
               onChange={(e) => setDocCategory(e.target.value)}
-              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-slate-50 focus:outline-none"
+              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1A253A] focus:outline-none"
             >
               <option value="INVOICE">Tax Invoice</option>
               <option value="CONTRACT">Contract & Agreement</option>
@@ -649,7 +649,7 @@ export const OfficeManagement: React.FC = () => {
             <button
               type="button"
               onClick={() => setDocModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]"
             >
               Cancel
             </button>

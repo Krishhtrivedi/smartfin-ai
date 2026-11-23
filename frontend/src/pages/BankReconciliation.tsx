@@ -174,9 +174,9 @@ export const BankReconciliation: React.FC = () => {
   const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-none">
       {/* Top Header */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-sm font-bold text-navy-950 flex items-center gap-2">
             <Landmark className="w-4 h-4 text-brand-600" />
@@ -199,7 +199,7 @@ export const BankReconciliation: React.FC = () => {
           <button
             onClick={() => setUploadModalOpen(true)}
             disabled={!selectedAccountId}
-            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 disabled:opacity-50 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-colors border border-slate-200"
+            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 disabled:opacity-50 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-colors border border-slate-200 dark:border-slate-800"
           >
             <Upload className="w-3.5 h-3.5" />
             <span>Import Statement</span>
@@ -225,7 +225,7 @@ export const BankReconciliation: React.FC = () => {
       </div>
 
       {accounts.length === 0 ? (
-        <div className="bg-white p-12 rounded-xl border border-slate-200 text-center font-mono text-xs">
+        <div className="bg-white dark:bg-[#131C2E] p-12 rounded-xl border border-slate-200 dark:border-slate-800 text-center font-mono text-xs">
           <Landmark className="w-8 h-8 text-slate-300 mx-auto mb-2" />
           <p className="text-sm font-bold text-navy-950 font-display">No Bank Accounts Linked</p>
           <p className="mt-1 text-slate-500">Liquid balance starts at ₹0. Link your corporate or current bank account to begin automated statement reconciliation.</p>
@@ -239,7 +239,7 @@ export const BankReconciliation: React.FC = () => {
       ) : (
         <>
           {/* Account Selector & Tolerance Control */}
-          <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
           <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Select Bank Account:</span>
           <div className="flex items-center space-x-2">
@@ -250,7 +250,7 @@ export const BankReconciliation: React.FC = () => {
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
                   selectedAccountId === acc.id
                     ? 'border-brand-600 bg-brand-50 text-brand-700 shadow-xs'
-                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                    : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]'
                 }`}
               >
                 {acc.bank_name} ({acc.account_number.slice(-4)})
@@ -261,13 +261,13 @@ export const BankReconciliation: React.FC = () => {
 
         <div className="flex items-center space-x-3 text-xs">
           <span className="text-slate-500 font-medium">Clearance Date Tolerance:</span>
-          <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+          <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
             {[2, 4, 7, 10].map((days) => (
               <button
                 key={days}
                 onClick={() => setToleranceDays(days)}
                 className={`px-2 py-0.5 rounded text-[11px] font-bold ${
-                  toleranceDays === days ? 'bg-navy-900 text-white' : 'text-slate-600 hover:bg-white'
+                  toleranceDays === days ? 'bg-navy-900 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-white dark:bg-[#131C2E]'
                 }`}
               >
                 ±{days}d
@@ -279,7 +279,7 @@ export const BankReconciliation: React.FC = () => {
 
       {/* Bank Reconciliation Statement (BRS) Calculated Card */}
       {brsSummary && (
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
               <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
@@ -295,7 +295,7 @@ export const BankReconciliation: React.FC = () => {
           </div>
 
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800">
               <span className="text-slate-500 font-medium">Balance as per Bank Statement:</span>
               <p className="text-base font-bold text-navy-950 mt-1">₹{formatINR(brsSummary.balance_as_per_bank)}</p>
             </div>
@@ -319,7 +319,7 @@ export const BankReconciliation: React.FC = () => {
       )}
 
       {/* Transactions Data Table */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+      <div className="bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
         <div className="p-3.5 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider">Bank Statement Transactions</h4>
@@ -331,7 +331,7 @@ export const BankReconciliation: React.FC = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-xs border border-slate-200 rounded-lg px-2.5 py-1 bg-slate-50 focus:outline-none"
+              className="text-xs border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1 bg-slate-50 dark:bg-[#1A253A] focus:outline-none"
             >
               <option value="ALL">All Entries</option>
               <option value="MATCHED">Matched</option>
@@ -342,7 +342,7 @@ export const BankReconciliation: React.FC = () => {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
+            <thead className="bg-slate-50 dark:bg-[#1A253A]/80 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
               <tr>
                 <th className="py-2.5 px-4">Date</th>
                 <th className="py-2.5 px-4">Narration / Description</th>
@@ -356,7 +356,7 @@ export const BankReconciliation: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {transactions.map((t) => (
-                <tr key={t.id} className="hover:bg-slate-50/60">
+                <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]/60">
                   <td className="py-2.5 px-4 font-mono text-slate-500">{t.transaction_date}</td>
                   <td className="py-2.5 px-4">
                     <p className="font-semibold text-slate-800 line-clamp-1">{t.description}</p>
@@ -429,7 +429,7 @@ export const BankReconciliation: React.FC = () => {
             <button
               type="button"
               onClick={() => setUploadModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]"
             >
               Cancel
             </button>
@@ -452,7 +452,7 @@ export const BankReconciliation: React.FC = () => {
         subtitle={`Match Txn #${targetTxn?.id}: ${targetTxn?.description}`}
       >
         <form onSubmit={handleManualMatchSubmit} className="space-y-4">
-          <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-1">
+          <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 text-xs space-y-1">
             <p><span className="text-slate-500">Date:</span> {targetTxn?.transaction_date}</p>
             <p><span className="text-slate-500">Amount:</span> ₹{Math.max(targetTxn?.debit_amount || 0, targetTxn?.credit_amount || 0).toLocaleString('en-IN')}</p>
           </div>
@@ -465,7 +465,7 @@ export const BankReconciliation: React.FC = () => {
               value={paymentVoucherId}
               onChange={(e) => setPaymentVoucherId(e.target.value)}
               placeholder="Enter voucher id"
-              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
 
@@ -473,7 +473,7 @@ export const BankReconciliation: React.FC = () => {
             <button
               type="button"
               onClick={() => setManualMatchModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]"
             >
               Cancel
             </button>
@@ -502,7 +502,7 @@ export const BankReconciliation: React.FC = () => {
               value={bankName}
               onChange={(e) => setBankName(e.target.value)}
               placeholder="e.g. HDFC Bank / ICICI Bank / SBI"
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -514,7 +514,7 @@ export const BankReconciliation: React.FC = () => {
                 value={accountNumber}
                 onChange={(e) => setAccountNumber(e.target.value)}
                 placeholder="50200012345678"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
               />
             </div>
             <div>
@@ -525,7 +525,7 @@ export const BankReconciliation: React.FC = () => {
                 value={ifscCode}
                 onChange={(e) => setIfscCode(e.target.value.toUpperCase())}
                 placeholder="HDFC0000060"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
               />
             </div>
           </div>
@@ -535,7 +535,7 @@ export const BankReconciliation: React.FC = () => {
               <select
                 value={accountType}
                 onChange={(e) => setAccountType(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               >
                 <option value="CURRENT">Current Account</option>
                 <option value="AUTO_SWEEP">Auto-Sweep Corporate</option>
@@ -550,7 +550,7 @@ export const BankReconciliation: React.FC = () => {
                 value={branchName}
                 onChange={(e) => setBranchName(e.target.value)}
                 placeholder="e.g. Fort, Mumbai"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
               />
             </div>
           </div>
@@ -562,7 +562,7 @@ export const BankReconciliation: React.FC = () => {
               value={openingBalance}
               onChange={(e) => setOpeningBalance(e.target.value)}
               placeholder="0.00"
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
             />
           </div>
 
@@ -570,7 +570,7 @@ export const BankReconciliation: React.FC = () => {
             <button
               type="button"
               onClick={() => setAddAccountModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]"
             >
               Cancel
             </button>

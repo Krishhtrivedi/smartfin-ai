@@ -19,8 +19,8 @@ export const Layout: React.FC<LayoutProps> = ({
   const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F6F3EE] flex">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-[#F6F3EE] dark:bg-[#0B1120] text-[#171E25] dark:text-slate-100 flex flex-col lg:flex-row transition-colors">
+      {/* Sidebar (Fixed on Desktop, Slide-over Drawer on Mobile) */}
       <Sidebar
         currentTab={currentTab}
         onSelectTab={onSelectTab}
@@ -28,30 +28,31 @@ export const Layout: React.FC<LayoutProps> = ({
         onClose={() => setMobileMenuOpen(false)}
       />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 lg:pl-72 transition-all">
+      {/* Main Content Area - Offsets properly on desktop to account for fixed sidebar */}
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-64 xl:pl-72 transition-all">
         <Header
           currentTab={currentTab}
           onOpenMobileMenu={() => setMobileMenuOpen(true)}
           onOpenAI={() => setAiDrawerOpen(true)}
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto">
+        {/* Global Full-Width Fluid Container: Zero wasted space on wide/ultrawide displays */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-none">
           {children}
         </main>
 
         {/* Vichar Vimarsh Architectural Footer */}
-        <footer className="border-t border-[#C5CBD2] bg-[#ECE9E3] py-6 px-6 mt-12 text-[#4A545D]">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <footer className="border-t border-[#C5CBD2] dark:border-slate-800 bg-[#ECE9E3] dark:bg-[#131C2E] py-6 px-4 sm:px-6 lg:px-8 mt-12 text-[#4A545D] dark:text-slate-400 transition-colors">
+          <div className="w-full max-w-none flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-3 text-center md:text-left">
-              <div className="w-8 h-8 rounded-[3px] bg-[#1A2F46] flex items-center justify-center text-[#E65909] font-bold text-xs flex-shrink-0">
+              <div className="w-8 h-8 rounded-[3px] bg-[#1A2F46] dark:bg-[#0D2035] flex items-center justify-center text-[#E65909] font-bold text-xs flex-shrink-0 shadow-xs border border-white/5">
                 <Compass className="w-4 h-4" />
               </div>
               <div>
-                <p className="font-display font-bold text-sm text-[#1A2F46] tracking-tight">
+                <p className="font-display font-bold text-sm text-[#1A2F46] dark:text-slate-100 tracking-tight">
                   Vichar Vimarsh · SmartFin AI Automation
                 </p>
-                <p className="text-xs text-[#5D646C]">
+                <p className="text-xs text-[#5D646C] dark:text-slate-400">
                   "Great organizations are not built by chance. They are built by clarity of thought."
                 </p>
               </div>
@@ -61,18 +62,18 @@ export const Layout: React.FC<LayoutProps> = ({
               <span className="text-[#E65909] font-bold uppercase tracking-wider">
                 Think. Act. Achieve.
               </span>
-              <span className="text-[#8B97A3] hidden sm:inline">•</span>
+              <span className="text-[#8B97A3] dark:text-slate-600 hidden sm:inline">•</span>
               <a 
                 href="https://vicharvimarsh.com/" 
                 target="_blank" 
                 rel="noreferrer" 
-                className="inline-flex items-center space-x-1 text-[#1A2F46] hover:text-[#E65909] font-medium transition-colors"
+                className="inline-flex items-center space-x-1 text-[#1A2F46] dark:text-slate-200 hover:text-[#E65909] dark:hover:text-[#E65909] font-medium transition-colors"
               >
                 <span>vicharvimarsh.com</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
-              <span className="text-[#8B97A3] hidden sm:inline">•</span>
-              <span className="text-[#5D646C]">Powered by Quick HR Solution</span>
+              <span className="text-[#8B97A3] dark:text-slate-600 hidden sm:inline">•</span>
+              <span className="text-[#5D646C] dark:text-slate-400">Powered by Quick HR Solution</span>
             </div>
           </div>
         </footer>

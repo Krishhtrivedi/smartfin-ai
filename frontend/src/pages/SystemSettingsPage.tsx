@@ -131,21 +131,21 @@ export const SystemSettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 w-full max-w-none font-sans">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#ECE9E3]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#ECE9E3] dark:border-slate-800">
         <div>
           <div className="flex items-center space-x-2">
             <span className="text-[11px] font-mono uppercase tracking-widest text-[#E65909] font-bold">
               Administration & Infrastructure
             </span>
             <span className="text-[#8B97A3]">/</span>
-            <span className="text-xs text-[#5D646C]">Connections, Security & Storage Paths</span>
+            <span className="text-xs text-[#5D646C] dark:text-slate-400">Connections, Security & Storage Paths</span>
           </div>
-          <h1 className="text-2xl font-serif text-[#1A2F46] font-bold mt-1">
+          <h1 className="text-2xl font-serif text-[#1A2F46] dark:text-slate-100 font-bold mt-1">
             System Settings & Diagnostics
           </h1>
-          <p className="text-xs text-[#5D646C] mt-0.5">
+          <p className="text-xs text-[#5D646C] dark:text-slate-400 mt-0.5">
             Configure live SMTP dispatch, local WhatsApp bridge socket, desktop folders, and verified AI keys.
           </p>
         </div>
@@ -153,7 +153,7 @@ export const SystemSettingsPage: React.FC = () => {
         <div className="flex items-center space-x-3">
           <button
             onClick={() => loadSettings()}
-            className="px-3 py-2 border border-[#C5CBD2] text-[#1A2F46] text-xs font-semibold rounded-[2px] hover:bg-[#F6F3EE] flex items-center space-x-1.5 transition-colors"
+            className="px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 text-[#1A2F46] dark:text-slate-100 text-xs font-semibold rounded-[2px] hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120] flex items-center space-x-1.5 transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>Reload</span>
@@ -163,11 +163,11 @@ export const SystemSettingsPage: React.FC = () => {
 
       <form onSubmit={handleSaveSettings} className="space-y-6">
         {/* Section 1: SMTP Email Gateway */}
-        <div className="p-4 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-3 border-b border-[#ECE9E3]">
+        <div className="p-4 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-3 border-b border-[#ECE9E3] dark:border-slate-800">
             <div className="flex items-center space-x-2">
               <Mail className="w-4 h-4 text-[#E65909]" />
-              <h2 className="text-sm font-bold text-[#1A2F46] uppercase font-mono tracking-wider">
+              <h2 className="text-sm font-bold text-[#1A2F46] dark:text-slate-100 uppercase font-mono tracking-wider">
                 1. SMTP Official Email Gateway
               </h2>
             </div>
@@ -185,7 +185,7 @@ export const SystemSettingsPage: React.FC = () => {
                 type="button"
                 onClick={handleTestSmtp}
                 disabled={testingSmtp}
-                className="px-3 py-1 border border-[#C5CBD2] text-[#1A2F46] text-xs font-semibold rounded-[2px] hover:bg-[#F6F3EE] flex items-center space-x-1 disabled:opacity-50"
+                className="px-3 py-1 border border-[#C5CBD2] dark:border-slate-800 text-[#1A2F46] dark:text-slate-100 text-xs font-semibold rounded-[2px] hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120] flex items-center space-x-1 disabled:opacity-50"
               >
                 <Server className="w-3 h-3 text-[#E65909]" />
                 <span>{testingSmtp ? 'Testing...' : 'Test Handshake'}</span>
@@ -207,50 +207,50 @@ export const SystemSettingsPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">SMTP Host</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">SMTP Host</label>
               <input
                 type="text"
                 value={smtpHost}
                 onChange={(e) => setSmtpHost(e.target.value)}
                 placeholder="smtp.gmail.com"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Port</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Port</label>
               <input
                 type="text"
                 value={smtpPort}
                 onChange={(e) => setSmtpPort(e.target.value)}
                 placeholder="587"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">From Sender Name</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">From Sender Name</label>
               <input
                 type="text"
                 value={smtpFromName}
                 onChange={(e) => setSmtpFromName(e.target.value)}
                 placeholder="Vichar Vimarsh Compliance"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Username / Email Address</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Username / Email Address</label>
               <input
                 type="text"
                 value={smtpUser}
                 onChange={(e) => setSmtpUser(e.target.value)}
                 placeholder="compliance@vicharvimarsh.com"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
                 Password / App Password {settings?.smtp?.has_password ? '(••••••••)' : ''}
               </label>
               <input
@@ -258,18 +258,18 @@ export const SystemSettingsPage: React.FC = () => {
                 value={smtpPassword}
                 onChange={(e) => setSmtpPassword(e.target.value)}
                 placeholder="Leave blank to preserve existing"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
         </div>
 
         {/* Section 2: WhatsApp Automation Bridge */}
-        <div className="p-4 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-3 border-b border-[#ECE9E3]">
+        <div className="p-4 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-3 border-b border-[#ECE9E3] dark:border-slate-800">
             <div className="flex items-center space-x-2">
               <MessageSquare className="w-4 h-4 text-emerald-700" />
-              <h2 className="text-sm font-bold text-[#1A2F46] uppercase font-mono tracking-wider">
+              <h2 className="text-sm font-bold text-[#1A2F46] dark:text-slate-100 uppercase font-mono tracking-wider">
                 2. WhatsApp Gateway & Team PMSC Target
               </h2>
             </div>
@@ -278,7 +278,7 @@ export const SystemSettingsPage: React.FC = () => {
                 type="button"
                 onClick={handleTestWhatsapp}
                 disabled={testingWa}
-                className="px-3 py-1 border border-[#C5CBD2] text-[#1A2F46] text-xs font-semibold rounded-[2px] hover:bg-[#F6F3EE] flex items-center space-x-1 disabled:opacity-50"
+                className="px-3 py-1 border border-[#C5CBD2] dark:border-slate-800 text-[#1A2F46] dark:text-slate-100 text-xs font-semibold rounded-[2px] hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120] flex items-center space-x-1 disabled:opacity-50"
               >
                 <Server className="w-3 h-3 text-emerald-700" />
                 <span>{testingWa ? 'Probing...' : 'Probe Local Port 8001'}</span>
@@ -300,58 +300,58 @@ export const SystemSettingsPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Local Baileys Bridge URL</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Local Baileys Bridge URL</label>
               <input
                 type="text"
                 value={waBridgeUrl}
                 onChange={(e) => setWaBridgeUrl(e.target.value)}
                 placeholder="http://127.0.0.1:8001"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Team PMSC Target Group ID / Phone</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Team PMSC Target Group ID / Phone</label>
               <input
                 type="text"
                 value={waTeamPmscGroupId}
                 onChange={(e) => setWaTeamPmscGroupId(e.target.value)}
                 placeholder="e.g. 12036304@g.us or admin phone"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
         </div>
 
         {/* Section 3: Desktop Local Storage & Fuzzy Folder Routing */}
-        <div className="p-4 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm space-y-4">
-          <div className="flex items-center space-x-2 pb-3 border-b border-[#ECE9E3]">
+        <div className="p-4 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm space-y-4">
+          <div className="flex items-center space-x-2 pb-3 border-b border-[#ECE9E3] dark:border-slate-800">
             <HardDrive className="w-4 h-4 text-amber-700" />
-            <h2 className="text-sm font-bold text-[#1A2F46] uppercase font-mono tracking-wider">
+            <h2 className="text-sm font-bold text-[#1A2F46] dark:text-slate-100 uppercase font-mono tracking-wider">
               3. Local Desktop Folder Hierarchy & Collision Safety
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Mac Desktop Root Directory</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Mac Desktop Root Directory</label>
               <input
                 type="text"
                 value={desktopRoot}
                 onChange={(e) => setDesktopRoot(e.target.value)}
                 placeholder="~/Desktop"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
               <span className="text-[10px] text-[#8B97A3]">
                 Downloads route to: <code>~/Desktop/&lt;ClientName&gt;/GST/</code> or <code>IncomeTax/</code>
               </span>
             </div>
 
-            <div className="p-3 bg-[#F6F3EE] rounded-[2px] border border-[#C5CBD2] text-xs">
-              <div className="font-bold text-[#1A2F46] flex items-center gap-1 font-mono uppercase text-[10px]">
+            <div className="p-3 bg-[#F6F3EE] dark:bg-[#0B1120] rounded-[2px] border border-[#C5CBD2] dark:border-slate-800 text-xs">
+              <div className="font-bold text-[#1A2F46] dark:text-slate-100 flex items-center gap-1 font-mono uppercase text-[10px]">
                 <Shield className="w-3.5 h-3.5 text-emerald-700" />
                 FolderResolver Collision Protection Active
               </div>
-              <p className="text-[#5D646C] text-[11px] mt-1">
+              <p className="text-[#5D646C] dark:text-slate-400 text-[11px] mt-1">
                 Existing staff files are never overwritten. When duplicates occur, files are saved as <code>(2).pdf</code>, <code>(3).pdf</code>. Unmatched downloads route safely to <code>~/Desktop/Needs_Review_Staging/</code>.
               </p>
             </div>
@@ -359,38 +359,38 @@ export const SystemSettingsPage: React.FC = () => {
         </div>
 
         {/* Section 4: AI & LLM Engine Settings */}
-        <div className="p-4 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm space-y-4">
-          <div className="flex items-center space-x-2 pb-3 border-b border-[#ECE9E3]">
+        <div className="p-4 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm space-y-4">
+          <div className="flex items-center space-x-2 pb-3 border-b border-[#ECE9E3] dark:border-slate-800">
             <Key className="w-4 h-4 text-purple-700" />
-            <h2 className="text-sm font-bold text-[#1A2F46] uppercase font-mono tracking-wider">
+            <h2 className="text-sm font-bold text-[#1A2F46] dark:text-slate-100 uppercase font-mono tracking-wider">
               4. AI Assistant & LLM Engine
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Provider</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Provider</label>
               <select
                 value={aiProvider}
                 onChange={(e) => setAiProvider(e.target.value)}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               >
                 <option value="gemini">Google Gemini (Recommended)</option>
                 <option value="openai">OpenAI GPT-4o</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Model Name</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Model Name</label>
               <input
                 type="text"
                 value={aiModel}
                 onChange={(e) => setAiModel(e.target.value)}
                 placeholder="gemini-1.5-flash"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">
                 API Key {settings?.ai?.has_api_key ? `(${settings.ai.api_key_masked})` : ''}
               </label>
               <input
@@ -398,35 +398,35 @@ export const SystemSettingsPage: React.FC = () => {
                 value={aiKey}
                 onChange={(e) => setAiKey(e.target.value)}
                 placeholder="Leave blank to preserve existing"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
         </div>
 
         {/* Section 5: Security & Audit Trail */}
-        <div className="p-4 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm space-y-3">
-          <div className="flex items-center space-x-2 pb-3 border-b border-[#ECE9E3]">
+        <div className="p-4 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm space-y-3">
+          <div className="flex items-center space-x-2 pb-3 border-b border-[#ECE9E3] dark:border-slate-800">
             <Lock className="w-4 h-4 text-emerald-800" />
-            <h2 className="text-sm font-bold text-[#1A2F46] uppercase font-mono tracking-wider">
+            <h2 className="text-sm font-bold text-[#1A2F46] dark:text-slate-100 uppercase font-mono tracking-wider">
               5. Encryption & Audit Trail Security
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-            <div className="p-3 bg-[#F6F3EE] rounded-[2px] border border-[#C5CBD2]">
+            <div className="p-3 bg-[#F6F3EE] dark:bg-[#0B1120] rounded-[2px] border border-[#C5CBD2] dark:border-slate-800">
               <div className="text-[10px] font-mono text-[#8B97A3] uppercase">Credential Encryption</div>
-              <div className="font-bold text-[#1A2F46] mt-0.5">Fernet AES-128 Symmetric</div>
+              <div className="font-bold text-[#1A2F46] dark:text-slate-100 mt-0.5">Fernet AES-128 Symmetric</div>
               <div className="text-[10px] text-emerald-700 font-bold mt-1">● Database At-Rest Active</div>
             </div>
-            <div className="p-3 bg-[#F6F3EE] rounded-[2px] border border-[#C5CBD2]">
+            <div className="p-3 bg-[#F6F3EE] dark:bg-[#0B1120] rounded-[2px] border border-[#C5CBD2] dark:border-slate-800">
               <div className="text-[10px] font-mono text-[#8B97A3] uppercase">Audit Trail Ledger</div>
-              <div className="font-bold text-[#1A2F46] mt-0.5">Append-Only / Immutable</div>
+              <div className="font-bold text-[#1A2F46] dark:text-slate-100 mt-0.5">Append-Only / Immutable</div>
               <div className="text-[10px] text-emerald-700 font-bold mt-1">● Zero-Deletion Enforced</div>
             </div>
-            <div className="p-3 bg-[#F6F3EE] rounded-[2px] border border-[#C5CBD2]">
+            <div className="p-3 bg-[#F6F3EE] dark:bg-[#0B1120] rounded-[2px] border border-[#C5CBD2] dark:border-slate-800">
               <div className="text-[10px] font-mono text-[#8B97A3] uppercase">Session Invalidation</div>
-              <div className="font-bold text-[#1A2F46] mt-0.5">120 Minutes Auto-Timeout</div>
+              <div className="font-bold text-[#1A2F46] dark:text-slate-100 mt-0.5">120 Minutes Auto-Timeout</div>
               <div className="text-[10px] text-emerald-700 font-bold mt-1">● JWT Token Expiry Active</div>
             </div>
           </div>

@@ -102,21 +102,21 @@ export const DocumentAnalyzer: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 w-full max-w-none font-sans">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#ECE9E3]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#ECE9E3] dark:border-slate-800">
         <div>
           <div className="flex items-center space-x-2">
             <span className="text-[11px] font-mono uppercase tracking-widest text-[#E65909] font-bold">
               Cognitive Automation
             </span>
             <span className="text-[#8B97A3]">/</span>
-            <span className="text-xs text-[#5D646C]">Multi-Format Financial & Statutory Parser</span>
+            <span className="text-xs text-[#5D646C] dark:text-slate-400">Multi-Format Financial & Statutory Parser</span>
           </div>
-          <h1 className="text-2xl font-serif text-[#1A2F46] font-bold mt-1">
+          <h1 className="text-2xl font-serif text-[#1A2F46] dark:text-slate-100 font-bold mt-1">
             AI Document Analyzer
           </h1>
-          <p className="text-xs text-[#5D646C] mt-0.5">
+          <p className="text-xs text-[#5D646C] dark:text-slate-400 mt-0.5">
             Extract figures, detect missing statutory disclosures, and chat in real-time with balance sheets, audit reports, and contracts.
           </p>
         </div>
@@ -124,7 +124,7 @@ export const DocumentAnalyzer: React.FC = () => {
         <div className="flex items-center space-x-3">
           <button
             onClick={() => loadList()}
-            className="px-3 py-2 border border-[#C5CBD2] text-[#1A2F46] text-xs font-semibold rounded-[2px] hover:bg-[#F6F3EE] flex items-center space-x-1.5 transition-colors"
+            className="px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 text-[#1A2F46] dark:text-slate-100 text-xs font-semibold rounded-[2px] hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120] flex items-center space-x-1.5 transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
@@ -133,7 +133,7 @@ export const DocumentAnalyzer: React.FC = () => {
       </div>
 
       {/* Upload Zone */}
-      <div className="p-4 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm">
+      <div className="p-4 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm">
         <form onSubmit={handleUpload} className="flex flex-col md:flex-row items-center gap-3">
           <div className="w-full md:w-auto">
             <input
@@ -148,7 +148,7 @@ export const DocumentAnalyzer: React.FC = () => {
             <select
               value={docCategory}
               onChange={(e) => setDocCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
             >
               <option value="FINANCIAL_STATEMENT">Financial Statement / Balance Sheet</option>
               <option value="AUDIT_REPORT">Statutory Audit Report</option>
@@ -175,16 +175,16 @@ export const DocumentAnalyzer: React.FC = () => {
         {/* Left: Document History */}
         <div className="lg:col-span-4 space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold font-mono uppercase tracking-wider text-[#1A2F46]">
+            <h2 className="text-xs font-bold font-mono uppercase tracking-wider text-[#1A2F46] dark:text-slate-100">
               Parsed Repositories ({analyses.length})
             </h2>
           </div>
 
           <div className="space-y-2 max-h-[620px] overflow-y-auto pr-1">
             {analyses.length === 0 ? (
-              <div className="p-8 text-center bg-white border border-[#C5CBD2] rounded-[3px]">
+              <div className="p-8 text-center bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px]">
                 <FileText className="w-6 h-6 text-[#8B97A3] mx-auto mb-2" />
-                <p className="text-xs text-[#5D646C]">No documents analyzed yet. Upload a file above.</p>
+                <p className="text-xs text-[#5D646C] dark:text-slate-400">No documents analyzed yet. Upload a file above.</p>
               </div>
             ) : (
               analyses.map((doc) => {
@@ -194,12 +194,12 @@ export const DocumentAnalyzer: React.FC = () => {
                   <div
                     key={doc.id}
                     onClick={() => handleSelectDoc(doc.id)}
-                    className={`p-3.5 bg-white border rounded-[3px] cursor-pointer transition-all ${
-                      isSelected ? 'border-[#E65909] ring-2 ring-[#E65909]/20 shadow-sm' : 'border-[#C5CBD2] hover:border-[#8B97A3]'
+                    className={`p-3.5 bg-white dark:bg-[#131C2E] border rounded-[3px] cursor-pointer transition-all ${
+                      isSelected ? 'border-[#E65909] ring-2 ring-[#E65909]/20 shadow-sm' : 'border-[#C5CBD2] dark:border-slate-800 hover:border-[#8B97A3]'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#F6F3EE] text-[#5D646C] font-bold">
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#F6F3EE] dark:bg-[#0B1120] text-[#5D646C] dark:text-slate-400 font-bold">
                         {doc.file_type.toUpperCase()}
                       </span>
                       <span className="text-[10px] text-[#8B97A3] font-mono">
@@ -207,12 +207,12 @@ export const DocumentAnalyzer: React.FC = () => {
                       </span>
                     </div>
 
-                    <h3 className="text-xs font-bold text-[#1A2F46] mt-2 line-clamp-1">{doc.filename}</h3>
-                    <div className="text-[11px] text-[#5D646C] mt-0.5">
+                    <h3 className="text-xs font-bold text-[#1A2F46] dark:text-slate-100 mt-2 line-clamp-1">{doc.filename}</h3>
+                    <div className="text-[11px] text-[#5D646C] dark:text-slate-400 mt-0.5">
                       {doc.doc_category.replace(/_/g, ' ')}
                     </div>
 
-                    <div className="mt-2.5 pt-2 border-t border-[#ECE9E3] flex items-center justify-between text-[10px] text-[#8B97A3] font-mono">
+                    <div className="mt-2.5 pt-2 border-t border-[#ECE9E3] dark:border-slate-800 flex items-center justify-between text-[10px] text-[#8B97A3] font-mono">
                       <span>{doc.figures_count} Extracted Figures</span>
                       {doc.missing_items_count > 0 ? (
                         <span className="text-rose-700 font-bold">{doc.missing_items_count} Missing Items</span>
@@ -232,7 +232,7 @@ export const DocumentAnalyzer: React.FC = () => {
           {detail ? (
             <div className="space-y-4">
               {/* Document Overview Header */}
-              <div className="p-4 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm">
+              <div className="p-4 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[#1A2F46] text-white">
                     {detail.doc_category.replace(/_/g, ' ')}
@@ -241,36 +241,36 @@ export const DocumentAnalyzer: React.FC = () => {
                     Analyzed on {new Date(detail.created_at).toLocaleDateString('en-IN')}
                   </span>
                 </div>
-                <h2 className="text-lg font-bold font-serif text-[#1A2F46] mt-1.5">
+                <h2 className="text-lg font-bold font-serif text-[#1A2F46] dark:text-slate-100 mt-1.5">
                   {detail.filename}
                 </h2>
                 {detail.summary && (
-                  <p className="text-xs text-[#5D646C] mt-1 leading-relaxed">{detail.summary}</p>
+                  <p className="text-xs text-[#5D646C] dark:text-slate-400 mt-1 leading-relaxed">{detail.summary}</p>
                 )}
               </div>
 
               {/* Extracted Figures Table */}
-              <div className="p-4 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm space-y-3">
-                <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-[#1A2F46]">
+              <div className="p-4 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm space-y-3">
+                <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-[#1A2F46] dark:text-slate-100">
                   Extracted Financial Figures & Metrics ({detail.extracted_figures?.length || 0})
                 </h3>
 
                 {detail.extracted_figures && detail.extracted_figures.length > 0 ? (
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs text-left">
-                      <thead className="bg-[#F6F3EE] text-[#5D646C] font-mono uppercase text-[10px]">
+                      <thead className="bg-[#F6F3EE] dark:bg-[#0B1120] text-[#5D646C] dark:text-slate-400 font-mono uppercase text-[10px]">
                         <tr>
-                          <th className="p-2 border border-[#C5CBD2]">Metric / Line Item</th>
-                          <th className="p-2 border border-[#C5CBD2]">Extracted Value</th>
-                          <th className="p-2 border border-[#C5CBD2]">Source Location</th>
+                          <th className="p-2 border border-[#C5CBD2] dark:border-slate-800">Metric / Line Item</th>
+                          <th className="p-2 border border-[#C5CBD2] dark:border-slate-800">Extracted Value</th>
+                          <th className="p-2 border border-[#C5CBD2] dark:border-slate-800">Source Location</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#ECE9E3]">
+                      <tbody className="divide-y divide-[#ECE9E3] dark:divide-slate-800">
                         {detail.extracted_figures.map((fig, idx) => (
-                          <tr key={idx} className="hover:bg-[#F6F3EE]/50">
-                            <td className="p-2 border border-[#C5CBD2] font-semibold text-[#1A2F46]">{fig.label}</td>
-                            <td className="p-2 border border-[#C5CBD2] font-mono font-bold text-[#E65909]">{fig.value}</td>
-                            <td className="p-2 border border-[#C5CBD2] font-mono text-[#8B97A3] text-[11px]">{fig.page_or_ref || 'Page 1'}</td>
+                          <tr key={idx} className="hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120]/50">
+                            <td className="p-2 border border-[#C5CBD2] dark:border-slate-800 font-semibold text-[#1A2F46] dark:text-slate-100">{fig.label}</td>
+                            <td className="p-2 border border-[#C5CBD2] dark:border-slate-800 font-mono font-bold text-[#E65909]">{fig.value}</td>
+                            <td className="p-2 border border-[#C5CBD2] dark:border-slate-800 font-mono text-[#8B97A3] text-[11px]">{fig.page_or_ref || 'Page 1'}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -290,10 +290,10 @@ export const DocumentAnalyzer: React.FC = () => {
                   </div>
                   <div className="space-y-1.5">
                     {detail.missing_items.map((item, idx) => (
-                      <div key={idx} className="p-2 bg-white rounded border border-rose-200 text-xs text-[#1A2F46]">
+                      <div key={idx} className="p-2 bg-white dark:bg-[#131C2E] rounded border border-rose-200 text-xs text-[#1A2F46] dark:text-slate-100">
                         <div className="font-semibold text-rose-900">{item.item}</div>
                         {item.recommendation && (
-                          <div className="text-[11px] text-[#5D646C] mt-0.5">{item.recommendation}</div>
+                          <div className="text-[11px] text-[#5D646C] dark:text-slate-400 mt-0.5">{item.recommendation}</div>
                         )}
                       </div>
                     ))}
@@ -302,16 +302,16 @@ export const DocumentAnalyzer: React.FC = () => {
               )}
 
               {/* Grounded Document Chat Panel */}
-              <div className="p-4 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm space-y-3">
+              <div className="p-4 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold font-mono uppercase tracking-wider text-[#1A2F46] flex items-center gap-1.5">
+                  <span className="text-xs font-bold font-mono uppercase tracking-wider text-[#1A2F46] dark:text-slate-100 flex items-center gap-1.5">
                     <MessageSquare className="w-3.5 h-3.5 text-[#E65909]" />
                     Grounded AI Query (Ask Document Anything)
                   </span>
                   <span className="text-[10px] text-[#8B97A3] font-mono">Answers cited strictly from parsed text</span>
                 </div>
 
-                <div className="space-y-2.5 max-h-[320px] overflow-y-auto p-3 bg-[#F6F3EE] rounded-[2px] border border-[#C5CBD2]">
+                <div className="space-y-2.5 max-h-[320px] overflow-y-auto p-3 bg-[#F6F3EE] dark:bg-[#0B1120] rounded-[2px] border border-[#C5CBD2] dark:border-slate-800">
                   {chatMessages.length === 0 ? (
                     <div className="text-center py-6 text-xs text-[#8B97A3]">
                       Ask questions like: "What is the net profit for FY26?", "Are there any contingent liabilities listed?", or "Summarize the auditor's key remarks."
@@ -323,7 +323,7 @@ export const DocumentAnalyzer: React.FC = () => {
                         className={`p-2.5 rounded-[2px] text-xs max-w-[85%] ${
                           m.role === 'user'
                             ? 'ml-auto bg-[#1A2F46] text-white'
-                            : 'bg-white text-[#1A2F46] border border-[#C5CBD2]'
+                            : 'bg-white dark:bg-[#131C2E] text-[#1A2F46] dark:text-slate-100 border border-[#C5CBD2] dark:border-slate-800'
                         }`}
                       >
                         <div className="text-[10px] opacity-70 mb-0.5 font-mono uppercase">
@@ -341,7 +341,7 @@ export const DocumentAnalyzer: React.FC = () => {
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                     placeholder="Ask a question about this document..."
-                    className="flex-1 px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                    className="flex-1 px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
                   />
                   <button
                     type="submit"
@@ -355,8 +355,8 @@ export const DocumentAnalyzer: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="p-8 text-center bg-white border border-[#C5CBD2] rounded-[3px]">
-              <p className="text-xs text-[#5D646C]">Select an analyzed document from the left to view parsed metrics and chat.</p>
+            <div className="p-8 text-center bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px]">
+              <p className="text-xs text-[#5D646C] dark:text-slate-400">Select an analyzed document from the left to view parsed metrics and chat.</p>
             </div>
           )}
         </div>

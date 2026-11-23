@@ -24,7 +24,8 @@ import {
   FolderKanban,
   Calendar,
   FileText,
-  Settings
+  Settings,
+  X
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -302,19 +303,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-[#0D2035]/60 backdrop-blur-sm lg:hidden transition-opacity"
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden transition-opacity"
           onClick={onClose}
+          aria-hidden="true"
         />
       )}
 
-      {/* Sidebar Container */}
+      {/* Sidebar Container: Fixed on desktop, sliding drawer on mobile */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-64 bg-[#1A2F46] text-[#F6F3EE] flex flex-col justify-between border-r border-[#0D2035] transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 z-50 h-full w-64 xl:w-72 bg-[#1A2F46] dark:bg-[#0D2035] text-[#F6F3EE] flex flex-col justify-between border-r border-[#0D2035] dark:border-slate-800 transition-transform duration-300 ease-in-out shadow-xl lg:shadow-none ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         {/* Brand / Logo Header */}
-        <div className="p-4 border-b border-[#0D2035]/80 flex items-center justify-between">
+        <div className="p-4 border-b border-[#0D2035]/80 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
             <div className="w-8 h-8 rounded-[3px] bg-[#E65909] text-white flex items-center justify-center font-serif font-bold text-base shadow-sm">
               VV
@@ -328,6 +330,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Close Button on Mobile Drawer */}
+          <button
+            onClick={onClose}
+            className="p-1.5 text-[#8B97A3] hover:text-white hover:bg-white/10 rounded-[3px] lg:hidden transition-colors"
+            title="Close navigation menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Navigation Sections */}

@@ -15,7 +15,7 @@ const STAGES: { key: LeadStage; label: string; color: string; border: string; bg
   { key: 'PROPOSAL_SENT', label: 'Proposal Sent', color: 'text-amber-700', border: 'border-amber-300', bg: 'bg-amber-50' },
   { key: 'NEGOTIATION', label: 'Negotiation', color: 'text-purple-700', border: 'border-purple-300', bg: 'bg-purple-50' },
   { key: 'CONVERTED', label: 'Converted Client', color: 'text-emerald-700', border: 'border-emerald-300', bg: 'bg-emerald-50' },
-  { key: 'LOST', label: 'Closed / Lost', color: 'text-slate-600', border: 'border-slate-300', bg: 'bg-slate-100' },
+  { key: 'LOST', label: 'Closed / Lost', color: 'text-slate-600 dark:text-slate-400', border: 'border-slate-300', bg: 'bg-slate-100' },
 ];
 
 export const CrmPipeline: React.FC = () => {
@@ -158,21 +158,21 @@ export const CrmPipeline: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 w-full max-w-none font-sans">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#ECE9E3]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#ECE9E3] dark:border-slate-800">
         <div>
           <div className="flex items-center space-x-2">
             <span className="text-[11px] font-mono uppercase tracking-widest text-[#E65909] font-bold">
               CRM & Advisory Desk
             </span>
             <span className="text-[#8B97A3]">/</span>
-            <span className="text-xs text-[#5D646C]">Lead Pipeline & Conversion</span>
+            <span className="text-xs text-[#5D646C] dark:text-slate-400">Lead Pipeline & Conversion</span>
           </div>
-          <h1 className="text-2xl font-serif text-[#1A2F46] font-bold mt-1">
+          <h1 className="text-2xl font-serif text-[#1A2F46] dark:text-slate-100 font-bold mt-1">
             Executive Client Pipeline
           </h1>
-          <p className="text-xs text-[#5D646C] mt-0.5">
+          <p className="text-xs text-[#5D646C] dark:text-slate-400 mt-0.5">
             Manage prospective client inquiries, advisory proposals, meetings, and 1-click conversion to Client Master.
           </p>
         </div>
@@ -180,7 +180,7 @@ export const CrmPipeline: React.FC = () => {
         <div className="flex items-center space-x-3">
           <button
             onClick={() => loadData()}
-            className="px-3 py-2 border border-[#C5CBD2] text-[#1A2F46] text-xs font-semibold rounded-[2px] hover:bg-[#F6F3EE] flex items-center space-x-1.5 transition-colors"
+            className="px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 text-[#1A2F46] dark:text-slate-100 text-xs font-semibold rounded-[2px] hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120] flex items-center space-x-1.5 transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
@@ -197,35 +197,35 @@ export const CrmPipeline: React.FC = () => {
 
       {/* KPI Stats Strip */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div className="p-3 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm">
+        <div className="p-3 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm">
           <div className="text-[10px] font-mono uppercase text-[#8B97A3]">Total Inquiries</div>
-          <div className="text-xl font-bold font-serif text-[#1A2F46] mt-1">{summary?.total_leads ?? leads.length}</div>
-          <div className="text-[10px] text-[#5D646C] mt-0.5">Active prospects in CRM</div>
+          <div className="text-xl font-bold font-serif text-[#1A2F46] dark:text-slate-100 mt-1">{summary?.total_leads ?? leads.length}</div>
+          <div className="text-[10px] text-[#5D646C] dark:text-slate-400 mt-0.5">Active prospects in CRM</div>
         </div>
-        <div className="p-3 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm">
+        <div className="p-3 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm">
           <div className="text-[10px] font-mono uppercase text-[#8B97A3]">Active Pipeline</div>
           <div className="text-xl font-bold font-serif text-blue-700 mt-1">{summary?.active_leads ?? 0}</div>
-          <div className="text-[10px] text-[#5D646C] mt-0.5">Under evaluation & discussion</div>
+          <div className="text-[10px] text-[#5D646C] dark:text-slate-400 mt-0.5">Under evaluation & discussion</div>
         </div>
-        <div className="p-3 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm">
+        <div className="p-3 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm">
           <div className="text-[10px] font-mono uppercase text-[#8B97A3]">Converted Clients</div>
           <div className="text-xl font-bold font-serif text-emerald-700 mt-1">{summary?.converted_leads ?? 0}</div>
-          <div className="text-[10px] text-[#5D646C] mt-0.5">Onboarded to Client Master</div>
+          <div className="text-[10px] text-[#5D646C] dark:text-slate-400 mt-0.5">Onboarded to Client Master</div>
         </div>
-        <div className="p-3 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm">
+        <div className="p-3 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm">
           <div className="text-[10px] font-mono uppercase text-[#8B97A3]">Conversion Rate</div>
           <div className="text-xl font-bold font-serif text-purple-700 mt-1">{summary?.conversion_rate_pct ?? 0}%</div>
-          <div className="text-[10px] text-[#5D646C] mt-0.5">Lead to customer velocity</div>
+          <div className="text-[10px] text-[#5D646C] dark:text-slate-400 mt-0.5">Lead to customer velocity</div>
         </div>
-        <div className="p-3 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm col-span-2 md:col-span-1">
+        <div className="p-3 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm col-span-2 md:col-span-1">
           <div className="text-[10px] font-mono uppercase text-[#8B97A3]">Pipeline Value</div>
           <div className="text-xl font-bold font-serif text-[#E65909] mt-1">₹{(summary?.total_pipeline_value ?? 0).toLocaleString('en-IN')}</div>
-          <div className="text-[10px] text-[#5D646C] mt-0.5">Estimated advisory fees</div>
+          <div className="text-[10px] text-[#5D646C] dark:text-slate-400 mt-0.5">Estimated advisory fees</div>
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="p-3 bg-white border border-[#C5CBD2] rounded-[3px] flex flex-col md:flex-row items-center justify-between gap-3 shadow-sm">
+      <div className="p-3 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] flex flex-col md:flex-row items-center justify-between gap-3 shadow-sm">
         <div className="relative w-full md:w-80">
           <Search className="w-3.5 h-3.5 text-[#8B97A3] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -233,29 +233,29 @@ export const CrmPipeline: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search company, contact person, phone..."
-            className="w-full pl-9 pr-3 py-1.5 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+            className="w-full pl-9 pr-3 py-1.5 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
           />
         </div>
-        <div className="text-xs text-[#5D646C] flex items-center space-x-2">
+        <div className="text-xs text-[#5D646C] dark:text-slate-400 flex items-center space-x-2">
           <span>Click on any lead card to view full timeline & convert to client</span>
         </div>
       </div>
 
       {/* Kanban Board */}
-      <div className="grid grid-cols-1 md:grid-cols-7 gap-3 overflow-x-auto pb-4">
+      <div className="flex overflow-x-auto gap-3.5 pb-4 snap-x min-w-full">
         {STAGES.map((stage) => {
           const stageLeads = leads.filter(l => l.stage === stage.key);
           const stageTotal = stageLeads.reduce((acc, curr) => acc + (curr.expected_value || 0), 0);
 
           return (
-            <div key={stage.key} className="flex flex-col bg-[#F6F3EE] rounded-[3px] border border-[#C5CBD2] min-w-[240px]">
+            <div key={stage.key} className="flex flex-col bg-[#F6F3EE] dark:bg-[#0B1120] rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 min-w-[280px] sm:min-w-[310px] flex-shrink-0 snap-start">
               {/* Column Header */}
               <div className={`p-2.5 border-b ${stage.border} ${stage.bg} rounded-t-[3px] flex items-center justify-between`}>
                 <div>
                   <h3 className={`text-xs font-bold uppercase tracking-wider ${stage.color}`}>
                     {stage.label}
                   </h3>
-                  <div className="text-[10px] text-[#5D646C] mt-0.5 font-mono">
+                  <div className="text-[10px] text-[#5D646C] dark:text-slate-400 mt-0.5 font-mono">
                     {stageLeads.length} leads · ₹{stageTotal.toLocaleString('en-IN')}
                   </div>
                 </div>
@@ -264,7 +264,7 @@ export const CrmPipeline: React.FC = () => {
               {/* Cards List */}
               <div className="p-2 space-y-2 flex-1 overflow-y-auto max-h-[620px]">
                 {stageLeads.length === 0 ? (
-                  <div className="text-center py-6 text-xs text-[#8B97A3] border border-dashed border-[#C5CBD2] rounded-[2px]">
+                  <div className="text-center py-6 text-xs text-[#8B97A3] border border-dashed border-[#C5CBD2] dark:border-slate-800 rounded-[2px]">
                     No leads
                   </div>
                 ) : (
@@ -272,12 +272,12 @@ export const CrmPipeline: React.FC = () => {
                     <div
                       key={lead.id}
                       onClick={() => handleSelectLead(lead)}
-                      className={`p-3 bg-white border rounded-[2px] cursor-pointer hover:shadow-md transition-all ${
-                        selectedLead?.id === lead.id ? 'border-[#E65909] ring-1 ring-[#E65909]' : 'border-[#C5CBD2]'
+                      className={`p-3 bg-white dark:bg-[#131C2E] border rounded-[2px] cursor-pointer hover:shadow-md transition-all ${
+                        selectedLead?.id === lead.id ? 'border-[#E65909] ring-1 ring-[#E65909]' : 'border-[#C5CBD2] dark:border-slate-800'
                       }`}
                     >
                       <div className="flex items-start justify-between">
-                        <h4 className="text-xs font-bold text-[#1A2F46] line-clamp-1">{lead.company_name}</h4>
+                        <h4 className="text-xs font-bold text-[#1A2F46] dark:text-slate-100 line-clamp-1">{lead.company_name}</h4>
                         {lead.expected_value > 0 && (
                           <span className="text-[10px] font-mono font-bold text-[#E65909]">
                             ₹{(lead.expected_value / 1000).toFixed(0)}k
@@ -286,7 +286,7 @@ export const CrmPipeline: React.FC = () => {
                       </div>
 
                       {lead.contact_person && (
-                        <div className="text-[11px] text-[#5D646C] mt-1 flex items-center gap-1">
+                        <div className="text-[11px] text-[#5D646C] dark:text-slate-400 mt-1 flex items-center gap-1">
                           <Users className="w-3 h-3 text-[#8B97A3]" />
                           <span>{lead.contact_person}</span>
                         </div>
@@ -299,8 +299,8 @@ export const CrmPipeline: React.FC = () => {
                         </div>
                       )}
 
-                      <div className="mt-2 pt-2 border-t border-[#ECE9E3] flex items-center justify-between text-[10px]">
-                        <span className="px-1.5 py-0.5 bg-[#F6F3EE] rounded text-[#5D646C] uppercase font-mono">
+                      <div className="mt-2 pt-2 border-t border-[#ECE9E3] dark:border-slate-800 flex items-center justify-between text-[10px]">
+                        <span className="px-1.5 py-0.5 bg-[#F6F3EE] dark:bg-[#0B1120] rounded text-[#5D646C] dark:text-slate-400 uppercase font-mono">
                           {lead.source}
                         </span>
                         {lead.stage !== 'CONVERTED' && lead.stage !== 'LOST' && (
@@ -310,7 +310,7 @@ export const CrmPipeline: React.FC = () => {
                               e.stopPropagation();
                               handleUpdateStage(lead.id, e.target.value as LeadStage);
                             }}
-                            className="text-[10px] bg-white border border-[#C5CBD2] rounded px-1 py-0.5 text-[#1A2F46]"
+                            className="text-[10px] bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded px-1 py-0.5 text-[#1A2F46] dark:text-slate-100"
                           >
                             {STAGES.map(s => (
                               <option key={s.key} value={s.key}>{s.label}</option>
@@ -329,8 +329,8 @@ export const CrmPipeline: React.FC = () => {
 
       {/* Selected Lead Drawer / Detail Panel */}
       {selectedLead && (
-        <div className="p-4 bg-white border border-[#C5CBD2] rounded-[3px] shadow-sm space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-[#ECE9E3]">
+        <div className="p-4 bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-sm space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-[#ECE9E3] dark:border-slate-800">
             <div>
               <div className="flex items-center space-x-2">
                 <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-sky-100 text-sky-800 uppercase">
@@ -338,10 +338,10 @@ export const CrmPipeline: React.FC = () => {
                 </span>
                 <span className="text-xs text-[#8B97A3]">Lead #{selectedLead.id}</span>
               </div>
-              <h2 className="text-lg font-bold font-serif text-[#1A2F46] mt-1">
+              <h2 className="text-lg font-bold font-serif text-[#1A2F46] dark:text-slate-100 mt-1">
                 {selectedLead.company_name}
               </h2>
-              <div className="text-xs text-[#5D646C] flex items-center space-x-4 mt-0.5">
+              <div className="text-xs text-[#5D646C] dark:text-slate-400 flex items-center space-x-4 mt-0.5">
                 <span>Contact: <strong>{selectedLead.contact_person || 'N/A'}</strong></span>
                 {selectedLead.phone && <span>Phone: <strong>{selectedLead.phone}</strong></span>}
                 {selectedLead.email && <span>Email: <strong>{selectedLead.email}</strong></span>}
@@ -351,7 +351,7 @@ export const CrmPipeline: React.FC = () => {
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setActivityModalOpen(true)}
-                className="px-3 py-1.5 border border-[#C5CBD2] text-[#1A2F46] text-xs font-semibold rounded-[2px] hover:bg-[#F6F3EE] flex items-center space-x-1"
+                className="px-3 py-1.5 border border-[#C5CBD2] dark:border-slate-800 text-[#1A2F46] dark:text-slate-100 text-xs font-semibold rounded-[2px] hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120] flex items-center space-x-1"
               >
                 <Plus className="w-3.5 h-3.5 text-[#E65909]" />
                 <span>Log Activity</span>
@@ -366,7 +366,7 @@ export const CrmPipeline: React.FC = () => {
                   <span>Convert to Client Master</span>
                 </button>
               ) : (
-                <span className="px-3 py-1.5 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-[2px] flex items-center space-x-1 border border-emerald-200">
+                <span className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 text-xs font-bold rounded-[2px] flex items-center space-x-1 border border-emerald-200">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Converted (Customer #{selectedLead.customer_id})</span>
                 </span>
@@ -376,23 +376,23 @@ export const CrmPipeline: React.FC = () => {
 
           {/* Activities Timeline */}
           <div>
-            <h3 className="text-xs font-bold font-mono uppercase text-[#1A2F46] tracking-wider mb-2">
+            <h3 className="text-xs font-bold font-mono uppercase text-[#1A2F46] dark:text-slate-100 tracking-wider mb-2">
               Communication & Activity History
             </h3>
             {leadActivities.length === 0 ? (
-              <div className="text-xs text-[#8B97A3] py-4 text-center border border-dashed border-[#C5CBD2] rounded-[2px]">
+              <div className="text-xs text-[#8B97A3] py-4 text-center border border-dashed border-[#C5CBD2] dark:border-slate-800 rounded-[2px]">
                 No logged activities yet. Click "Log Activity" to record a call, meeting, proposal, or note.
               </div>
             ) : (
               <div className="space-y-2">
                 {leadActivities.map((act) => (
-                  <div key={act.id} className="p-2.5 bg-[#F6F3EE] rounded-[2px] border border-[#C5CBD2] text-xs flex items-start space-x-3">
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-white border border-[#C5CBD2] text-[#1A2F46]">
+                  <div key={act.id} className="p-2.5 bg-[#F6F3EE] dark:bg-[#0B1120] rounded-[2px] border border-[#C5CBD2] dark:border-slate-800 text-xs flex items-start space-x-3">
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 text-[#1A2F46] dark:text-slate-100">
                       {act.activity_type}
                     </span>
                     <div className="flex-1">
-                      <div className="font-semibold text-[#1A2F46]">{act.title}</div>
-                      {act.description && <div className="text-[#5D646C] text-[11px] mt-0.5">{act.description}</div>}
+                      <div className="font-semibold text-[#1A2F46] dark:text-slate-100">{act.title}</div>
+                      {act.description && <div className="text-[#5D646C] dark:text-slate-400 text-[11px] mt-0.5">{act.description}</div>}
                     </div>
                     <div className="text-[10px] text-[#8B97A3] font-mono">
                       {new Date(act.created_at).toLocaleDateString('en-IN')}
@@ -414,70 +414,70 @@ export const CrmPipeline: React.FC = () => {
       >
         <form onSubmit={handleCreateLead} className="space-y-3 font-sans">
           <div>
-            <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Company / Entity Legal Name *</label>
+            <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Company / Entity Legal Name *</label>
             <input
               type="text"
               required
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               placeholder="e.g. Apex Industrial Solutions LLP"
-              className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Key Contact Person</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Key Contact Person</label>
               <input
                 type="text"
                 value={contactPerson}
                 onChange={(e) => setContactPerson(e.target.value)}
                 placeholder="e.g. Rajesh Shah (Director)"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Phone / WhatsApp</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Phone / WhatsApp</label>
               <input
                 type="text"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+91 98765 43210"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Email Address</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Email Address</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="director@apex.com"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Estimated Annual Advisory (₹)</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Estimated Annual Advisory (₹)</label>
               <input
                 type="number"
                 value={expectedValue}
                 onChange={(e) => setExpectedValue(e.target.value)}
                 placeholder="50000"
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs font-mono focus:outline-none focus:border-[#E65909]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Primary Interest</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Primary Interest</label>
               <select
                 value={serviceInterest}
                 onChange={(e) => setServiceInterest(e.target.value)}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               >
                 <option value="GST Automation & Virtual CFO">GST Automation & Virtual CFO</option>
                 <option value="Statutory Audit & Tax Compliance">Statutory Audit & Tax Compliance</option>
@@ -487,11 +487,11 @@ export const CrmPipeline: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Inquiry Source</label>
+              <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Inquiry Source</label>
               <select
                 value={source}
                 onChange={(e) => setSource(e.target.value)}
-                className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+                className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
               >
                 <option value="REFERRAL">Client Referral</option>
                 <option value="WEBSITE">Vichar Vimarsh Website</option>
@@ -502,21 +502,21 @@ export const CrmPipeline: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Initial Discovery Notes</label>
+            <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Initial Discovery Notes</label>
             <textarea
               rows={3}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Client requirement, turnover scale, current compliance pain points..."
-              className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-3 border-t border-[#ECE9E3]">
+          <div className="flex justify-end space-x-2 pt-3 border-t border-[#ECE9E3] dark:border-slate-800">
             <button
               type="button"
               onClick={() => setCreateModalOpen(false)}
-              className="px-4 py-2 border border-[#C5CBD2] text-xs font-semibold rounded-[2px] text-[#5D646C] hover:bg-[#F6F3EE]"
+              className="px-4 py-2 border border-[#C5CBD2] dark:border-slate-800 text-xs font-semibold rounded-[2px] text-[#5D646C] dark:text-slate-400 hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120]"
             >
               Cancel
             </button>
@@ -540,11 +540,11 @@ export const CrmPipeline: React.FC = () => {
       >
         <form onSubmit={handleAddActivity} className="space-y-3 font-sans">
           <div>
-            <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Activity Type</label>
+            <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Activity Type</label>
             <select
               value={actType}
               onChange={(e) => setActType(e.target.value as any)}
-              className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
             >
               <option value="CALL">Phone Call</option>
               <option value="EMAIL">Email Dispatch</option>
@@ -556,33 +556,33 @@ export const CrmPipeline: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Subject / Summary *</label>
+            <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Subject / Summary *</label>
             <input
               type="text"
               required
               value={actTitle}
               onChange={(e) => setActTitle(e.target.value)}
               placeholder="e.g. Discovery call on GST compliance issues"
-              className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1A2F46] mb-1">Detailed Discussion / Action Items</label>
+            <label className="block text-xs font-semibold text-[#1A2F46] dark:text-slate-100 mb-1">Detailed Discussion / Action Items</label>
             <textarea
               rows={3}
               value={actDescription}
               onChange={(e) => setActDescription(e.target.value)}
               placeholder="Notes on what was discussed, client objections, next steps..."
-              className="w-full px-3 py-2 border border-[#C5CBD2] rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
+              className="w-full px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] text-xs focus:outline-none focus:border-[#E65909]"
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-3 border-t border-[#ECE9E3]">
+          <div className="flex justify-end space-x-2 pt-3 border-t border-[#ECE9E3] dark:border-slate-800">
             <button
               type="button"
               onClick={() => setActivityModalOpen(false)}
-              className="px-4 py-2 border border-[#C5CBD2] text-xs font-semibold rounded-[2px] text-[#5D646C] hover:bg-[#F6F3EE]"
+              className="px-4 py-2 border border-[#C5CBD2] dark:border-slate-800 text-xs font-semibold rounded-[2px] text-[#5D646C] dark:text-slate-400 hover:bg-[#F6F3EE] dark:hover:bg-[#1A253A] dark:bg-[#0B1120]"
             >
               Cancel
             </button>

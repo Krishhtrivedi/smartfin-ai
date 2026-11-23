@@ -92,8 +92,8 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
         onClick={onClose}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md sm:max-w-lg bg-white shadow-2xl border-l border-[#C5CBD2] flex flex-col animate-in slide-in-from-right duration-200">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
+        <div className="w-screen max-w-md sm:max-w-lg bg-white dark:bg-[#131C2E] shadow-2xl border-l border-[#C5CBD2] dark:border-slate-800 flex flex-col animate-in slide-in-from-right duration-200">
           {/* Header */}
           <div className="p-4 border-b border-[#364452] flex items-center justify-between bg-[#0D2035] blueprint-grid-navy-deep text-white">
             <div className="flex items-center space-x-2.5">
@@ -124,13 +124,13 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
           </div>
 
           {/* Compliance & Safety Banner */}
-          <div className="px-4 py-2 bg-[#F6F3EE] border-b border-[#C5CBD2] flex items-center space-x-2 text-[11px] font-mono text-[#4A545D]">
+          <div className="px-4 py-2 bg-[#F6F3EE] dark:bg-[#1A253A] border-b border-[#C5CBD2] dark:border-slate-800 flex items-center space-x-2 text-[11px] font-mono text-[#4A545D] dark:text-slate-300">
             <ShieldAlert className="w-4 h-4 text-[#E65909] flex-shrink-0" />
             <span>Advisory Mode: Modifications & tax filings require human approval.</span>
           </div>
 
           {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#F6F3EE]/40">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#F6F3EE]/40 dark:bg-[#0B1120]/60">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -140,29 +140,29 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
                   {msg.role === 'assistant' ? (
                     <>
                       <Bot className="w-3.5 h-3.5 text-[#E65909]" />
-                      <span className="text-[11px] font-display font-semibold text-[#1A2F46]">SmartFin AI</span>
+                      <span className="text-[11px] font-display font-semibold text-[#1A2F46] dark:text-slate-200">SmartFin AI</span>
                     </>
                   ) : (
                     <>
-                      <span className="text-[11px] font-display font-semibold text-[#1A2F46]">You</span>
-                      <User className="w-3.5 h-3.5 text-[#5D646C]" />
+                      <span className="text-[11px] font-display font-semibold text-[#1A2F46] dark:text-slate-200">You</span>
+                      <User className="w-3.5 h-3.5 text-[#5D646C] dark:text-slate-400" />
                     </>
                   )}
-                  <span className="text-[10px] font-mono text-[#8B97A3]">{msg.timestamp}</span>
+                  <span className="text-[10px] font-mono text-[#8B97A3] dark:text-slate-400">{msg.timestamp}</span>
                 </div>
 
                 <div
                   className={`p-3.5 rounded-[3px] text-xs leading-relaxed max-w-[90%] shadow-xs ${
                     msg.role === 'user'
-                      ? 'bg-[#1A2F46] text-white'
-                      : 'bg-white border border-[#C5CBD2] text-[#171E25]'
+                      ? 'bg-[#1A2F46] text-white border border-white/10'
+                      : 'bg-white dark:bg-[#1A253A] border border-[#C5CBD2] dark:border-slate-800 text-[#171E25] dark:text-slate-100'
                   }`}
                 >
                   <div className="whitespace-pre-wrap">{msg.content}</div>
 
                   {/* Sources Citations */}
                   {msg.sources && msg.sources.length > 0 && (
-                    <div className="mt-3 pt-2.5 border-t border-[#ECE9E3]">
+                    <div className="mt-3 pt-2.5 border-t border-[#ECE9E3] dark:border-slate-800">
                       <p className="text-[10px] font-mono font-bold text-[#E65909] uppercase tracking-wider mb-1.5">
                         Verified Source Records:
                       </p>
@@ -170,7 +170,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
                         {msg.sources.map((s, idx) => (
                           <div
                             key={idx}
-                            className="flex items-center space-x-1.5 bg-[#F6F3EE] px-2 py-1 rounded-[2px] border border-[#C5CBD2] text-[11px] font-mono text-[#4A545D]"
+                            className="flex items-center space-x-1.5 bg-[#F6F3EE] dark:bg-[#0B1120] px-2 py-1 rounded-[2px] border border-[#C5CBD2] dark:border-slate-800 text-[11px] font-mono text-[#4A545D] dark:text-slate-300"
                           >
                             <FileText className="w-3 h-3 text-[#E65909] flex-shrink-0" />
                             <span className="truncate">{s.title}</span>
@@ -182,12 +182,12 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
 
                   {/* Quick Suggested Prompts */}
                   {msg.suggested_actions && (
-                    <div className="mt-3 pt-2 border-t border-[#ECE9E3] flex flex-wrap gap-1.5">
+                    <div className="mt-3 pt-2 border-t border-[#ECE9E3] dark:border-slate-800 flex flex-wrap gap-1.5">
                       {msg.suggested_actions.map((act, i) => (
                         <button
                           key={i}
                           onClick={() => handleSend(act)}
-                          className="text-[10px] font-mono bg-[#ECE9E3] text-[#1A2F46] hover:bg-[#E65909] hover:text-white px-2 py-1 rounded-[2px] border border-[#C5CBD2] transition-colors text-left"
+                          className="text-[10px] font-mono bg-[#ECE9E3] dark:bg-[#0B1120] text-[#1A2F46] dark:text-slate-200 hover:bg-[#E65909] hover:text-white dark:hover:bg-[#E65909] px-2 py-1 rounded-[2px] border border-[#C5CBD2] dark:border-slate-800 transition-colors text-left"
                         >
                           {act}
                         </button>
@@ -199,7 +199,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
             ))}
 
             {isLoading && (
-              <div className="flex items-center space-x-2 text-xs font-mono text-[#5D646C] p-2">
+              <div className="flex items-center space-x-2 text-xs font-mono text-[#5D646C] dark:text-slate-400 p-2">
                 <Loader2 className="w-4 h-4 animate-spin text-[#E65909]" />
                 <span>Interrogating SQL ledger records & reconciling...</span>
               </div>
@@ -208,7 +208,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
           </div>
 
           {/* Input Box */}
-          <div className="p-3 bg-white border-t border-[#C5CBD2]">
+          <div className="p-3 bg-white dark:bg-[#131C2E] border-t border-[#C5CBD2] dark:border-slate-800">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -221,7 +221,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask about invoices, GST mismatch, vendor ledgers..."
-                className="flex-1 text-xs px-3.5 py-2.5 rounded-[3px] border border-[#C5CBD2] focus:outline-none focus:border-[#E65909] bg-[#F6F3EE]"
+                className="flex-1 text-xs px-3.5 py-2.5 rounded-[3px] border border-[#C5CBD2] dark:border-slate-700 focus:outline-none focus:border-[#E65909] bg-[#F6F3EE] dark:bg-[#0F172A] text-[#171E25] dark:text-slate-100 placeholder-[#8B97A3] dark:placeholder-slate-400"
               />
               <button
                 type="submit"

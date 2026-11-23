@@ -55,7 +55,7 @@ export const FamilyKnowledgeAI: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-none">
       {/* Top Banner */}
       <div className="bg-[#1A2F46] p-6 rounded-xl text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -74,7 +74,7 @@ export const FamilyKnowledgeAI: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center space-x-3 bg-white/10 px-4 py-2.5 rounded-lg border border-white/10 text-xs font-mono">
+        <div className="flex items-center space-x-3 bg-white dark:bg-[#131C2E]/10 px-4 py-2.5 rounded-lg border border-white/10 text-xs font-mono">
           <ShieldCheck className="w-4 h-4 text-emerald-400" />
           <div>
             <div className="text-[10px] text-slate-400">Security Architecture</div>
@@ -86,7 +86,7 @@ export const FamilyKnowledgeAI: React.FC = () => {
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Family Emergency Preparedness Inventory */}
-        <div className="lg:col-span-6 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+        <div className="lg:col-span-6 bg-white dark:bg-[#131C2E] p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider flex items-center gap-1.5">
@@ -107,7 +107,7 @@ export const FamilyKnowledgeAI: React.FC = () => {
           </div>
 
           <div className="space-y-3">
-            <label className="flex items-start space-x-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+            <label className="flex items-start space-x-3 p-3 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A] cursor-pointer transition-colors">
               <input
                 type="checkbox"
                 checked={dematChecked}
@@ -115,12 +115,12 @@ export const FamilyKnowledgeAI: React.FC = () => {
                 className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
               />
               <div className="text-xs">
-                <strong className="text-slate-900 block">Demat & Mutual Fund Folios Documented</strong>
+                <strong className="text-slate-900 dark:text-slate-100 block">Demat & Mutual Fund Folios Documented</strong>
                 <span className="text-slate-500">Brokers (Zerodha, Groww, ICICI Direct), depository participant IDs, and nominee registrations.</span>
               </div>
             </label>
 
-            <label className="flex items-start space-x-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+            <label className="flex items-start space-x-3 p-3 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A] cursor-pointer transition-colors">
               <input
                 type="checkbox"
                 checked={insuranceChecked}
@@ -128,12 +128,12 @@ export const FamilyKnowledgeAI: React.FC = () => {
                 className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
               />
               <div className="text-xs">
-                <strong className="text-slate-900 block">Life & Health Insurance Nominee Verification</strong>
+                <strong className="text-slate-900 dark:text-slate-100 block">Life & Health Insurance Nominee Verification</strong>
                 <span className="text-slate-500">Term insurance policy numbers, health TPA cards, and emergency claim filing hotline contacts.</span>
               </div>
             </label>
 
-            <label className="flex items-start space-x-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+            <label className="flex items-start space-x-3 p-3 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A] cursor-pointer transition-colors">
               <input
                 type="checkbox"
                 checked={lockerChecked}
@@ -141,12 +141,12 @@ export const FamilyKnowledgeAI: React.FC = () => {
                 className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
               />
               <div className="text-xs">
-                <strong className="text-slate-900 block">Physical Bank Locker & Property Deeds Guide</strong>
+                <strong className="text-slate-900 dark:text-slate-100 block">Physical Bank Locker & Property Deeds Guide</strong>
                 <span className="text-slate-500">Bank branch name, locker number, key location, and survivor operation mandate.</span>
               </div>
             </label>
 
-            <label className="flex items-start space-x-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+            <label className="flex items-start space-x-3 p-3 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A] cursor-pointer transition-colors">
               <input
                 type="checkbox"
                 checked={caChecked}
@@ -154,12 +154,12 @@ export const FamilyKnowledgeAI: React.FC = () => {
                 className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
               />
               <div className="text-xs">
-                <strong className="text-slate-900 block">Trusted Chartered Accountant & Legal Contacts</strong>
+                <strong className="text-slate-900 dark:text-slate-100 block">Trusted Chartered Accountant & Legal Contacts</strong>
                 <span className="text-slate-500">Direct phone and email of family tax advisor (e.g. Biraju Bhai / Pinal Shah) for estate tax guidance.</span>
               </div>
             </label>
 
-            <label className="flex items-start space-x-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+            <label className="flex items-start space-x-3 p-3 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A] cursor-pointer transition-colors">
               <input
                 type="checkbox"
                 checked={willsChecked}
@@ -167,14 +167,14 @@ export const FamilyKnowledgeAI: React.FC = () => {
                 className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
               />
               <div className="text-xs">
-                <strong className="text-slate-900 block">Digital Estate Wishes & Account Handover</strong>
+                <strong className="text-slate-900 dark:text-slate-100 block">Digital Estate Wishes & Account Handover</strong>
                 <span className="text-slate-500">Clear instructions on email/cloud accounts and legacy contacts.</span>
               </div>
             </label>
           </div>
 
           {evalResult && (
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+            <div className="p-4 bg-slate-50 dark:bg-[#1A253A] rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
               <div className="flex items-center justify-between text-xs font-mono">
                 <span className="font-bold text-slate-700">Family Readiness Score:</span>
                 <span className={`text-sm font-bold ${
@@ -194,7 +194,7 @@ export const FamilyKnowledgeAI: React.FC = () => {
         </div>
 
         {/* Right Column: AI Fraud & Phishing Message Scanner */}
-        <div className="lg:col-span-6 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+        <div className="lg:col-span-6 bg-white dark:bg-[#131C2E] p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
           <div className="space-y-1">
             <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider flex items-center gap-1.5">
               <ShieldAlert className="w-4 h-4 text-rose-600" />
@@ -211,7 +211,7 @@ export const FamilyKnowledgeAI: React.FC = () => {
               value={suspiciousMessage}
               onChange={(e) => setSuspiciousMessage(e.target.value)}
               placeholder="Paste suspicious WhatsApp forward, APK download link, or urgent bank alert here..."
-              className="w-full p-3 border border-slate-200 rounded-lg text-xs leading-relaxed"
+              className="w-full p-3 border border-slate-200 dark:border-slate-800 rounded-lg text-xs leading-relaxed"
             />
             <div className="flex items-center justify-between">
               <span className="text-[10px] text-slate-400 font-mono">
@@ -241,7 +241,7 @@ export const FamilyKnowledgeAI: React.FC = () => {
                     setSuspiciousMessage(scam);
                     handleEvaluate(scam);
                   }}
-                  className="w-full text-left p-2 rounded bg-slate-50 hover:bg-slate-100 border border-slate-200 text-[11px] text-slate-700 line-clamp-1 transition-colors"
+                  className="w-full text-left p-2 rounded bg-slate-50 dark:bg-[#1A253A] hover:bg-slate-100 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-700 line-clamp-1 transition-colors"
                 >
                   ⚠️ {scam}
                 </button>
@@ -268,7 +268,7 @@ export const FamilyKnowledgeAI: React.FC = () => {
                 <span className="font-mono text-[11px]">Risk Score: {evalResult.fraud_scanner_result.risk_score}%</span>
               </div>
               <p className="text-[11px] leading-relaxed">{evalResult.fraud_scanner_result.warning}</p>
-              <div className="p-2.5 bg-white/80 rounded border border-current/20 text-[11px] font-mono">
+              <div className="p-2.5 bg-white dark:bg-[#131C2E]/80 rounded border border-current/20 text-[11px] font-mono">
                 <strong>Recommended Action:</strong> {evalResult.fraud_scanner_result.recommendation}
               </div>
             </div>

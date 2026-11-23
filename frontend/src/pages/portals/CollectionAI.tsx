@@ -52,7 +52,7 @@ export const CollectionAI: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-none">
       {/* Top Banner */}
       <div className="bg-[#1A2F46] p-6 rounded-xl text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -71,7 +71,7 @@ export const CollectionAI: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center space-x-3 bg-white/10 px-4 py-2.5 rounded-lg border border-white/10 text-xs font-mono">
+        <div className="flex items-center space-x-3 bg-white dark:bg-[#131C2E]/10 px-4 py-2.5 rounded-lg border border-white/10 text-xs font-mono">
           <Scale className="w-4 h-4 text-amber-400" />
           <div>
             <div className="text-[10px] text-slate-400">Statutory Backing</div>
@@ -81,7 +81,7 @@ export const CollectionAI: React.FC = () => {
       </div>
 
       {/* Main Form & Configuration */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+      <div className="bg-white dark:bg-[#131C2E] p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
         <div className="space-y-1">
           <h3 className="text-xs font-bold text-navy-950 uppercase tracking-wider">
             Overdue Account Parameters
@@ -101,7 +101,7 @@ export const CollectionAI: React.FC = () => {
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
               placeholder="e.g. Acme Enterprises"
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
             />
           </div>
 
@@ -114,7 +114,7 @@ export const CollectionAI: React.FC = () => {
               value={invoiceNumber}
               onChange={(e) => setInvoiceNumber(e.target.value)}
               placeholder="INV-2026-001"
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
             />
           </div>
 
@@ -127,7 +127,7 @@ export const CollectionAI: React.FC = () => {
               value={amountDue}
               onChange={(e) => setAmountDue(e.target.value)}
               placeholder="250000"
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
             />
           </div>
 
@@ -148,16 +148,16 @@ export const CollectionAI: React.FC = () => {
 
         {/* Overdue Tier Guide */}
         <div className="grid grid-cols-4 gap-2 text-center text-[10px] font-mono pt-2">
-          <div className={`p-2 rounded border ${daysOverdue <= 15 ? 'bg-emerald-50 border-emerald-300 font-bold text-emerald-800' : 'bg-slate-50 text-slate-500'}`}>
+          <div className={`p-2 rounded border ${daysOverdue <= 15 ? 'bg-emerald-50 border-emerald-300 font-bold text-emerald-800' : 'bg-slate-50 dark:bg-[#1A253A] text-slate-500'}`}>
             0–15 Days: Courtesy
           </div>
-          <div className={`p-2 rounded border ${daysOverdue > 15 && daysOverdue <= 30 ? 'bg-amber-50 border-amber-300 font-bold text-amber-800' : 'bg-slate-50 text-slate-500'}`}>
+          <div className={`p-2 rounded border ${daysOverdue > 15 && daysOverdue <= 30 ? 'bg-amber-50 border-amber-300 font-bold text-amber-800' : 'bg-slate-50 dark:bg-[#1A253A] text-slate-500'}`}>
             16–30 Days: Due Advisory
           </div>
-          <div className={`p-2 rounded border ${daysOverdue > 30 && daysOverdue <= 60 ? 'bg-orange-50 border-orange-300 font-bold text-orange-800' : 'bg-slate-50 text-slate-500'}`}>
+          <div className={`p-2 rounded border ${daysOverdue > 30 && daysOverdue <= 60 ? 'bg-orange-50 border-orange-300 font-bold text-orange-800' : 'bg-slate-50 dark:bg-[#1A253A] text-slate-500'}`}>
             31–60 Days: Credit Hold
           </div>
-          <div className={`p-2 rounded border ${daysOverdue > 60 ? 'bg-rose-50 border-rose-300 font-bold text-rose-800' : 'bg-slate-50 text-slate-500'}`}>
+          <div className={`p-2 rounded border ${daysOverdue > 60 ? 'bg-rose-50 border-rose-300 font-bold text-rose-800' : 'bg-slate-50 dark:bg-[#1A253A] text-slate-500'}`}>
             60+ Days: MSME Demand
           </div>
         </div>
@@ -177,7 +177,7 @@ export const CollectionAI: React.FC = () => {
       {draftResult && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* WhatsApp Text Bubble */}
-          <div className="lg:col-span-6 bg-[#EFEAE2] p-5 rounded-xl border border-slate-300 space-y-3 font-mono text-xs text-slate-900 shadow-inner">
+          <div className="lg:col-span-6 bg-[#EFEAE2] p-5 rounded-xl border border-slate-300 space-y-3 font-mono text-xs text-slate-900 dark:text-slate-100 shadow-inner">
             <div className="flex items-center justify-between pb-2 border-b border-slate-300">
               <span className="text-[11px] font-bold text-emerald-800 font-sans flex items-center gap-1.5">
                 <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
@@ -185,13 +185,13 @@ export const CollectionAI: React.FC = () => {
               </span>
               <button
                 onClick={() => copyToClipboard(draftResult.whatsapp_draft, 'wa')}
-                className="text-[10px] bg-white px-2 py-0.5 rounded text-slate-600 hover:bg-slate-50 border border-slate-200 flex items-center gap-1 font-sans font-semibold"
+                className="text-[10px] bg-white dark:bg-[#131C2E] px-2 py-0.5 rounded text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800 flex items-center gap-1 font-sans font-semibold"
               >
                 <Copy className="w-3 h-3" />
                 <span>{copiedType === 'wa' ? 'Copied!' : 'Copy Text'}</span>
               </button>
             </div>
-            <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-slate-800 bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
+            <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-slate-800 bg-white dark:bg-[#131C2E] p-4 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs">
               {draftResult.whatsapp_draft}
             </pre>
             <div className="text-[11px] font-sans text-slate-500">
@@ -200,7 +200,7 @@ export const CollectionAI: React.FC = () => {
           </div>
 
           {/* Formal Email Demand */}
-          <div className="lg:col-span-6 bg-white p-5 rounded-xl border border-slate-200 space-y-3 text-xs shadow-sm">
+          <div className="lg:col-span-6 bg-white dark:bg-[#131C2E] p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3 text-xs shadow-sm">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <span className="text-[11px] font-bold text-navy-950 font-sans flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-brand-600" />
@@ -215,7 +215,7 @@ export const CollectionAI: React.FC = () => {
               </button>
             </div>
 
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 font-mono text-[11px]">
+            <div className="p-3 bg-slate-50 dark:bg-[#1A253A] rounded-lg border border-slate-200 dark:border-slate-800 font-mono text-[11px]">
               <span className="text-slate-500">Subject: </span>
               <span className="font-bold text-navy-950">{draftResult.email_subject}</span>
             </div>

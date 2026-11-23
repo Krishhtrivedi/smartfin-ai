@@ -108,9 +108,9 @@ export const TDSManagement: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-none">
       {/* Top Action Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-sm font-bold text-navy-950 flex items-center gap-2">
             <FileSpreadsheet className="w-4 h-4 text-brand-600" />
@@ -143,42 +143,42 @@ export const TDSManagement: React.FC = () => {
 
       {/* Summary Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200">
+        <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Gross Base Turnover</p>
           <p className="text-xl font-bold text-navy-950 mt-1">₹{totalBase.toLocaleString('en-IN')}</p>
         </div>
 
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200">
+        <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Statutory Expected TDS</p>
           <p className="text-xl font-bold text-navy-950 mt-1">₹{totalExpected.toLocaleString('en-IN')}</p>
         </div>
 
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200">
+        <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
           <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Actual Deducted</p>
           <p className="text-xl font-bold text-emerald-600 mt-1">₹{totalActual.toLocaleString('en-IN')}</p>
         </div>
 
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200">
+        <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
           <p className="text-[10px] font-bold text-rose-600 uppercase tracking-wider">Shortfall / Short Deductions</p>
           <p className="text-xl font-bold text-rose-600 mt-1">{shortCount} ({`₹${shortfall.toLocaleString('en-IN')}`})</p>
         </div>
 
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 col-span-2 sm:col-span-1">
+        <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 col-span-2 sm:col-span-1">
           <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Late Deposit Alerts</p>
           <p className="text-xl font-bold text-amber-600 mt-1">{lateCount} entries</p>
         </div>
       </div>
 
       {/* Statutory Section Master Badges */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200">
+      <div className="bg-white dark:bg-[#131C2E] p-4 rounded-xl border border-slate-200 dark:border-slate-800">
         <h4 className="text-xs font-bold text-navy-950 uppercase tracking-wider mb-2">
           Applicable Statutory Sections & Configured Rates
         </h4>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
           {Object.entries(rules).map(([sec, r]: [string, any]) => (
-            <div key={sec} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+            <div key={sec} className="p-2.5 rounded-lg bg-slate-50 dark:bg-[#1A253A] border border-slate-200 dark:border-slate-800">
               <span className="font-bold font-mono text-brand-700">Sec {sec}</span>
-              <p className="text-[10px] text-slate-600 mt-0.5 line-clamp-1">{r.description}</p>
+              <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-0.5 line-clamp-1">{r.description}</p>
               <p className="text-[10px] font-semibold text-slate-500 mt-1">
                 Rate: {r.default_rate}% • Threshold: ₹{(r.threshold_single / 1000).toFixed(0)}k
               </p>
@@ -188,10 +188,10 @@ export const TDSManagement: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-3.5 rounded-xl border border-slate-200 flex flex-wrap items-center gap-3">
+      <div className="bg-white dark:bg-[#131C2E] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-3">
         <div className="flex items-center space-x-2">
           <Filter className="w-4 h-4 text-slate-400" />
-          <span className="text-xs font-semibold text-slate-600">Quarter:</span>
+          <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Quarter:</span>
           {(['Q1', 'Q2', 'Q3', 'Q4'] as const).map((q) => (
             <button
               key={q}
@@ -199,7 +199,7 @@ export const TDSManagement: React.FC = () => {
               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                 quarter === q
                   ? 'bg-navy-900 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  : 'bg-slate-100 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
               }`}
             >
               {q} (FY 2026-27)
@@ -211,7 +211,7 @@ export const TDSManagement: React.FC = () => {
           <select
             value={sectionFilter}
             onChange={(e) => setSectionFilter(e.target.value)}
-            className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 bg-slate-50 focus:outline-none"
+            className="text-xs border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 bg-slate-50 dark:bg-[#1A253A] focus:outline-none"
           >
             <option value="ALL">All Sections</option>
             <option value="194C">194C (Contractors)</option>
@@ -223,7 +223,7 @@ export const TDSManagement: React.FC = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 bg-slate-50 focus:outline-none"
+            className="text-xs border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 bg-slate-50 dark:bg-[#1A253A] focus:outline-none"
           >
             <option value="ALL">All Statuses</option>
             <option value="SHORT_DEDUCTED">Short Deductions</option>
@@ -234,10 +234,10 @@ export const TDSManagement: React.FC = () => {
       </div>
 
       {/* TDS Records Table */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+      <div className="bg-white dark:bg-[#131C2E] rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
+            <thead className="bg-slate-50 dark:bg-[#1A253A]/80 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
               <tr>
                 <th className="py-3 px-4">Section</th>
                 <th className="py-3 px-4">Deductee & PAN</th>
@@ -266,14 +266,14 @@ export const TDSManagement: React.FC = () => {
                 </tr>
               ) : (
                 records.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-50/60">
+                  <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]/60">
                     <td className="py-3 px-4">
                       <span className="font-bold font-mono text-brand-700 bg-brand-50 px-2 py-0.5 rounded border border-brand-200">
                         {r.section}
                       </span>
                     </td>
                     <td className="py-3 px-4">
-                      <p className="font-semibold text-slate-900 truncate max-w-[180px]">{r.entity_name}</p>
+                      <p className="font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[180px]">{r.entity_name}</p>
                       <p className="text-[10px] font-mono text-slate-400">{r.entity_pan}</p>
                     </td>
                     <td className="py-3 px-4">
@@ -283,7 +283,7 @@ export const TDSManagement: React.FC = () => {
                     <td className="py-3 px-4 text-right font-medium">
                       ₹{r.base_amount.toLocaleString('en-IN')}
                     </td>
-                    <td className="py-3 px-4 text-right font-medium text-slate-600">
+                    <td className="py-3 px-4 text-right font-medium text-slate-600 dark:text-slate-400">
                       ₹{r.expected_tds.toLocaleString('en-IN')} ({r.applicable_rate}%)
                     </td>
                     <td className={`py-3 px-4 text-right font-bold ${
@@ -339,7 +339,7 @@ export const TDSManagement: React.FC = () => {
               value={bsrCode}
               onChange={(e) => setBsrCode(e.target.value)}
               placeholder="0210001"
-              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500 font-mono"
+              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-1 focus:ring-brand-500 font-mono"
             />
           </div>
 
@@ -351,7 +351,7 @@ export const TDSManagement: React.FC = () => {
               value={challanNo}
               onChange={(e) => setChallanNo(e.target.value)}
               placeholder="98712"
-              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500 font-mono"
+              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-1 focus:ring-brand-500 font-mono"
             />
           </div>
 
@@ -362,7 +362,7 @@ export const TDSManagement: React.FC = () => {
               required
               value={challanDate}
               onChange={(e) => setChallanDate(e.target.value)}
-              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
 
@@ -370,7 +370,7 @@ export const TDSManagement: React.FC = () => {
             <button
               type="button"
               onClick={() => setChallanModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 dark:bg-[#1A253A]"
             >
               Cancel
             </button>

@@ -10,11 +10,11 @@ import { api } from '../services/api';
 type Tab = 'overview' | 'gstr1' | 'income_tax' | 'reports' | 'setup';
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-const card = 'bg-white rounded-[3px] border border-[#C5CBD2] shadow-xs';
-const label = 'text-[10px] font-mono text-[#5D646C] uppercase tracking-wider';
-const input = 'w-full min-w-0 px-3 py-2 text-xs bg-white border border-[#C5CBD2] rounded-[2px] focus:outline-none focus:border-[#E65909]';
+const card = 'bg-white dark:bg-[#131C2E] rounded-[3px] border border-[#C5CBD2] dark:border-slate-800 shadow-xs';
+const label = 'text-[10px] font-mono text-[#5D646C] dark:text-slate-400 uppercase tracking-wider';
+const input = 'w-full min-w-0 px-3 py-2 text-xs bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] focus:outline-none focus:border-[#E65909]';
 const btnNavy = 'bg-[#1A2F46] hover:bg-[#23374d] text-white px-3 py-1.5 text-xs font-semibold rounded-[3px] flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50';
-const btnGhost = 'border border-[#C5CBD2] bg-white hover:bg-[#ECE9E3] text-[#1A2F46] px-3 py-1.5 text-xs font-semibold rounded-[3px] flex items-center justify-center gap-1.5 disabled:opacity-50';
+const btnGhost = 'border border-[#C5CBD2] dark:border-slate-800 bg-white dark:bg-[#131C2E] hover:bg-[#ECE9E3] dark:bg-[#1A253A] text-[#1A2F46] dark:text-slate-100 px-3 py-1.5 text-xs font-semibold rounded-[3px] flex items-center justify-center gap-1.5 disabled:opacity-50';
 
 const STATUS: Record<string, { label: string; cls: string; icon: React.ComponentType<{ className?: string }> }> = {
   QUEUED: { label: 'Queued', cls: 'bg-slate-100 text-slate-700', icon: Clock },
@@ -37,7 +37,7 @@ const Pill: React.FC<{ status: string }> = ({ status }) => {
 };
 
 const Notice: React.FC<{ kind: 'error' | 'ok' | 'warn'; children: React.ReactNode; onClose?: () => void }> = ({ kind, children, onClose }) => {
-  const cls = kind === 'error' ? 'border-rose-200 bg-rose-50 text-rose-800' : kind === 'ok' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-amber-200 bg-amber-50 text-amber-900';
+  const cls = kind === 'error' ? 'border-rose-200 bg-rose-50 text-rose-800' : kind === 'ok' ? 'border-emerald-200 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-400' : 'border-amber-200 bg-amber-50 text-amber-900';
   const Icon = kind === 'error' ? XCircle : kind === 'ok' ? CheckCircle2 : AlertTriangle;
   return (
     <div role={kind === 'error' ? 'alert' : 'status'} className={`flex items-start gap-2 rounded-[3px] border p-3 text-xs ${cls}`}>
@@ -66,10 +66,10 @@ const ClientPicker: React.FC<{ value: any | null; onChange: (c: any | null) => v
   }, [q, open]);
   if (value) {
     return (
-      <div className="flex items-center justify-between gap-2 px-3 py-2 border border-[#C5CBD2] rounded-[2px] bg-[#F6F3EE] min-w-0">
+      <div className="flex items-center justify-between gap-2 px-3 py-2 border border-[#C5CBD2] dark:border-slate-800 rounded-[2px] bg-[#F6F3EE] dark:bg-[#0B1120] min-w-0">
         <div className="min-w-0">
-          <div className="text-xs font-bold text-[#1A2F46] truncate">{value.trade_name || value.name}</div>
-          <div className="text-[10px] font-mono text-[#5D646C] truncate">{value.gstin || value.pan || 'No GSTIN / PAN'}</div>
+          <div className="text-xs font-bold text-[#1A2F46] dark:text-slate-100 truncate">{value.trade_name || value.name}</div>
+          <div className="text-[10px] font-mono text-[#5D646C] dark:text-slate-400 truncate">{value.gstin || value.pan || 'No GSTIN / PAN'}</div>
         </div>
         <button onClick={() => onChange(null)} className="text-[11px] font-semibold text-[#C64200] shrink-0">Change</button>
       </div>
@@ -81,13 +81,13 @@ const ClientPicker: React.FC<{ value: any | null; onChange: (c: any | null) => v
       <input value={q} onChange={e => { setQ(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)} placeholder={placeholder || 'Search client name, GSTIN or PAN'} className={`${input} pl-9`} />
       {open && (
-        <div className="absolute z-20 mt-1 w-full max-h-64 overflow-y-auto bg-white border border-[#C5CBD2] rounded-[3px] shadow-lg">
-          {loading && <div className="p-2 text-[11px] text-[#5D646C]">Searching…</div>}
-          {!loading && list.length === 0 && <div className="p-2 text-[11px] text-[#5D646C]">No matching client.</div>}
+        <div className="absolute z-20 mt-1 w-full max-h-64 overflow-y-auto bg-white dark:bg-[#131C2E] border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] shadow-lg">
+          {loading && <div className="p-2 text-[11px] text-[#5D646C] dark:text-slate-400">Searching…</div>}
+          {!loading && list.length === 0 && <div className="p-2 text-[11px] text-[#5D646C] dark:text-slate-400">No matching client.</div>}
           {list.map(c => (
-            <button key={c.id} onMouseDown={() => { onChange(c); setQ(''); setOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-[#ECE9E3] border-b border-[#ECE9E3] last:border-0">
-              <div className="text-xs font-semibold text-[#171E25] truncate">{c.trade_name || c.name}</div>
-              <div className="text-[10px] font-mono text-[#5D646C] truncate">{[c.gstin, c.pan, c.phone].filter(Boolean).join(' · ') || '—'}</div>
+            <button key={c.id} onMouseDown={() => { onChange(c); setQ(''); setOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-[#ECE9E3] dark:bg-[#1A253A] border-b border-[#ECE9E3] dark:border-slate-800 last:border-0">
+              <div className="text-xs font-semibold text-[#171E25] dark:text-slate-200 truncate">{c.trade_name || c.name}</div>
+              <div className="text-[10px] font-mono text-[#5D646C] dark:text-slate-400 truncate">{[c.gstin, c.pan, c.phone].filter(Boolean).join(' · ') || '—'}</div>
             </button>
           ))}
         </div>
@@ -117,7 +117,7 @@ export const AutomationCenter: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-5 min-w-0">
+    <div className="space-y-5 w-full max-w-none min-w-0">
       <div className="bg-[#0D2035] text-white p-4 rounded-[3px] border border-[#364452] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -138,10 +138,10 @@ export const AutomationCenter: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex gap-2 border-b border-[#C5CBD2] pb-1 overflow-x-auto">
+      <div className="flex gap-2 border-b border-[#C5CBD2] dark:border-slate-800 pb-1 overflow-x-auto">
         {tabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
-            className={`px-3 sm:px-4 py-2 text-xs font-semibold rounded-[3px] flex items-center gap-2 whitespace-nowrap transition-all ${tab === t.id ? 'bg-[#1A2F46] text-white font-bold' : 'text-[#5D646C] hover:text-[#1A2F46] hover:bg-[#ECE9E3]'}`}>
+            className={`px-3 sm:px-4 py-2 text-xs font-semibold rounded-[3px] flex items-center gap-2 whitespace-nowrap transition-all ${tab === t.id ? 'bg-[#1A2F46] text-white font-bold' : 'text-[#5D646C] hover:text-[#1A2F46] dark:text-slate-100 hover:bg-[#ECE9E3] dark:bg-[#1A253A]'}`}>
             <t.icon className="w-4 h-4 text-[#E65909]" /> {t.label}
           </button>
         ))}
@@ -165,7 +165,7 @@ export const AutomationCenter: React.FC = () => {
 const OverviewTab: React.FC<{ overview: any; goTo: (t: Tab) => void }> = ({ overview, goTo }) => {
   const [jobs, setJobs] = useState<any[]>([]);
   useEffect(() => { api.getAutomationJobs().then(setJobs).catch(() => setJobs([])); }, [overview]);
-  if (!overview) return <div className="flex items-center gap-2 text-xs text-[#5D646C]"><Loader2 className="w-4 h-4 animate-spin" /> Loading status…</div>;
+  if (!overview) return <div className="flex items-center gap-2 text-xs text-[#5D646C] dark:text-slate-400"><Loader2 className="w-4 h-4 animate-spin" /> Loading status…</div>;
   const agent = overview.agents?.[0];
   const attention = jobs.filter(j => ['WAITING_FOR_HUMAN', 'NEEDS_REVIEW', 'FAILED'].includes(j.status)).slice(0, 8);
   const tiles = [
@@ -182,20 +182,20 @@ const OverviewTab: React.FC<{ overview: any; goTo: (t: Tab) => void }> = ({ over
         {tiles.map(t => (
           <button key={t.k} onClick={() => goTo(t.tab)} className={`${card} p-3 text-left hover:border-[#E65909] min-w-0`}>
             <span className={`${label} block truncate`}>{t.k}</span>
-            <p className={`text-base font-display font-bold mt-0.5 truncate ${t.ok ? 'text-[#1A2F46]' : 'text-[#C64200]'}`}>{t.v}</p>
+            <p className={`text-base font-display font-bold mt-0.5 truncate ${t.ok ? 'text-[#1A2F46] dark:text-slate-100' : 'text-[#C64200]'}`}>{t.v}</p>
             <span className="text-[10px] text-[#8B97A3] block truncate">{t.s}</span>
           </button>
         ))}
       </div>
       <div className={`${card} p-4`}>
-        <h3 className="text-sm font-display font-bold text-[#1A2F46] mb-3">Needs attention</h3>
-        {attention.length === 0 ? <p className="text-xs text-[#5D646C]">Nothing waiting. Queue work from the GSTR-1 or Income Tax tabs.</p> : (
-          <ul className="divide-y divide-[#ECE9E3]">
+        <h3 className="text-sm font-display font-bold text-[#1A2F46] dark:text-slate-100 mb-3">Needs attention</h3>
+        {attention.length === 0 ? <p className="text-xs text-[#5D646C] dark:text-slate-400">Nothing waiting. Queue work from the GSTR-1 or Income Tax tabs.</p> : (
+          <ul className="divide-y divide-[#ECE9E3] dark:divide-slate-800">
             {attention.map(j => (
               <li key={j.id} className="py-2 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0">
                 <Pill status={j.status} />
-                <span className="text-xs font-semibold text-[#171E25] truncate">#{j.id} {j.job_type === 'GSTR1_DOWNLOAD' ? 'GSTR-1' : 'Income Tax'} · {j.client_name}</span>
-                <span className="text-[11px] text-[#5D646C] sm:ml-auto break-words min-w-0">{j.status_message}</span>
+                <span className="text-xs font-semibold text-[#171E25] dark:text-slate-200 truncate">#{j.id} {j.job_type === 'GSTR1_DOWNLOAD' ? 'GSTR-1' : 'Income Tax'} · {j.client_name}</span>
+                <span className="text-[11px] text-[#5D646C] dark:text-slate-400 sm:ml-auto break-words min-w-0">{j.status_message}</span>
               </li>
             ))}
           </ul>
@@ -239,10 +239,10 @@ const JobRow: React.FC<{ j: any; onChanged: () => void; whatsappOk?: boolean; sm
           <span className="text-[10px] font-mono text-[#8B97A3] shrink-0">#{j.id}</span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-bold text-[#1A2F46] truncate">{j.client_name}</span>
+              <span className="text-xs font-bold text-[#1A2F46] dark:text-slate-100 truncate">{j.client_name}</span>
               <Pill status={j.status} />
             </div>
-            <div className="text-[10px] font-mono text-[#5D646C] truncate">{j.job_type === 'GSTR1_DOWNLOAD' ? `${j.gstin} · ${periodLabel} · FY ${p.financial_year}` : `PAN ${j.pan}`}</div>
+            <div className="text-[10px] font-mono text-[#5D646C] dark:text-slate-400 truncate">{j.job_type === 'GSTR1_DOWNLOAD' ? `${j.gstin} · ${periodLabel} · FY ${p.financial_year}` : `PAN ${j.pan}`}</div>
           </div>
         </div>
         <div className="flex flex-wrap gap-1.5 shrink-0">
@@ -253,15 +253,15 @@ const JobRow: React.FC<{ j: any; onChanged: () => void; whatsappOk?: boolean; sm
           <button onClick={() => setOpen(o => !o)} className={btnGhost} aria-expanded={open}>{open ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />} Details</button>
         </div>
       </div>
-      {j.status_message && <p className={`mt-1.5 text-[11px] break-words ${j.status === 'WAITING_FOR_HUMAN' ? 'text-amber-900 font-semibold' : j.status === 'FAILED' ? 'text-rose-700' : 'text-[#4A545D]'}`}>{j.status_message}</p>}
+      {j.status_message && <p className={`mt-1.5 text-[11px] break-words ${j.status === 'WAITING_FOR_HUMAN' ? 'text-amber-900 font-semibold' : j.status === 'FAILED' ? 'text-rose-700' : 'text-[#4A545D] dark:text-slate-300'}`}>{j.status_message}</p>}
       {msg && <div className="mt-2"><Notice kind={msg.kind} onClose={() => setMsg(null)}>{msg.text}</Notice></div>}
       {open && (
         <div className="mt-3 grid grid-cols-1 lg:grid-cols-2 gap-3">
-          <div className="bg-[#F6F3EE] border border-[#ECE9E3] rounded-[3px] p-3 text-[11px] space-y-1 min-w-0">
-            <div><span className="text-[#5D646C]">Queued by</span> {j.created_by_email} · {when(j.created_at)}</div>
-            <div><span className="text-[#5D646C]">Agent</span> {j.agent_name || '—'} · last update {when(j.last_update_at)}</div>
+          <div className="bg-[#F6F3EE] dark:bg-[#0B1120] border border-[#ECE9E3] dark:border-slate-800 rounded-[3px] p-3 text-[11px] space-y-1 min-w-0">
+            <div><span className="text-[#5D646C] dark:text-slate-400">Queued by</span> {j.created_by_email} · {when(j.created_at)}</div>
+            <div><span className="text-[#5D646C] dark:text-slate-400">Agent</span> {j.agent_name || '—'} · last update {when(j.last_update_at)}</div>
             {j.desktop_path && <div className="break-all"><Folder className="w-3 h-3 inline" /> {j.desktop_path}</div>}
-            {j.file_sha256 && <div className="font-mono break-all text-[10px] text-[#5D646C]">SHA-256 {j.file_sha256}</div>}
+            {j.file_sha256 && <div className="font-mono break-all text-[10px] text-[#5D646C] dark:text-slate-400">SHA-256 {j.file_sha256}</div>}
             {j.checks?.length > 0 && (
               <ul className="pt-1 space-y-0.5">{j.checks.map((c: any, i: number) => (
                 <li key={i} className="flex gap-1.5">
@@ -277,8 +277,8 @@ const JobRow: React.FC<{ j: any; onChanged: () => void; whatsappOk?: boolean; sm
             )}
           </div>
           {canSend && (
-            <div className="border border-[#C5CBD2] rounded-[3px] p-3 space-y-2">
-              <div className="text-xs font-bold text-[#1A2F46]">Send to client</div>
+            <div className="border border-[#C5CBD2] dark:border-slate-800 rounded-[3px] p-3 space-y-2">
+              <div className="text-xs font-bold text-[#1A2F46] dark:text-slate-100">Send to client</div>
               <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={email} onChange={e => setEmail(e.target.checked)} className="accent-[#E65909]" /> Email {smtpOk ? '' : <span className="text-[#C64200]">(SMTP not configured)</span>}</label>
               <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={wa} onChange={e => setWa(e.target.checked)} className="accent-[#E65909]" /> WhatsApp {whatsappOk ? '' : <span className="text-[#C64200]">(not connected)</span>}</label>
               {j.status === 'NEEDS_REVIEW' && (
@@ -338,7 +338,7 @@ const Gstr1Tab: React.FC<{ agentOnline: boolean; whatsappOk: boolean; smtpOk: bo
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 min-w-0">
       <div className={`${card} p-4 space-y-3 h-fit`}>
-        <h3 className="text-sm font-display font-bold text-[#1A2F46]">Download GSTR-1</h3>
+        <h3 className="text-sm font-display font-bold text-[#1A2F46] dark:text-slate-100">Download GSTR-1</h3>
         <div><span className={label}>Client</span><div className="mt-1"><ClientPicker value={clientSel} onChange={setClientSel} /></div></div>
         {clientSel && !clientSel.gstin && <Notice kind="error">This client has no GSTIN in the Client Master.</Notice>}
         {clientSel && clientSel.gstin && !clientSel.has_gst_login && <Notice kind="warn">No GST username saved; staff will type it on the Mac.</Notice>}
@@ -348,22 +348,22 @@ const Gstr1Tab: React.FC<{ agentOnline: boolean; whatsappOk: boolean; smtpOk: bo
           <div><span className={label}>Year</span>
             <select value={year} onChange={e => setYear(Number(e.target.value))} className={`${input} mt-1`}>{years.map(y => <option key={y} value={y}>{y}</option>)}</select></div>
         </div>
-        <p className="text-[11px] text-[#5D646C]">Financial year <b>{fy}</b> · saved to <span className="font-mono">Desktop/{clientSel?.folder_name || '<client folder>'}/GST/{fy}/</span></p>
+        <p className="text-[11px] text-[#5D646C] dark:text-slate-400">Financial year <b>{fy}</b> · saved to <span className="font-mono">Desktop/{clientSel?.folder_name || '<client folder>'}/GST/{fy}/</span></p>
         <label className="flex items-start gap-2 text-xs"><input type="checkbox" checked={autoSend} onChange={e => setAutoSend(e.target.checked)} className="accent-[#E65909] mt-0.5" />
           <span>Email + WhatsApp it to the client automatically <b>only if every check passes</b>.</span></label>
         <button onClick={queue} disabled={!clientSel || !clientSel.gstin || busy} className="btn-signal w-full px-3 py-2 text-xs font-semibold rounded-[3px] flex items-center justify-center gap-1.5 disabled:opacity-50">
           {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileDown className="w-3.5 h-3.5" />} Queue download
         </button>
         {msg && <Notice kind={msg.kind} onClose={() => setMsg(null)}>{msg.text}</Notice>}
-        <p className="text-[11px] text-[#5D646C] border-t border-[#ECE9E3] pt-2">Staff type the GST CAPTCHA/OTP on the office Mac when it asks. The PDF is then checked for the right GSTIN, month and year before it can be marked done.</p>
+        <p className="text-[11px] text-[#5D646C] dark:text-slate-400 border-t border-[#ECE9E3] dark:border-slate-800 pt-2">Staff type the GST CAPTCHA/OTP on the office Mac when it asks. The PDF is then checked for the right GSTIN, month and year before it can be marked done.</p>
       </div>
       <div className={`${card} p-4 xl:col-span-2 min-w-0`}>
-        <div className="flex items-center justify-between mb-1"><h3 className="text-sm font-display font-bold text-[#1A2F46]">GSTR-1 jobs</h3>
+        <div className="flex items-center justify-between mb-1"><h3 className="text-sm font-display font-bold text-[#1A2F46] dark:text-slate-100">GSTR-1 jobs</h3>
           <button onClick={load} className={btnGhost}><RefreshCw className="w-3.5 h-3.5" /> Refresh</button></div>
         {err && <Notice kind="error">{err}</Notice>}
-        {!jobs && !err && <div className="text-xs text-[#5D646C] flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>}
-        {jobs && jobs.length === 0 && <p className="text-xs text-[#5D646C] py-6 text-center">No GSTR-1 jobs yet.</p>}
-        <ul className="divide-y divide-[#ECE9E3]">{jobs?.map(j => <JobRow key={j.id} j={j} onChanged={() => { load(); onChange(); }} whatsappOk={whatsappOk} smtpOk={smtpOk} />)}</ul>
+        {!jobs && !err && <div className="text-xs text-[#5D646C] dark:text-slate-400 flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>}
+        {jobs && jobs.length === 0 && <p className="text-xs text-[#5D646C] dark:text-slate-400 py-6 text-center">No GSTR-1 jobs yet.</p>}
+        <ul className="divide-y divide-[#ECE9E3] dark:divide-slate-800">{jobs?.map(j => <JobRow key={j.id} j={j} onChanged={() => { load(); onChange(); }} whatsappOk={whatsappOk} smtpOk={smtpOk} />)}</ul>
       </div>
     </div>
   );
@@ -404,7 +404,7 @@ const IncomeTaxTab: React.FC<{ agentOnline: boolean; onChange: () => void }> = (
     <div className="space-y-4 min-w-0">
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         <div className={`${card} p-4 space-y-3 h-fit`}>
-          <h3 className="text-sm font-display font-bold text-[#1A2F46]">Fetch notices from the portal</h3>
+          <h3 className="text-sm font-display font-bold text-[#1A2F46] dark:text-slate-100">Fetch notices from the portal</h3>
           <ClientPicker value={clientSel} onChange={setClientSel} />
           {clientSel && !clientSel.pan && <Notice kind="error">This client has no PAN in the Client Master.</Notice>}
           {clientSel && clientSel.pan && !clientSel.has_it_password && <Notice kind="warn">No Income Tax password saved; staff will type it on the Mac.</Notice>}
@@ -412,46 +412,46 @@ const IncomeTaxTab: React.FC<{ agentOnline: boolean; onChange: () => void }> = (
             {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Landmark className="w-3.5 h-3.5" />} Queue fetch
           </button>
           {msg && <Notice kind={msg.kind} onClose={() => setMsg(null)}>{msg.text}</Notice>}
-          <p className="text-[11px] text-[#5D646C] border-t border-[#ECE9E3] pt-2">Reads Pending Actions → e-Proceedings exactly as shown. Anything the portal doesn't show stays blank and is flagged for a check.</p>
+          <p className="text-[11px] text-[#5D646C] dark:text-slate-400 border-t border-[#ECE9E3] dark:border-slate-800 pt-2">Reads Pending Actions → e-Proceedings exactly as shown. Anything the portal doesn't show stays blank and is flagged for a check.</p>
         </div>
         <div className={`${card} p-4 xl:col-span-2 min-w-0`}>
-          <h3 className="text-sm font-display font-bold text-[#1A2F46] mb-1">Fetch jobs</h3>
+          <h3 className="text-sm font-display font-bold text-[#1A2F46] dark:text-slate-100 mb-1">Fetch jobs</h3>
           {err && <Notice kind="error">{err}</Notice>}
-          {jobs && jobs.length === 0 && <p className="text-xs text-[#5D646C] py-4 text-center">No fetches yet.</p>}
-          <ul className="divide-y divide-[#ECE9E3] max-h-72 overflow-y-auto">{jobs?.slice(0, 20).map(j => <JobRow key={j.id} j={j} onChanged={() => { load(); onChange(); }} />)}</ul>
+          {jobs && jobs.length === 0 && <p className="text-xs text-[#5D646C] dark:text-slate-400 py-4 text-center">No fetches yet.</p>}
+          <ul className="divide-y divide-[#ECE9E3] dark:divide-slate-800 max-h-72 overflow-y-auto">{jobs?.slice(0, 20).map(j => <JobRow key={j.id} j={j} onChanged={() => { load(); onChange(); }} />)}</ul>
         </div>
       </div>
 
       <div className={`${card} p-4 min-w-0`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-          <h3 className="text-sm font-display font-bold text-[#1A2F46]">Notices & demands from the portal</h3>
+          <h3 className="text-sm font-display font-bold text-[#1A2F46] dark:text-slate-100">Notices & demands from the portal</h3>
           <div className="flex gap-1.5">
             {(['open', 'review', 'all'] as const).map(k => (
-              <button key={k} onClick={() => setShow(k)} className={`px-2.5 py-1 rounded-[3px] text-[11px] font-semibold border ${show === k ? 'bg-[#1A2F46] text-white border-[#1A2F46]' : 'border-[#C5CBD2] text-[#1A2F46]'}`}>
+              <button key={k} onClick={() => setShow(k)} className={`px-2.5 py-1 rounded-[3px] text-[11px] font-semibold border ${show === k ? 'bg-[#1A2F46] text-white border-[#1A2F46]' : 'border-[#C5CBD2] dark:border-slate-800 text-[#1A2F46] dark:text-slate-100'}`}>
                 {k === 'open' ? 'On portal now' : k === 'review' ? 'Needs a check' : 'All'}
               </button>))}
           </div>
         </div>
         {itemsErr && <Notice kind="error">{itemsErr}</Notice>}
-        {items && items.length === 0 && <p className="text-xs text-[#5D646C] py-6 text-center">Nothing here yet. Fetched items appear after a job finishes.</p>}
-        <ul className="divide-y divide-[#ECE9E3]">
+        {items && items.length === 0 && <p className="text-xs text-[#5D646C] dark:text-slate-400 py-6 text-center">Nothing here yet. Fetched items appear after a job finishes.</p>}
+        <ul className="divide-y divide-[#ECE9E3] dark:divide-slate-800">
           {items?.map(n => (
             <li key={n.id} className="py-2.5 min-w-0">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-1.5 md:gap-3 items-start text-xs">
-                <div className="md:col-span-3 min-w-0"><div className="font-bold text-[#1A2F46] truncate">{n.client_name}</div><div className="text-[10px] font-mono text-[#5D646C]">{n.pan} · {n.kind === 'DEMAND' ? 'Demand' : 'Notice'}</div></div>
-                <div className="md:col-span-3 min-w-0"><div className="font-mono text-[11px] break-all">{n.portal_ref || <span className="text-[#C64200]">No DIN shown</span>}</div><div className="text-[10px] text-[#5D646C]">{[n.section && `Sec ${n.section}`, n.assessment_year && `AY ${n.assessment_year}`].filter(Boolean).join(' · ') || '—'}</div></div>
-                <div className="md:col-span-2">{n.due_date ? <><div className="font-semibold">{new Date(n.due_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div><div className={`text-[10px] ${n.days_left < 0 ? 'text-rose-700 font-bold' : n.days_left <= 7 ? 'text-amber-700 font-bold' : 'text-[#5D646C]'}`}>{n.days_left < 0 ? `${-n.days_left} days overdue` : `${n.days_left} days left`}</div></> : <span className="text-[#C64200]">Due date not shown</span>}</div>
-                <div className="md:col-span-2">{n.response_status === 'RESPONDED' ? <span className="text-emerald-700 font-semibold">Responded</span> : n.response_status === 'PENDING' ? <span className="text-amber-800 font-semibold">Response pending</span> : <span className="text-[#5D646C]">Status not shown</span>}{n.amount != null && <div className="text-[10px]">₹{n.amount.toLocaleString('en-IN')}</div>}</div>
+                <div className="md:col-span-3 min-w-0"><div className="font-bold text-[#1A2F46] dark:text-slate-100 truncate">{n.client_name}</div><div className="text-[10px] font-mono text-[#5D646C] dark:text-slate-400">{n.pan} · {n.kind === 'DEMAND' ? 'Demand' : 'Notice'}</div></div>
+                <div className="md:col-span-3 min-w-0"><div className="font-mono text-[11px] break-all">{n.portal_ref || <span className="text-[#C64200]">No DIN shown</span>}</div><div className="text-[10px] text-[#5D646C] dark:text-slate-400">{[n.section && `Sec ${n.section}`, n.assessment_year && `AY ${n.assessment_year}`].filter(Boolean).join(' · ') || '—'}</div></div>
+                <div className="md:col-span-2">{n.due_date ? <><div className="font-semibold">{new Date(n.due_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div><div className={`text-[10px] ${n.days_left < 0 ? 'text-rose-700 font-bold' : n.days_left <= 7 ? 'text-amber-700 font-bold' : 'text-[#5D646C] dark:text-slate-400'}`}>{n.days_left < 0 ? `${-n.days_left} days overdue` : `${n.days_left} days left`}</div></> : <span className="text-[#C64200]">Due date not shown</span>}</div>
+                <div className="md:col-span-2">{n.response_status === 'RESPONDED' ? <span className="text-emerald-700 font-semibold">Responded</span> : n.response_status === 'PENDING' ? <span className="text-amber-800 font-semibold">Response pending</span> : <span className="text-[#5D646C] dark:text-slate-400">Status not shown</span>}{n.amount != null && <div className="text-[10px]">₹{n.amount.toLocaleString('en-IN')}</div>}</div>
                 <div className="md:col-span-2 flex md:justify-end gap-1.5 flex-wrap">
                   {n.needs_review && <span className="px-2 py-0.5 rounded-[2px] text-[10px] font-bold bg-amber-100 text-amber-800">Check</span>}
-                  {!n.seen_on_last_fetch && <span className="px-2 py-0.5 rounded-[2px] text-[10px] font-bold bg-slate-100 text-slate-600">No longer on portal</span>}
+                  {!n.seen_on_last_fetch && <span className="px-2 py-0.5 rounded-[2px] text-[10px] font-bold bg-slate-100 text-slate-600 dark:text-slate-400">No longer on portal</span>}
                   <button onClick={() => setExpanded(expanded === n.id ? null : n.id)} className="text-[11px] font-semibold text-[#C64200]">{expanded === n.id ? 'Hide' : 'As read'}</button>
                 </div>
               </div>
               {expanded === n.id && (
-                <div className="mt-2 bg-[#F6F3EE] border border-[#ECE9E3] rounded-[3px] p-2 text-[11px] space-y-1 min-w-0">
+                <div className="mt-2 bg-[#F6F3EE] dark:bg-[#0B1120] border border-[#ECE9E3] dark:border-slate-800 rounded-[3px] p-2 text-[11px] space-y-1 min-w-0">
                   {n.review_reasons?.length > 0 && <ul className="list-disc ml-4 text-amber-900">{n.review_reasons.map((r: string, i: number) => <li key={i}>{r}</li>)}</ul>}
-                  <div className="font-mono break-words text-[#4A545D]">{(n.raw_cells || []).join(' | ')}</div>
+                  <div className="font-mono break-words text-[#4A545D] dark:text-slate-300">{(n.raw_cells || []).join(' | ')}</div>
                   <div className="text-[#8B97A3]">Last seen on portal {when(n.last_seen_at)}</div>
                 </div>
               )}
@@ -498,14 +498,14 @@ const ReportsTab: React.FC<{ whatsappOk: boolean; onChange: () => void }> = ({ w
   };
 
   if (err) return <Notice kind="error">{err}</Notice>;
-  if (!data) return <div className="text-xs text-[#5D646C] flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>;
+  if (!data) return <div className="text-xs text-[#5D646C] dark:text-slate-400 flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>;
   return (
     <div className="space-y-4 min-w-0">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        <div className={`${card} p-3`}><span className={label}>Period</span><p className="text-base font-display font-bold text-[#1A2F46]">{data.period}</p></div>
+        <div className={`${card} p-3`}><span className={label}>Period</span><p className="text-base font-display font-bold text-[#1A2F46] dark:text-slate-100">{data.period}</p></div>
         <div className={`${card} p-3`}><span className={`${label} text-emerald-700`}>Received</span><p className="text-base font-display font-bold text-emerald-700">{data.received_count}</p></div>
         <div className={`${card} p-3`}><span className={`${label} text-[#C64200]`}>Pending</span><p className="text-base font-display font-bold text-[#C64200]">{data.pending_count}</p><span className="text-[10px] text-[#8B97A3]">{withPhone} have a WhatsApp number</span></div>
-        <div className={`${card} p-3`}><span className={label}>Unknown numbers</span><p className="text-base font-display font-bold text-[#1A2F46]">{data.unmatched?.length || 0}</p><span className="text-[10px] text-[#8B97A3]">Files to assign</span></div>
+        <div className={`${card} p-3`}><span className={label}>Unknown numbers</span><p className="text-base font-display font-bold text-[#1A2F46] dark:text-slate-100">{data.unmatched?.length || 0}</p><span className="text-[10px] text-[#8B97A3]">Files to assign</span></div>
       </div>
       {!whatsappOk && <Notice kind="warn">WhatsApp is not connected, so reminders can't be sent. Connect it in Compliance Hub → WhatsApp.</Notice>}
       {result?.error && <Notice kind="error" onClose={() => setResult(null)}>{result.error}</Notice>}
@@ -516,9 +516,9 @@ const ReportsTab: React.FC<{ whatsappOk: boolean; onChange: () => void }> = ({ w
         </Notice>
       )}
 
-      <div className="flex gap-2 border-b border-[#C5CBD2] pb-1 overflow-x-auto">
+      <div className="flex gap-2 border-b border-[#C5CBD2] dark:border-slate-800 pb-1 overflow-x-auto">
         {([['pending', `Not received (${data.pending_count})`], ['received', `Received (${data.received_count})`], ['unmatched', `Unknown numbers (${data.unmatched?.length || 0})`]] as const).map(([k, l]) => (
-          <button key={k} onClick={() => setView(k)} className={`px-3 py-1.5 text-xs font-semibold rounded-[3px] whitespace-nowrap ${view === k ? 'bg-[#1A2F46] text-white' : 'text-[#5D646C] hover:bg-[#ECE9E3]'}`}>{l}</button>))}
+          <button key={k} onClick={() => setView(k)} className={`px-3 py-1.5 text-xs font-semibold rounded-[3px] whitespace-nowrap ${view === k ? 'bg-[#1A2F46] text-white' : 'text-[#5D646C] dark:text-slate-400 hover:bg-[#ECE9E3] dark:bg-[#1A253A]'}`}>{l}</button>))}
       </div>
 
       {view === 'pending' && (
@@ -532,26 +532,26 @@ const ReportsTab: React.FC<{ whatsappOk: boolean; onChange: () => void }> = ({ w
               <button disabled={!whatsappOk || busy || withPhone === 0} onClick={() => { if (window.confirm(`Send the WhatsApp reminder to all ${withPhone} pending clients with a number?`)) send((data.pending || []).filter((p: any) => p.has_valid_phone).map((p: any) => p.customer_id)); }} className="btn-signal px-3 py-1.5 text-xs font-semibold rounded-[3px] disabled:opacity-50 whitespace-nowrap">Remind all pending</button>
             </div>
           </div>
-          <ul className="divide-y divide-[#ECE9E3] max-h-[480px] overflow-y-auto">
+          <ul className="divide-y divide-[#ECE9E3] dark:divide-slate-800 max-h-[480px] overflow-y-auto">
             {pending.slice(0, 300).map((p: any) => (
               <li key={p.customer_id} className="py-2 flex items-center gap-3 min-w-0 text-xs">
                 <input type="checkbox" disabled={!p.has_valid_phone} checked={selected.has(p.customer_id)} onChange={() => toggle(p.customer_id)} className="accent-[#E65909] shrink-0" aria-label={`Select ${p.client_name}`} />
-                <div className="min-w-0 flex-1"><div className="font-semibold text-[#171E25] truncate">{p.client_name}</div><div className="text-[10px] text-[#5D646C] truncate">{p.phone || 'No phone'}{p.has_valid_phone ? '' : p.phone ? ' (not a valid mobile)' : ''}</div></div>
-                <span className="text-[10px] text-[#5D646C] text-right shrink-0">{p.reminder_sent ? `Reminded ${p.last_reminder_at}` : 'Not reminded'}</span>
+                <div className="min-w-0 flex-1"><div className="font-semibold text-[#171E25] dark:text-slate-200 truncate">{p.client_name}</div><div className="text-[10px] text-[#5D646C] dark:text-slate-400 truncate">{p.phone || 'No phone'}{p.has_valid_phone ? '' : p.phone ? ' (not a valid mobile)' : ''}</div></div>
+                <span className="text-[10px] text-[#5D646C] dark:text-slate-400 text-right shrink-0">{p.reminder_sent ? `Reminded ${p.last_reminder_at}` : 'Not reminded'}</span>
               </li>))}
           </ul>
-          {pending.length > 300 && <p className="text-[11px] text-[#5D646C] mt-2">Showing 300 of {pending.length}. Use the filter to narrow down.</p>}
+          {pending.length > 300 && <p className="text-[11px] text-[#5D646C] dark:text-slate-400 mt-2">Showing 300 of {pending.length}. Use the filter to narrow down.</p>}
         </div>
       )}
 
       {view === 'received' && (
         <div className={`${card} p-4 min-w-0`}>
-          {data.received.length === 0 && <p className="text-xs text-[#5D646C] text-center py-6">No files received this period yet.</p>}
-          <ul className="divide-y divide-[#ECE9E3]">
+          {data.received.length === 0 && <p className="text-xs text-[#5D646C] dark:text-slate-400 text-center py-6">No files received this period yet.</p>}
+          <ul className="divide-y divide-[#ECE9E3] dark:divide-slate-800">
             {data.received.map((r: any) => (
               <li key={r.customer_id} className="py-2 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-xs min-w-0">
-                <span className="font-semibold text-[#171E25] truncate sm:w-1/3">{r.client_name}</span>
-                <span className="truncate text-[#4A545D] flex-1">{r.file_name} · {r.received_at}</span>
+                <span className="font-semibold text-[#171E25] dark:text-slate-200 truncate sm:w-1/3">{r.client_name}</span>
+                <span className="truncate text-[#4A545D] dark:text-slate-300 flex-1">{r.file_name} · {r.received_at}</span>
                 <span className={`text-[10px] font-semibold shrink-0 ${r.saved_to_desktop ? 'text-emerald-700' : 'text-amber-700'}`}>{r.saved_to_desktop ? 'Saved to Mac Desktop' : 'Waiting for Mac agent to save'}</span>
               </li>))}
           </ul>
@@ -560,13 +560,13 @@ const ReportsTab: React.FC<{ whatsappOk: boolean; onChange: () => void }> = ({ w
 
       {view === 'unmatched' && (
         <div className={`${card} p-4 min-w-0`}>
-          <p className="text-[11px] text-[#5D646C] mb-2">Files from numbers not in the Client Master. They are not counted as received until you assign them.</p>
-          {(data.unmatched || []).length === 0 && <p className="text-xs text-[#5D646C] text-center py-6">None.</p>}
-          <ul className="divide-y divide-[#ECE9E3]">
+          <p className="text-[11px] text-[#5D646C] dark:text-slate-400 mb-2">Files from numbers not in the Client Master. They are not counted as received until you assign them.</p>
+          {(data.unmatched || []).length === 0 && <p className="text-xs text-[#5D646C] dark:text-slate-400 text-center py-6">None.</p>}
+          <ul className="divide-y divide-[#ECE9E3] dark:divide-slate-800">
             {(data.unmatched || []).map((u: any) => (
               <li key={u.submission_id} className="py-2 text-xs min-w-0">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                  <span className="font-mono">{u.phone || 'Unknown'}</span><span className="text-[#5D646C] truncate flex-1">{u.sender_name} · {u.file_name} · {u.received_at}</span>
+                  <span className="font-mono">{u.phone || 'Unknown'}</span><span className="text-[#5D646C] dark:text-slate-400 truncate flex-1">{u.sender_name} · {u.file_name} · {u.received_at}</span>
                   <button onClick={() => setAssignFor(assignFor === u.submission_id ? null : u.submission_id)} className="text-[11px] font-semibold text-[#C64200] text-left">Assign to client</button>
                 </div>
                 {assignFor === u.submission_id && (
@@ -595,16 +595,16 @@ const SetupTab: React.FC<{ overview: any }> = ({ overview }) => {
   ];
   return (
     <div className={`${card} p-4 space-y-3`}>
-      <h3 className="text-sm font-display font-bold text-[#1A2F46] flex items-center gap-2"><Users2 className="w-4 h-4 text-[#E65909]" /> Setup checklist</h3>
+      <h3 className="text-sm font-display font-bold text-[#1A2F46] dark:text-slate-100 flex items-center gap-2"><Users2 className="w-4 h-4 text-[#E65909]" /> Setup checklist</h3>
       <ol className="space-y-2">
         {steps.map((s, i) => (
-          <li key={i} className="flex gap-3 items-start border border-[#ECE9E3] rounded-[3px] p-3">
+          <li key={i} className="flex gap-3 items-start border border-[#ECE9E3] dark:border-slate-800 rounded-[3px] p-3">
             {s.ok ? <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" /> : <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />}
-            <div className="min-w-0"><div className="text-xs font-bold text-[#1A2F46]">{i + 1}. {s.title} <span className={`ml-1 text-[10px] ${s.ok ? 'text-emerald-700' : 'text-rose-700'}`}>{s.ok ? 'Done' : 'Not done'}</span></div>
-              <p className="text-[11px] text-[#4A545D] mt-0.5 break-words">{s.body}</p></div>
+            <div className="min-w-0"><div className="text-xs font-bold text-[#1A2F46] dark:text-slate-100">{i + 1}. {s.title} <span className={`ml-1 text-[10px] ${s.ok ? 'text-emerald-700' : 'text-rose-700'}`}>{s.ok ? 'Done' : 'Not done'}</span></div>
+              <p className="text-[11px] text-[#4A545D] dark:text-slate-300 mt-0.5 break-words">{s.body}</p></div>
           </li>))}
       </ol>
-      <p className="text-[11px] text-[#5D646C]">Ticks come from live checks, not from saved settings.</p>
+      <p className="text-[11px] text-[#5D646C] dark:text-slate-400">Ticks come from live checks, not from saved settings.</p>
     </div>
   );
 };
